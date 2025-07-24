@@ -5,5 +5,5 @@ class CollapsiGame(val currentGame: GameState) {
 
     val futureStates: List<GameState> = listOf()
 
-    var simulationSpeed = 0
+    var gameSpeed = 0
 }
