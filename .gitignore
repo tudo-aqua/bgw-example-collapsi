@@ -2,3 +2,4 @@
 /.idea/
 /.gradle/
 /public/
+*.asta.lock

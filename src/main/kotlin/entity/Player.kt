@@ -1,7 +1,14 @@
 package entity
 
-class Player(val color: PlayerColor, val type: PlayerType) {
+class Player(
+    val color: PlayerColor,
+    val type: PlayerType
+) {
     var remainingMoves = 0
 
-    val visited : MutableList<PlayTile> = mutableListOf()
+    val visitedTiles: MutableList<Tile> = mutableListOf()
+
+    fun clone(): Player {
+        TODO()
+    }
 }

@@ -1,9 +1,11 @@
 package entity
 
-class CollapsiGame(val currentGame: GameState) {
-    val pastStates: List<GameState> = listOf()
+class CollapsiGame(
+    val currentGame: GameState
+) {
+    val redoStack: List<GameState> = listOf()
 
-    val futureStates: List<GameState> = listOf()
+    val undoStack: List<GameState> = listOf()
 
-    var gameSpeed = 0
+    var simulationSpeed = 0
 }

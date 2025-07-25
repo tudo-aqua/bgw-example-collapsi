@@ -2,7 +2,10 @@ package entity
 
 import kotlin.math.*
 
-data class Coordinate(val x: Int, val y: Int) {
+data class Coordinate(
+    val x: Int,
+    val y: Int
+) {
     /**
      * Returns the sum of this coordinate and another.
      *
