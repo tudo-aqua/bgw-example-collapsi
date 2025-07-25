@@ -74,9 +74,35 @@ data class Coordinate(
     }
 
     /**
-     * Companion object for useful shortcuts.
+     * Companion object for useful shortcuts and helper-functions.
      */
     companion object {
+        /**
+         * Adds two coordinates with wrapping in all directions.
+         *
+         * @param a The first coordinate.
+         * @param b The second coordinate.
+         * @param max The maximum value for wrapping.
+         * @return A new coordinate with each component wrapped by [max].
+         */
+        fun addRepeating(a: Coordinate, b: Coordinate, max: Int) = Coordinate(
+            (a.x + b.x).mod(max),
+            (a.y + b.y).mod(max)
+        )
+
+        /**
+         * Subtracts two coordinates with wrapping in all directions.
+         *
+         * @param a The first coordinate.
+         * @param b The second coordinate.
+         * @param max The maximum value for wrapping.
+         * @return A new coordinate with each component wrapped by [max].
+         */
+        fun subtractRepeating(a: Coordinate, b: Coordinate, max: Int) = Coordinate(
+            (a.x - b.x).mod(max),
+            (a.y - b.y).mod(max)
+        )
+
         /** The coordinate at the origin (0, 0). */
         val zero = Coordinate(0, 0)
 
