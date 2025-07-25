@@ -7,6 +7,14 @@ data class Coordinate(
     val y: Int
 ) {
     /**
+     * Returns this coordinate, wrapped to stay within the bounds of the play area. Works for negative values.
+     *
+     * @param wrap The size of the play area for wrapping.
+     * @return A new coordinate where 0 <= (x, y) < [wrap].
+     */
+    fun wrap(wrap: Int): Coordinate = Coordinate(x.mod(wrap), y.mod(wrap))
+
+    /**
      * Returns the sum of this coordinate and another.
      *
      * @param other The coordinate to add.
@@ -69,32 +77,6 @@ data class Coordinate(
      */
     companion object {
         /**
-         * Adds two coordinates with wrapping in all directions.
-         *
-         * @param a The first coordinate.
-         * @param b The second coordinate.
-         * @param wrap The size of the play area for wrapping.
-         * @return A new coordinate with each component wrapped by [wrap].
-         */
-        fun addRepeating(a: Coordinate, b: Coordinate, wrap: Int) = Coordinate(
-            (a.x + b.x).mod(wrap),
-            (a.y + b.y).mod(wrap)
-        )
-
-        /**
-         * Subtracts two coordinates with wrapping in all directions.
-         *
-         * @param a The first coordinate.
-         * @param b The second coordinate.
-         * @param wrap The size of the play area for wrapping.
-         * @return A new coordinate with each component wrapped by [wrap].
-         */
-        fun subtractRepeating(a: Coordinate, b: Coordinate, wrap: Int) = Coordinate(
-            (a.x - b.x).mod(wrap),
-            (a.y - b.y).mod(wrap)
-        )
-
-        /**
          * Checks if two coordinates are adjacent while considering wrapping.
          *
          * @param a The first coordinate.
@@ -104,7 +86,7 @@ data class Coordinate(
          */
         fun isAdjacent(a: Coordinate, b: Coordinate, wrap: Int): Boolean {
             return adjacent.any {
-                addRepeating(a, it, wrap) == b
+                (a + it).wrap(wrap) == b
             }
         }
 
