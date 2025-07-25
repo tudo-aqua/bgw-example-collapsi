@@ -52,26 +52,17 @@ data class Coordinate(
      */
     fun magnitude(): Int = abs(x) + abs(y)
 
-    /**
-     * Determines if another object is equal to this coordinate.
-     *
-     * @param other The object to compare with.
-     * @return `true` if [other] is a [Coordinate] with matching values.
-     */
     override fun equals(other: Any?): Boolean {
         return other is Coordinate && x == other.x && y == other.y
     }
 
-    /**
-     * Computes a hash code for this coordinate.
-     *
-     * @return The hash code derived from [x] and [y].
-     */
     override fun hashCode(): Int {
         var result = x
         result = 31 * result + y
         return result
     }
+
+    override fun toString(): String = "($x, $y)"
 
     /**
      * Companion object for useful shortcuts and helper-functions.
@@ -82,12 +73,12 @@ data class Coordinate(
          *
          * @param a The first coordinate.
          * @param b The second coordinate.
-         * @param max The maximum value for wrapping.
-         * @return A new coordinate with each component wrapped by [max].
+         * @param wrap The size of the play area for wrapping.
+         * @return A new coordinate with each component wrapped by [wrap].
          */
-        fun addRepeating(a: Coordinate, b: Coordinate, max: Int) = Coordinate(
-            (a.x + b.x).mod(max),
-            (a.y + b.y).mod(max)
+        fun addRepeating(a: Coordinate, b: Coordinate, wrap: Int) = Coordinate(
+            (a.x + b.x).mod(wrap),
+            (a.y + b.y).mod(wrap)
         )
 
         /**
@@ -95,13 +86,27 @@ data class Coordinate(
          *
          * @param a The first coordinate.
          * @param b The second coordinate.
-         * @param max The maximum value for wrapping.
-         * @return A new coordinate with each component wrapped by [max].
+         * @param wrap The size of the play area for wrapping.
+         * @return A new coordinate with each component wrapped by [wrap].
          */
-        fun subtractRepeating(a: Coordinate, b: Coordinate, max: Int) = Coordinate(
-            (a.x - b.x).mod(max),
-            (a.y - b.y).mod(max)
+        fun subtractRepeating(a: Coordinate, b: Coordinate, wrap: Int) = Coordinate(
+            (a.x - b.x).mod(wrap),
+            (a.y - b.y).mod(wrap)
         )
+
+        /**
+         * Checks if two coordinates are adjacent while considering wrapping.
+         *
+         * @param a The first coordinate.
+         * @param b The second coordinate.
+         * @param wrap The size of the play area for wrapping.
+         * @return True if [a] and [b] are adjacent.
+         */
+        fun isAdjacent(a: Coordinate, b: Coordinate, wrap: Int): Boolean {
+            return adjacent.any {
+                addRepeating(a, it, wrap) == b
+            }
+        }
 
         /** The coordinate at the origin (0, 0). */
         val zero = Coordinate(0, 0)
@@ -117,5 +122,8 @@ data class Coordinate(
 
         /** Represents one unit downward (0, -1). */
         val down = Coordinate(0, -1)
+
+        /** A set of coordinates in each direction. */
+        val adjacent = setOf(right, left, up, down)
     }
 }

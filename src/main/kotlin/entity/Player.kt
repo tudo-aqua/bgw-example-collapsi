@@ -2,7 +2,8 @@ package entity
 
 class Player(
     val color: PlayerColor,
-    val type: PlayerType
+    val type: PlayerType,
+    var position: Coordinate
 ) {
     var remainingMoves = 0
 

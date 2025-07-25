@@ -2,7 +2,7 @@ package service
 
 import entity.*
 
-class PlayerActionService(root: RootService) : AbstractRefreshingService() {
+class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
     fun startNewGame(playerTypes: List<PlayerType>, boardSize: Int) {
         TODO()
     }
