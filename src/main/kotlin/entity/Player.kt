@@ -1,6 +1,6 @@
 package entity
 
-class Player(
+data class Player(
     val color: PlayerColor,
     val type: PlayerType,
     var position: Coordinate

@@ -14,18 +14,18 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         if (gameState.currentPlayer.remainingMoves <= 0)
             return false
 
-        val destinationTile = checkNotNull(gameState.playArea[destination])
+        val destinationTile = checkNotNull(gameState.board[destination])
         { "Tile $destination does not exist in the current game." }
 
         // Check if the given position is adjacent to the player's position.
-        val isAdjacent = Coordinate.isAdjacent(gameState.currentPlayer.position, destination, gameState.playAreaSize)
+        val isAdjacent = Coordinate.isAdjacent(gameState.currentPlayer.position, destination, gameState.boardSize)
 
         val endsOnPlayer = gameState.currentPlayer.remainingMoves == 1
                 && gameState.players.any { it.position == destinationTile.position }
 
         // Todo: Technically, there is a situation where the player has >= 2 remaining moves and can move onto an
         // Todo: occupied tile, although all future tiles are blocked. This should be prevented.
-        // Todo: With 4 players, this would likely require a recursive algorithm.
+        // Todo: With up to 4 players, this would likely require a recursive algorithm.
 
         return !destinationTile.collapsed && !destinationTile.visited && isAdjacent && !endsOnPlayer
     }

@@ -1,6 +1,6 @@
 package entity
 
-class CollapsiGame(
+data class CollapsiGame(
     val currentGame: GameState
 ) {
     val redoStack: List<GameState> = listOf()
