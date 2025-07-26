@@ -1,7 +1,7 @@
 package entity
 
 data class Tile(
-    val position: Coordinate,
+    val position: Vector,
     val movesToMake: Int,
     val startTileColor: PlayerColor?
 ) {

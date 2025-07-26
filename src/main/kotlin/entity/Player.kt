@@ -3,7 +3,7 @@ package entity
 data class Player(
     val color: PlayerColor,
     val type: PlayerType,
-    var position: Coordinate
+    var position: Vector
 ) {
     var remainingMoves = 0
 

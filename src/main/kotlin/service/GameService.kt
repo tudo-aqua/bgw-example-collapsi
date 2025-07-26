@@ -8,10 +8,10 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         require(boardSize >= 4 && boardSize <= 6) { "Invalid Board Size" }
         /// Todo: Add requires for board size by player count. (I forgot the rules, so it's on you, Alex)
 
-        val board = mutableMapOf<Coordinate, Tile>()
+        val board = mutableMapOf<Vector, Tile>()
 
         // Generate a shuffled list of all positions in the board where a tile will be.
-        val unassignedPositions = MutableList(boardSize * boardSize) { Coordinate(it % boardSize, it / boardSize) }
+        val unassignedPositions = MutableList(boardSize * boardSize) { Vector(it % boardSize, it / boardSize) }
         unassignedPositions.shuffle()
 
         // Initialize player starting tiles.

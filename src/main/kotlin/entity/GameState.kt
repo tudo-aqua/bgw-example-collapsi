@@ -9,7 +9,7 @@ package entity
  */
 data class GameState(
     val players: List<Player>,
-    val board: Map<Coordinate, Tile>,
+    val board: Map<Vector, Tile>,
     val boardSize: Int
 ) {
     var currentPlayerIndex = 0

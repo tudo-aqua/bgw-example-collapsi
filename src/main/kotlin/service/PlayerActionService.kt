@@ -3,11 +3,11 @@ package service
 import entity.*
 
 class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
-    fun move(position: Coordinate) {
+    fun move(position: Vector) {
         TODO()
     }
 
-    fun canMoveTo(destination: Coordinate): Boolean {
+    fun canMoveTo(destination: Vector): Boolean {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
 
@@ -18,7 +18,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         { "Tile $destination does not exist in the current game." }
 
         // Check if the given position is adjacent to the player's position.
-        val isAdjacent = Coordinate.isAdjacent(gameState.currentPlayer.position, destination, gameState.boardSize)
+        val isAdjacent = Vector.isAdjacent(gameState.currentPlayer.position, destination, gameState.boardSize)
 
         val endsOnPlayer = gameState.currentPlayer.remainingMoves == 1
                 && gameState.players.any { it.position == destinationTile.position }
