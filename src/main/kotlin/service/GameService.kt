@@ -53,6 +53,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         for ((i, type) in playerTypes.withIndex()) {
             players.add(Player(PlayerColor.values()[i], type, playerTiles[i].position))
         }
+        players.shuffle()
 
         // Create and assign root entity objects.
         val gameState = GameState(players, board, boardSize)
@@ -62,11 +63,33 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
 
     fun endTurn() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val gameState = game.currentGame
+        val player = gameState.currentPlayer
+        val currentTile = gameState.getTileAt(player.position)
+
+        check(player.remainingMoves <= 0) { "A player ended their turn with ${player.remainingMoves} steps left." }
+
+        player.visitedTiles.clear()
+        player.remainingMoves = currentTile.movesToMake
+
+        gameState.nextPlayer()
 
         // Replace the most recent state in the undo stack to be at the start of the next player's turn instead.
-        game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
+        if (game.undoStack.isNotEmpty())
+            game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
 
-        TODO()
+        // Declare a winner.
+        if (gameState.players.count { it.alive } <= 1) {
+            root.gameService.endGame()
+
+            return
+        }
+
+        // Collapse the tile if the player has nowhere to move at the start of their turn.
+        if (!root.playerActionService.canMoveAnywhere()) {
+            player.alive = false
+            gameState.getTileAt(player.position).collapsed = true
+        }
     }
 
     fun endGame() {

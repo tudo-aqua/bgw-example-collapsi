@@ -3,36 +3,67 @@ package service
 import entity.*
 
 class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
-    fun move(position: Vector) {
+    fun moveTo(destination: Vector) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val gameState = game.currentGame
+        val player = gameState.currentPlayer
+
+        check(canMoveTo(destination)) { "Tried to perform an illegal move to $destination." }
+
+        val nextTile = gameState.getTileAt(destination)
+        val previousTile = gameState.getTileAt(player.position)
 
         game.redoStack.clear()
         game.undoStack.add(game.currentGame.clone())
 
-        TODO()
+        // Collapse the previous tile if this was the player's first step.
+        if (player.visitedTiles.isEmpty()) {
+            previousTile.collapsed = true
+        }
+
+        previousTile.visited = true
+        player.visitedTiles.add(previousTile)
+
+        player.position = destination
+        player.remainingMoves--
+
+        // Collapse the tile if the player has nowhere to move.
+        if (!canMoveAnywhere()) {
+            player.alive = false
+            nextTile.collapsed = true
+
+            root.gameService.endTurn()
+
+            return
+        }
+
+        if (player.remainingMoves <= 0) {
+            root.gameService.endTurn()
+        }
     }
 
     fun canMoveTo(destination: Vector): Boolean {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
+        val player = gameState.currentPlayer
 
-        if (gameState.currentPlayer.remainingMoves <= 0)
+        if (player.remainingMoves <= 0 || !player.alive)
             return false
 
-        val destinationTile = checkNotNull(gameState.board[destination])
-        { "Tile $destination does not exist in the current game." }
+        val tile = gameState.getTileAt(destination)
+        val previousPosition = checkNotNull(player.position) { "An alive player has no position." }
 
         // Check if the given position is adjacent to the player's position.
-        val isAdjacent = Vector.isAdjacent(gameState.currentPlayer.position, destination, gameState.boardSize)
+        val isAdjacent = Vector.isAdjacent(previousPosition, destination, gameState.boardSize)
 
-        val endsOnPlayer = gameState.currentPlayer.remainingMoves == 1
-                && gameState.players.any { it.position == destinationTile.position }
+        val endsOnPlayer = player.remainingMoves == 1
+                && gameState.players.any { it.position == tile.position }
 
         // Todo: Technically, there is a situation where the player has >= 2 remaining moves and can move onto an
         // Todo: occupied tile, although all future tiles are blocked. This should be prevented.
         // Todo: With up to 4 players, this would likely require a recursive algorithm.
 
-        return !destinationTile.collapsed && !destinationTile.visited && isAdjacent && !endsOnPlayer
+        return !tile.collapsed && !tile.visited && isAdjacent && !endsOnPlayer
     }
 
     fun canMoveAnywhere(): Boolean {

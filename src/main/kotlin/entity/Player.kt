@@ -9,6 +9,8 @@ data class Player(
 
     val visitedTiles: MutableList<Tile> = mutableListOf()
 
+    var alive = true
+
     fun clone(): Player {
         TODO()
     }

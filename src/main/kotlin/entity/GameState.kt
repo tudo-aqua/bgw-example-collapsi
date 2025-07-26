@@ -1,5 +1,7 @@
 package entity
 
+import kotlin.collections.get
+
 /**
  * Entity class that represents a game state of "Collapsi".
  *
@@ -17,7 +19,11 @@ data class GameState(
 
     val currentPlayer get() = players[currentPlayerIndex]
 
+    fun getTileAt(position: Vector): Tile =
+        checkNotNull(board[position]) { "Tile at $position does not exist in this GameState." }
+
     fun nextPlayer() {
+        // Todo: Account for dead players.
         currentPlayerIndex = (currentPlayerIndex + 1) % players.size
     }
 
