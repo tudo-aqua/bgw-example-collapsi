@@ -4,6 +4,11 @@ import entity.*
 
 class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
     fun move(position: Vector) {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        game.redoStack.clear()
+        game.undoStack.add(game.currentGame.clone())
+        
         TODO()
     }
 
@@ -31,10 +36,18 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
     }
 
     fun undo() {
-        TODO()
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        require(game.undoStack.isNotEmpty()) { "Can't undo, because there are no past states." }
+
+        game.redoStack.add(game.currentGame)
+        game.currentGame = game.undoStack.removeLast()
     }
 
     fun redo() {
-        TODO()
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        require(game.redoStack.isNotEmpty()) { "Can't redo, because there are no future states." }
+
+        game.undoStack.add(game.currentGame)
+        game.currentGame = game.redoStack.removeLast()
     }
 }

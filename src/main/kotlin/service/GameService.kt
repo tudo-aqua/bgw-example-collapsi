@@ -4,6 +4,7 @@ import entity.*
 
 class GameService(val root: RootService) : AbstractRefreshingService() {
     fun startNewGame(playerTypes: List<PlayerType>, boardSize: Int) {
+        check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
         require(boardSize >= 4 && boardSize <= 6) { "Invalid Board Size" }
         /// Todo: Add requires for board size by player count. (I forgot the rules, so it's on you, Alex)
@@ -60,18 +61,31 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
     }
 
     fun endTurn() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        // Replace the most recent state in the undo stack to be at the start of the next player's turn instead.
+        game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
+
         TODO()
     }
 
     fun endGame() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        root.currentGame = null
+
         TODO()
     }
 
     fun save() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
         TODO()
     }
 
     fun load() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
         TODO()
     }
 }
