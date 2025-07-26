@@ -8,7 +8,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
 
         game.redoStack.clear()
         game.undoStack.add(game.currentGame.clone())
-        
+
         TODO()
     }
 
@@ -33,6 +33,14 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         // Todo: With up to 4 players, this would likely require a recursive algorithm.
 
         return !destinationTile.collapsed && !destinationTile.visited && isAdjacent && !endsOnPlayer
+    }
+
+    fun canMoveAnywhere(): Boolean {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val boardSize = game.currentGame.boardSize
+        val position = game.currentGame.currentPlayer.position
+
+        return Vector.adjacent.any { direction -> canMoveTo((position + direction).wrap(boardSize)) }
     }
 
     fun undo() {
