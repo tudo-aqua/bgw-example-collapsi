@@ -6,7 +6,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
     fun startNewGame(playerTypes: List<PlayerType>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
-        require(boardSize >= 4 && boardSize <= 6) { "Invalid Board Size" }
+        require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
         /// Todo: Add requires for board size by player count. (I forgot the rules, so it's on you, Alex)
 
         val board = mutableMapOf<Vector, Tile>()
@@ -69,6 +69,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
 
         check(player.remainingMoves <= 0) { "A player ended their turn with ${player.remainingMoves} steps left." }
 
+        player.visitedTiles.forEach { it.visited = false }
         player.visitedTiles.clear()
         player.remainingMoves = currentTile.movesToMake
 
@@ -89,6 +90,8 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         if (!root.playerActionService.canMoveAnywhere()) {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
+
+            endTurn()
         }
     }
 

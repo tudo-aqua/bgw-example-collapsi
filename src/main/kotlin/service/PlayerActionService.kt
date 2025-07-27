@@ -51,10 +51,9 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
             return false
 
         val tile = gameState.getTileAt(destination)
-        val previousPosition = checkNotNull(player.position) { "An alive player has no position." }
 
         // Check if the given position is adjacent to the player's position.
-        val isAdjacent = Vector.isAdjacent(previousPosition, destination, gameState.boardSize)
+        val isAdjacent = Vector.isAdjacent(player.position, destination, gameState.boardSize)
 
         val endsOnPlayer = player.remainingMoves == 1
                 && gameState.players.any { it.position == tile.position }
