@@ -2,6 +2,11 @@ package service
 
 import entity.*
 
+/**
+ * Service class that manages all player actions in the Collapsi game.
+ *
+ * @param root The root service that provides access to the overall game state.
+ */
 class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
     fun moveTo(destination: Vector) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }

@@ -2,12 +2,17 @@ package service
 
 import entity.*
 
+/**
+ * Service class that manages al game-related operations in the Collapsi game.
+ *
+ * @param root The root service that provides access to the overall game state.
+ */
 class GameService(val root: RootService) : AbstractRefreshingService() {
     fun startNewGame(playerTypes: List<PlayerType>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
         require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
-        /// Todo: Add requires for board size by player count. (I forgot the rules, so it's on you, Alex)
+        require(boardSize >= playerTypes.size + 2) { "Three Players -> BoardSize >= 5x5 | Four Players -> BoardSize == 6x6" }
 
         val board = mutableMapOf<Vector, Tile>()
 

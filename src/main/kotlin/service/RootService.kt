@@ -4,7 +4,7 @@ import entity.CollapsiGame
 import service.bot.BotService
 
 /**
- * Main class of the service layer for the War card game. Provides access
+ * Main class of the service layer for the Collapsi game. Provides access
  * to all other service classes and holds the [currentGame] state for these
  * services to access.
  */

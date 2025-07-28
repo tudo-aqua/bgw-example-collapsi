@@ -1,5 +1,13 @@
 package entity
 
+/**
+ * Entity class that represents the Collapsi game handling stacks of [GameState]s and the current simulation speed.
+ *
+ * @property currentGame The current [GameState] of the running game.
+ * @property undoStack A stack of past [GameState]s for undo operations.
+ * @property redoStack A stack of future [GameState]s for redo operations.
+ * @property simulationSpeed The speed of the game simulation, where 0 is paused.
+ */
 data class CollapsiGame(
     var currentGame: GameState
 ) {

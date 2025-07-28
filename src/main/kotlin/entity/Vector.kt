@@ -2,6 +2,12 @@ package entity
 
 import kotlin.math.*
 
+/**
+ * Entity class that represents a two-dimensional vector with integer coordinates.
+ *
+ * @property x The x-coordinate of the vector.
+ * @property y The y-coordinate of the vector.
+ */
 data class Vector(
     val x: Int,
     val y: Int
@@ -64,12 +70,18 @@ data class Vector(
         return other is Vector && x == other.x && y == other.y
     }
 
+    /**
+     * TODO: KDoc
+     */
     override fun hashCode(): Int {
         var result = x
         result = 31 * result + y
         return result
     }
 
+    /**
+     * TODO:KDoc
+     */
     override fun toString(): String = "($x, $y)"
 
     /**
