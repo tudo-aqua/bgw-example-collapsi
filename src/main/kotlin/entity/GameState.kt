@@ -29,6 +29,8 @@ data class GameState(
     fun getTileAt(position: Coordinate): Tile =
         checkNotNull(board[position]) { "Tile at $position does not exist in this GameState." }
 
+    fun isTileOccupied(position: Coordinate): Boolean = players.any { it.position == position }
+
     /**
      * Sets the currentPlayerIndex to the [Player] of the next turn.
      */

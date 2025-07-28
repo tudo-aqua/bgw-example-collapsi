@@ -16,7 +16,6 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         require(destination.wrap == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
         check(canMoveTo(destination)) { "Tried to perform an illegal move to $destination." }
 
-        val nextTile = gameState.getTileAt(destination)
         val previousTile = gameState.getTileAt(player.position)
 
         game.redoStack.clear()
@@ -33,16 +32,6 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         player.position = destination
         player.remainingMoves--
 
-        // Collapse the tile if the player has nowhere to move.
-        if (!canMoveAnywhere()) {
-            player.alive = false
-            nextTile.collapsed = true
-
-            root.gameService.endTurn()
-
-            return
-        }
-
         if (player.remainingMoves <= 0) {
             root.gameService.endTurn()
         }
@@ -54,8 +43,9 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         val player = gameState.currentPlayer
 
         require(destination.wrap == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
+        check(player.alive) { "Current player is not alive." }
 
-        if (player.remainingMoves <= 0 || !player.alive)
+        if (player.remainingMoves <= 0)
             return false
 
         val tile = gameState.getTileAt(destination)
@@ -63,21 +53,55 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         // Check if the given position is adjacent to the player's position.
         val isAdjacent = player.position.isAdjacentTo(destination)
 
-        val endsOnPlayer = player.remainingMoves == 1
-                && gameState.players.any { it.position == tile.position }
+        val hasValidMovesOnDestination = hasValidMove(
+            destination,
+            player.remainingMoves - 1,
+            player.visitedTiles.map { it.position }.toMutableList()
+        )
 
-        // Todo: Technically, there is a situation where the player has >= 2 remaining moves and can move onto an
-        // Todo: occupied tile, although all future tiles are blocked. This should be prevented.
-        // Todo: With up to 4 players, this would likely require a recursive algorithm.
-
-        return !tile.collapsed && !tile.visited && isAdjacent && !endsOnPlayer
+        return !tile.collapsed && !tile.visited && isAdjacent && hasValidMovesOnDestination
     }
 
-    fun canMoveAnywhere(): Boolean {
+    /**
+     * Checks whether there is any sequence of legal moves that a player can perform.
+     *
+     * @param position The current position of the player.
+     * @param remainingMoves The moves that this player still needs to make from this position.
+     * @param visitedTiles The path the player took to this position. Empty if the player starts at the specified position.
+     *
+     * @return True if there exists a path starting from [position] that makes [remainingMoves] steps and doesn't
+     * end on a player or go through a collapsed or visited tile.
+     */
+    fun hasValidMove(
+        position: Coordinate,
+        remainingMoves: Int,
+        visitedTiles: MutableList<Coordinate> = mutableListOf()
+    ): Boolean {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val position = game.currentGame.currentPlayer.position
+        val gameState = game.currentGame
+        val tile = gameState.getTileAt(position)
 
-        return position.neighbours.any { canMoveTo(it) }
+        // Not a valid position if the tile is collapsed, or it ends on an occupied tile.
+        if (tile.collapsed || (remainingMoves == 0 && gameState.isTileOccupied(position) && visitedTiles.isNotEmpty()))
+            return false
+
+        // Valid position if the path ends on a non-collapsed, non-occupied tile.
+        if (remainingMoves <= 0)
+            return true
+
+        visitedTiles.add(position)
+
+        for (destination in position.neighbours) {
+            if (visitedTiles.contains(destination))
+                continue
+
+            if (hasValidMove(destination, remainingMoves - 1, visitedTiles))
+                return true
+        }
+
+        visitedTiles.removeLast()
+
+        return false
     }
 
     fun undo() {

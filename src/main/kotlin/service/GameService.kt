@@ -12,7 +12,8 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
         require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
-        require(boardSize >= playerTypes.size + 2) { "Three Players -> BoardSize >= 5x5 | Four Players -> BoardSize == 6x6" }
+        require(boardSize >= playerTypes.size + 2)
+        { "Board size for ${playerTypes.size} players must be at least ${playerTypes.size - 1}" }
 
         val board = mutableMapOf<Coordinate, Tile>()
 
@@ -68,6 +69,10 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         root.currentGame = game
     }
 
+    /**
+     * Ends the current player's turn and starts the next player's turn.
+     * Called when the current player has no remaining moves to make or no legal moves as options.
+     */
     fun endTurn() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
@@ -94,7 +99,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         }
 
         // Collapse the tile if the player has nowhere to move at the start of their turn.
-        if (!root.playerActionService.canMoveAnywhere()) {
+        if (!root.playerActionService.hasValidMove(player.position, player.remainingMoves)) {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
 
