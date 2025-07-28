@@ -19,22 +19,22 @@ class PlayerTest {
         val player = Player(
             color = PlayerColor.GREEN_SQUARE,
             type = PlayerType.LOCAL,
-            position = Vector(3, 2)
+            position = Coordinate(3, 2, 4)
         )
 
         assertEquals(PlayerColor.GREEN_SQUARE, player.color)
         assertEquals(PlayerType.LOCAL, player.type)
-        assertEquals(Vector(3, 2), player.position)
+        assertEquals(Coordinate(3, 2, 4), player.position)
         assertEquals(0, player.remainingMoves)
         assertTrue(player.visitedTiles.isEmpty())
         assertTrue(player.alive)
 
-        player.position = Vector(4, 2)
+        player.position = Coordinate(4, 2, 4)
         player.remainingMoves++
-        player.visitedTiles.add(Tile(Vector(3, 2), 1, null))
+        player.visitedTiles.add(Tile(Coordinate(3, 2, 4), 1, null))
         player.alive = false
 
-        assertEquals(Vector(4, 2), player.position)
+        assertEquals(Coordinate(4, 2, 4), player.position)
         assertEquals(1, player.remainingMoves)
         assertEquals(1, player.visitedTiles.size)
         assertFalse(player.alive)

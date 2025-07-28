@@ -14,10 +14,12 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
         require(boardSize >= playerTypes.size + 2) { "Three Players -> BoardSize >= 5x5 | Four Players -> BoardSize == 6x6" }
 
-        val board = mutableMapOf<Vector, Tile>()
+        val board = mutableMapOf<Coordinate, Tile>()
 
         // Generate a shuffled list of all positions in the board where a tile will be.
-        val unassignedPositions = MutableList(boardSize * boardSize) { Vector(it % boardSize, it / boardSize) }
+        val unassignedPositions = MutableList(boardSize * boardSize) {
+            Coordinate(it % boardSize, it / boardSize, boardSize)
+        }
         unassignedPositions.shuffle()
 
         // Initialize player starting tiles.

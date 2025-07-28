@@ -8,11 +8,12 @@ import entity.*
  * @param root The root service that provides access to the overall game state.
  */
 class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
-    fun moveTo(destination: Vector) {
+    fun moveTo(destination: Coordinate) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
+        require(destination.wrap == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
         check(canMoveTo(destination)) { "Tried to perform an illegal move to $destination." }
 
         val nextTile = gameState.getTileAt(destination)
@@ -47,10 +48,12 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         }
     }
 
-    fun canMoveTo(destination: Vector): Boolean {
+    fun canMoveTo(destination: Coordinate): Boolean {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer
+
+        require(destination.wrap == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
 
         if (player.remainingMoves <= 0 || !player.alive)
             return false
@@ -58,7 +61,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         val tile = gameState.getTileAt(destination)
 
         // Check if the given position is adjacent to the player's position.
-        val isAdjacent = Vector.isAdjacent(player.position, destination, gameState.boardSize)
+        val isAdjacent = player.position.isAdjacentTo(destination)
 
         val endsOnPlayer = player.remainingMoves == 1
                 && gameState.players.any { it.position == tile.position }
@@ -72,10 +75,9 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
 
     fun canMoveAnywhere(): Boolean {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val boardSize = game.currentGame.boardSize
         val position = game.currentGame.currentPlayer.position
 
-        return Vector.adjacent.any { direction -> canMoveTo((position + direction).wrap(boardSize)) }
+        return position.neighbours.any { canMoveTo(it) }
     }
 
     fun undo() {

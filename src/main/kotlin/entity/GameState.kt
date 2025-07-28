@@ -1,7 +1,5 @@
 package entity
 
-import kotlin.collections.get
-
 /**
  * Entity class that represents a game state of "Collapsi".
  *
@@ -13,7 +11,7 @@ import kotlin.collections.get
  */
 data class GameState(
     val players: List<Player>,
-    val board: Map<Vector, Tile>,
+    val board: Map<Coordinate, Tile>,
     val boardSize: Int
 ) {
     var currentPlayerIndex = 0
@@ -28,7 +26,7 @@ data class GameState(
      * @return The [Tile] at the specified position.
      * @throws IllegalArgumentException If no [Tile] exists at the specified position.
      */
-    fun getTileAt(position: Vector): Tile =
+    fun getTileAt(position: Coordinate): Tile =
         checkNotNull(board[position]) { "Tile at $position does not exist in this GameState." }
 
     /**

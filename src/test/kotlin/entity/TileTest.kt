@@ -16,12 +16,12 @@ class TileTest {
     @Test
     fun testTileInitialization() {
         val tile = Tile(
-            position = Vector(1, 2),
+            position = Coordinate(1, 2, 4),
             movesToMake = 1,
             startTileColor = PlayerColor.GREEN_SQUARE
         )
 
-        assertEquals(Vector(1, 2), tile.position)
+        assertEquals(Coordinate(1, 2, 4), tile.position)
         assertEquals(1, tile.movesToMake)
         assertEquals(PlayerColor.GREEN_SQUARE, tile.startTileColor)
         assertFalse(tile.collapsed)
