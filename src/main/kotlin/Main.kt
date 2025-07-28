@@ -1,6 +1,6 @@
-import view.SopraApplication
+import view.CollapsiApplication
 
 fun main() {
-    SopraApplication().show()
+    CollapsiApplication().show()
     println("Application ended. Goodbye")
 }

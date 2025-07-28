@@ -2,7 +2,7 @@ package view
 
 import tools.aqua.bgw.core.BoardGameApplication
 
-class SopraApplication : BoardGameApplication("SoPra Game") {
+class CollapsiApplication : BoardGameApplication("Callapsi") {
 
    private val helloScene = HelloScene()
 
