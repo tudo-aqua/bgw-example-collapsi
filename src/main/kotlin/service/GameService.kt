@@ -27,7 +27,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         val playerTiles = mutableListOf<Tile>()
         for (i in playerTypes.indices) {
             val position = unassignedPositions.removeFirst()
-            val tile = Tile(position, 4, PlayerColor.values()[i])
+            val tile = Tile(position, 1, PlayerColor.values()[i])
             playerTiles.add(tile)
             board.put(position, tile)
         }
@@ -42,7 +42,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
             mapOf(1 to 6, 2 to 6, 3 to 6, 4 to 4),
             mapOf(1 to 8, 2 to 8, 3 to 8, 4 to 8)
         )
-        val unassignedStepValues = unassignedStepValuesByBoardSize[boardSize - 2]
+        val unassignedStepValues = unassignedStepValuesByBoardSize[boardSize - 4]
             .flatMap { (value, count) -> List(count) { value } }
 
         for (stepValue in unassignedStepValues) {
