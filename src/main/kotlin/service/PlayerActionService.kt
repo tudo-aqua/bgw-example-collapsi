@@ -13,7 +13,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
-        require(destination.wrap == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
+        require(destination.boardSize == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
         check(canMoveTo(destination)) { "Tried to perform an illegal move to $destination." }
 
         val previousTile = gameState.getTileAt(player.position)
@@ -42,7 +42,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
-        require(destination.wrap == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
+        require(destination.boardSize == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
         check(player.alive) { "Current player is not alive." }
 
         if (player.remainingMoves <= 0)

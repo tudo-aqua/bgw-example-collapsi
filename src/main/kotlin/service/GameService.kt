@@ -37,12 +37,12 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         // Maps of non-starting cards for board sizes 2, 3, and 4, mapping steps to respective card count.
         // Note: If there isn't enough space (because of too many players),
         // then the items at the back of the list are ignored.
-        val unassignedStepValuesByBoardSize = listOf(
-            mapOf(1 to 4, 2 to 4, 3 to 4, 4 to 2),
-            mapOf(1 to 6, 2 to 6, 3 to 6, 4 to 4),
-            mapOf(1 to 8, 2 to 8, 3 to 8, 4 to 8)
+        val unassignedStepValuesByBoardSize = mapOf(
+            4 to mapOf(1 to 4, 2 to 4, 3 to 4, 4 to 2),
+            5 to mapOf(1 to 6, 2 to 6, 3 to 6, 4 to 4),
+            6 to mapOf(1 to 8, 2 to 8, 3 to 8, 4 to 8)
         )
-        val unassignedStepValues = unassignedStepValuesByBoardSize[boardSize - 4]
+        val unassignedStepValues = unassignedStepValuesByBoardSize.getValue(boardSize)
             .flatMap { (value, count) -> List(count) { value } }
 
         for (stepValue in unassignedStepValues) {
