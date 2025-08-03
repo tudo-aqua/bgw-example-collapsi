@@ -15,11 +15,13 @@ data class Player(
     val type: PlayerType,
     var position: Coordinate
 ) {
-    var remainingMoves = 0
+    var remainingMoves = 1
 
     val visitedTiles: MutableList<Tile> = mutableListOf()
 
     var alive = true
+
+    val isBot get() = type == PlayerType.BOT_HARD || type == PlayerType.BOT_EASY
 
     /**
      * TODO: KDoc

@@ -54,7 +54,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
                 break
         }
 
-        assert(unassignedPositions.isEmpty()) { "Not all positions on the board were filled." }
+        check(unassignedPositions.isEmpty()) { "Not all positions on the board were filled." }
 
         // Create the Player list.
         val players = mutableListOf<Player>()
@@ -67,6 +67,10 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         val gameState = GameState(players, board, boardSize)
         val game = CollapsiGame(gameState)
         root.currentGame = game
+
+        if (gameState.currentPlayer.isBot) {
+            root.botService.makeTurn()
+        }
     }
 
     /**
@@ -76,7 +80,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
     fun endTurn() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
-        val player = gameState.currentPlayer
+        var player = gameState.currentPlayer
         val currentTile = gameState.getTileAt(player.position)
 
         check(player.remainingMoves <= 0) { "A player ended their turn with ${player.remainingMoves} steps left." }
@@ -86,6 +90,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         player.remainingMoves = currentTile.movesToMake
 
         gameState.nextPlayer()
+        player = gameState.currentPlayer
 
         // Replace the most recent state in the undo stack to be at the start of the next player's turn instead.
         if (game.undoStack.isNotEmpty())
@@ -104,6 +109,10 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
             gameState.getTileAt(player.position).collapsed = true
 
             endTurn()
+        } else {
+            if (player.isBot) {
+                root.botService.makeTurn()
+            }
         }
     }
 
