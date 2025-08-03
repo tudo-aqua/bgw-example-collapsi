@@ -6,17 +6,16 @@ package entity
  * @property players The [Player]s currently in the game.
  * @property board A map containing all [Tile]s in the game, including those that are collapsed.
  * @property boardSize Size of one axis in [board], assuming the area is quadratic.
- * @property currentPlayerIndex The index of the [Player] whose turn it is currently.
- * @property currentPlayer The [Player] whose turn it is currently.
  */
 data class GameState(
     val players: List<Player>,
     val board: Map<Coordinate, Tile>,
     val boardSize: Int
 ) {
+    /** The index of the [Player] whose turn it currently is. */
     var currentPlayerIndex = 0
-        private set
 
+    /** The [Player] whose turn it currently is. */
     val currentPlayer get() = players[currentPlayerIndex]
 
     /**
@@ -40,9 +39,20 @@ data class GameState(
     }
 
     /**
-     * TODO: KDoc
+     * Creates a deep copy of this [GameState] and returns it.
+     *
+     * Changes to the returned [GameState] will never impact this instance.
+     *
+     * @return A deep-cloned copy of this object.
      */
     fun clone(): GameState {
-        TODO()
+        val playersCopy = players.map { it.clone() }
+        val boardCopy = board.map { Pair(it.key, it.value.clone()) }.toMap()
+
+        val clone = GameState(playersCopy, boardCopy, boardSize)
+
+        clone.currentPlayerIndex = currentPlayerIndex
+
+        return clone
     }
 }

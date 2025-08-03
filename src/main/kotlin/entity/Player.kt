@@ -6,27 +6,38 @@ package entity
  * @property color The color (or playing pieces) of the player, represented by a [PlayerColor].
  * @property type The type of the player, represented by a [PlayerType].
  * @property position The current position of the player on the board, represented by a [Coordinate].
- * @property remainingMoves The number of moves the player has left to make in his current turn.
- * @property visitedTiles A list of [Tile]s that the player has visited in the current turn through moving over.
- * @property alive Indicates whether the player is still part of the game.
  */
 data class Player(
     val color: PlayerColor,
     val type: PlayerType,
     var position: Coordinate
 ) {
+    /** The number of moves the player has left to make in his current turn. */
     var remainingMoves = 1
 
-    val visitedTiles: MutableList<Tile> = mutableListOf()
+    /** A list of [Coordinate]s that the player has visited in the current turn. */
+    val visitedTiles: MutableList<Coordinate> = mutableListOf()
 
+    /** Indicates whether the player is still part of the game. */
     var alive = true
 
+    /** Whether this player is controlled by a bot of any difficulty. */
     val isBot get() = type == PlayerType.BOT_HARD || type == PlayerType.BOT_EASY
 
     /**
-     * TODO: KDoc
+     * Creates a deep copy of this [Player] and returns it.
+     *
+     * Changes to the returned [Player] will never impact this instance.
+     *
+     * @return A deep-cloned copy of this object.
      */
     fun clone(): Player {
-        TODO()
+        val clone = Player(color, type, position)
+
+        clone.remainingMoves = remainingMoves
+        clone.visitedTiles.addAll(visitedTiles)
+        clone.alive = alive
+
+        return clone
     }
 }

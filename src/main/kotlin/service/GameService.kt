@@ -85,7 +85,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
 
         check(player.remainingMoves <= 0) { "A player ended their turn with ${player.remainingMoves} steps left." }
 
-        player.visitedTiles.forEach { it.visited = false }
+        player.visitedTiles.forEach { gameState.getTileAt(it).visited = false }
         player.visitedTiles.clear()
         player.remainingMoves = currentTile.movesToMake
 

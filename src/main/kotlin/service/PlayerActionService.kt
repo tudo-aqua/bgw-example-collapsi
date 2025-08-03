@@ -27,7 +27,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         }
 
         previousTile.visited = true
-        player.visitedTiles.add(previousTile)
+        player.visitedTiles.add(player.position)
 
         player.position = destination
         player.remainingMoves--
@@ -56,7 +56,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         val hasValidMovesOnDestination = hasValidMove(
             destination,
             player.remainingMoves - 1,
-            player.visitedTiles.map { it.position }.toMutableList()
+            player.visitedTiles
         )
 
         return !tile.collapsed && !tile.visited && isAdjacent && hasValidMovesOnDestination
@@ -95,8 +95,10 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
             if (visitedTiles.contains(destination))
                 continue
 
-            if (hasValidMove(destination, remainingMoves - 1, visitedTiles))
+            if (hasValidMove(destination, remainingMoves - 1, visitedTiles)) {
+                visitedTiles.removeLast()
                 return true
+            }
         }
 
         visitedTiles.removeLast()
