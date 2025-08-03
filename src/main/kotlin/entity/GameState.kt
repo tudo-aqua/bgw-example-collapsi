@@ -31,11 +31,14 @@ data class GameState(
     fun isTileOccupied(position: Coordinate): Boolean = players.any { it.position == position }
 
     /**
-     * Sets the currentPlayerIndex to the [Player] of the next turn.
+     * Increases the [currentPlayerIndex] by one with wrapping. Does not check for whether a player is alive.
      */
     fun nextPlayer() {
-        // Todo: Account for dead players.
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+        check(players.count { it.alive } >= 1) { "nextPlayer() requires at least 1 player to be alive." }
+
+        do {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size
+        } while (!currentPlayer.alive)
     }
 
     /**

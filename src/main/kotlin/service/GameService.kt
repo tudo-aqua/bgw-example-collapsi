@@ -89,19 +89,19 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         player.visitedTiles.clear()
         player.remainingMoves = currentTile.movesToMake
 
-        gameState.nextPlayer()
-        player = gameState.currentPlayer
-
-        // Replace the most recent state in the undo stack to be at the start of the next player's turn instead.
-        if (game.undoStack.isNotEmpty())
-            game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
-
         // Declare a winner.
         if (gameState.players.count { it.alive } <= 1) {
             root.gameService.endGame()
 
             return
         }
+
+        gameState.nextPlayer()
+        player = gameState.currentPlayer
+
+        // Replace the most recent state in the undo stack to be at the start of the next player's turn instead.
+        if (game.undoStack.isNotEmpty())
+            game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
 
         // Collapse the tile if the player has nowhere to move at the start of their turn.
         if (!root.playerActionService.hasValidMove(player.position, player.remainingMoves)) {
