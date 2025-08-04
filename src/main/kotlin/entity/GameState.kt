@@ -39,7 +39,7 @@ data class GameState(
     fun isTileOccupied(position: Coordinate): Boolean = players.any { it.position == position }
 
     /**
-     * Sets the [currentPlayerIndex] to the next alive player.
+     * Sets the [currentPlayerIndex] to the next living player.
      */
     fun nextPlayer() {
         check(players.count { it.alive } >= 1) { "nextPlayer() requires at least 1 player to be alive." }

@@ -17,7 +17,7 @@ class ProtoMenu(
 
     private var gridSize = 4
 
-    private val players : List<PlayerType> = listOf(
+    private val players: List<PlayerType> = listOf(
         PlayerType.LOCAL,
         PlayerType.LOCAL
     )
@@ -80,7 +80,7 @@ class ProtoMenu(
         text = "Start Game"
     ).apply {
         onMouseClicked = {
-            rootService.gameService.startNewGame(players, gridSize)
+            rootService.gameService.startNewGame(players, players.map { 1.0 }, gridSize)
         }
     }
 

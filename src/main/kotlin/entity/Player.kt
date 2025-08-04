@@ -6,11 +6,14 @@ package entity
  * @property color The color (or playing pieces) of the player, represented by a [PlayerColor].
  * @property type The type of the player, represented by a [PlayerType].
  * @property position The current position of the player on the board, represented by a [Coordinate].
+ * @property botDifficulty The difficulty of the player if [type] is set to [PlayerType.BOT]. (Range 0-1).
+ * 0 means random moves. 1 means always make the best move the bot can find.
  */
 data class Player(
     val color: PlayerColor,
+    var position: Coordinate,
     val type: PlayerType,
-    var position: Coordinate
+    val botDifficulty: Double = 0.0
 ) {
     /** The number of moves the player has left to make in his current turn. */
     var remainingMoves = 1
@@ -29,7 +32,7 @@ data class Player(
      * @return A deep-cloned copy of this object.
      */
     fun clone(): Player {
-        val clone = Player(color, type, position)
+        val clone = Player(color, position, type, botDifficulty)
 
         clone.remainingMoves = remainingMoves
         clone.visitedTiles.addAll(visitedTiles)

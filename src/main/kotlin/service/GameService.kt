@@ -8,9 +8,11 @@ import entity.*
  * @param root The root service that provides access to the overall game state.
  */
 class GameService(val root: RootService) : AbstractRefreshingService() {
-    fun startNewGame(playerTypes: List<PlayerType>, boardSize: Int) {
+    fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Double>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
+        require(botDifficulties.size == playerTypes.size)
+        { "Difficulty needs to be defined for all players (even non-bot players)." }
         require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
         require(boardSize >= playerTypes.size + 2)
         { "Playeramount of ${playerTypes.size} requires a minimal boardsize of ${playerTypes.size + 2}." }
@@ -59,7 +61,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         // Create the Player list.
         val players = mutableListOf<Player>()
         for ((i, type) in playerTypes.withIndex()) {
-            players.add(Player(PlayerColor.values()[i], type, playerTiles[i].position))
+            players.add(Player(PlayerColor.values()[i], playerTiles[i].position, type, botDifficulties[i]))
         }
         players.shuffle()
 
