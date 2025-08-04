@@ -21,9 +21,6 @@ data class Player(
     /** Indicates whether the player is still part of the game. */
     var alive = true
 
-    /** Whether this player is controlled by a bot of any difficulty. */
-    val isBot get() = type == PlayerType.BOT_HARD || type == PlayerType.BOT_EASY
-
     /**
      * Creates a deep copy of this [Player] and returns it.
      *

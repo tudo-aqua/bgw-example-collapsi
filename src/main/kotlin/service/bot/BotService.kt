@@ -1,6 +1,7 @@
 package service.bot
 
 import entity.Coordinate
+import entity.PlayerType
 import service.*
 import kotlin.random.Random
 
@@ -16,7 +17,8 @@ class BotService(val root: RootService) {
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
-        check(player.isBot) { "Tried to make a bot move for a non-bot player." }
+        check(player.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
+        check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
 
         // Todo: The final version of the bot will only look at where it can end it's turn,
         // Todo: since the route to get there doesn't matter.
@@ -27,6 +29,8 @@ class BotService(val root: RootService) {
 
     fun makeMove() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
         val possibleMoves = getPossibleMoves()
 
         check(possibleMoves.isNotEmpty()) { "Bot did not have any valid moves." }

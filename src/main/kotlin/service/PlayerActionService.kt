@@ -53,13 +53,21 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         // Check if the given position is adjacent to the player's position.
         val isAdjacent = player.position.isAdjacentTo(destination)
 
+        val extendedVisitedTiles = player.visitedTiles.toMutableList()
+        extendedVisitedTiles.add(player.position)
         val hasValidMovesOnDestination = hasValidMove(
             destination,
             player.remainingMoves - 1,
-            player.visitedTiles
+            extendedVisitedTiles
         )
 
         return !tile.collapsed && !tile.visited && isAdjacent && hasValidMovesOnDestination
+    }
+
+    fun hasValidMove(): Boolean {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val player = game.currentGame.currentPlayer
+        return hasValidMove(player.position, player.remainingMoves, player.visitedTiles)
     }
 
     /**
@@ -82,7 +90,7 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         val tile = gameState.getTileAt(position)
 
         // Not a valid position if the tile is collapsed, or it ends on an occupied tile.
-        if (tile.collapsed || (remainingMoves == 0 && gameState.isTileOccupied(position) && visitedTiles.isNotEmpty()))
+        if (tile.collapsed || (remainingMoves <= 0 && gameState.isTileOccupied(position) && visitedTiles.isNotEmpty()))
             return false
 
         // Valid position if the path ends on a non-collapsed, non-occupied tile.

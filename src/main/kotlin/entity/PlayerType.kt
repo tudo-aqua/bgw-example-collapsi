@@ -9,7 +9,5 @@ enum class PlayerType {
 
     REMOTE,
 
-    BOT_EASY,
-
-    BOT_HARD
+    BOT
 }

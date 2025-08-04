@@ -68,7 +68,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         val game = CollapsiGame(gameState)
         root.currentGame = game
 
-        if (gameState.currentPlayer.isBot) {
+        if (gameState.currentPlayer.type == PlayerType.BOT) {
             root.botService.makeTurn()
         }
     }
@@ -83,7 +83,8 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         var player = gameState.currentPlayer
         val currentTile = gameState.getTileAt(player.position)
 
-        check(player.remainingMoves <= 0) { "A player ended their turn with ${player.remainingMoves} steps left." }
+        check(player.remainingMoves <= 0 || !root.playerActionService.hasValidMove())
+        { "A player ended their turn with ${player.remainingMoves} steps left and some possible valid move." }
 
         player.visitedTiles.forEach { gameState.getTileAt(it).visited = false }
         player.visitedTiles.clear()
@@ -104,13 +105,13 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
             game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
 
         // Collapse the tile if the player has nowhere to move at the start of their turn.
-        if (!root.playerActionService.hasValidMove(player.position, player.remainingMoves)) {
+        if (!root.playerActionService.hasValidMove()) {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
 
             endTurn()
         } else {
-            if (player.isBot) {
+            if (player.type == PlayerType.BOT) {
                 root.botService.makeTurn()
             }
         }
@@ -121,7 +122,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
 
         root.currentGame = null
 
-        TODO()
+        println("Game Finished")
     }
 
     fun save() {

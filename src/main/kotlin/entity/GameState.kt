@@ -22,16 +22,24 @@ data class GameState(
      * Returns the [Tile] at the given position.
      *
      * @param position The position of the [Tile] to retrieve.
+     *
      * @return The [Tile] at the specified position.
      * @throws IllegalArgumentException If no [Tile] exists at the specified position.
      */
     fun getTileAt(position: Coordinate): Tile =
         checkNotNull(board[position]) { "Tile at $position does not exist in this GameState." }
 
+    /**
+     * Checks if any player is standing on the given tile.
+     *
+     * @param position The position for which to check occupancy.
+     *
+     * @return True if there is a player who is standing on the given position.
+     */
     fun isTileOccupied(position: Coordinate): Boolean = players.any { it.position == position }
 
     /**
-     * Increases the [currentPlayerIndex] by one with wrapping. Does not check for whether a player is alive.
+     * Sets the [currentPlayerIndex] to the next alive player.
      */
     fun nextPlayer() {
         check(players.count { it.alive } >= 1) { "nextPlayer() requires at least 1 player to be alive." }
