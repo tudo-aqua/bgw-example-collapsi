@@ -163,9 +163,11 @@ class GameScene(
             posY = getPlayerPosY(to.y).toDouble()
         }
 
-        val collapsedTileView = playTiles[currentState.getTileAt(from)]
-        checkNotNull(collapsedTileView)
-        collapsedTileView.apply { showBack() }
+        if(currentState.currentPlayer.visitedTiles.size == 1) {
+            val collapsedTileView = playTiles[currentState.getTileAt(from)]
+            checkNotNull(collapsedTileView)
+            collapsedTileView.apply { showBack() }
+        }
 
         currentState.getTileAt(from).position.neighbours.forEach { neighbour ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
