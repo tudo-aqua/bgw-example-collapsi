@@ -14,9 +14,7 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.reposition
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.BoardGameScene
-import tools.aqua.bgw.visual.ColorVisual
-import tools.aqua.bgw.visual.CompoundVisual
-import tools.aqua.bgw.visual.TextVisual
+import tools.aqua.bgw.visual.*
 
 class GameScene(
     val rootService: RootService
@@ -35,25 +33,25 @@ class GameScene(
     private val greenPlayer = TokenView(
         width = 64,
         height = 64,
-        visual = ColorVisual.BLACK
+        visual = ImageVisual("GameScene/Pawn_P1.png")
     )
 
     private val orangePlayer = TokenView(
         width = 64,
         height = 64,
-        visual = ColorVisual.LIGHT_GRAY
+        visual = ImageVisual("GameScene/Pawn_P2.png")
     )
 
     private val yellowPlayer = TokenView(
         width = 64,
         height = 64,
-        visual = ColorVisual.BLACK
+        visual = ImageVisual("GameScene/Pawn_P3.png")
     )
 
     private val redPlayer = TokenView(
         width = 64,
         height = 64,
-        visual = ColorVisual.BLACK
+        visual = ImageVisual("GameScene/Pawn_P4.png")
     )
 
     /*
@@ -101,14 +99,14 @@ class GameScene(
         addComponents(playArea, greenPlayer, orangePlayer, yellowPlayer, redPlayer)
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
-            val startingColor : ColorVisual = when(
+            val startingColor : ImageVisual = when(
                 tile.startTileColor
             ) {
-                PlayerColor.GREEN_SQUARE -> ColorVisual.GREEN
-                PlayerColor.ORANGE_HEXAGON -> ColorVisual.ORANGE
-                PlayerColor.YELLOW_CIRCLE -> ColorVisual.YELLOW
-                PlayerColor.RED_TRIANGLE -> ColorVisual.RED
-                else -> ColorVisual.GRAY
+                PlayerColor.GREEN_SQUARE -> ImageVisual("GameScene/Tile_P1.png")
+                PlayerColor.ORANGE_HEXAGON -> ImageVisual("GameScene/Tile_P2.png")
+                PlayerColor.YELLOW_CIRCLE -> ImageVisual("GameScene/Tile_P3.png")
+                PlayerColor.RED_TRIANGLE -> ImageVisual("GameScene/Tile_P4.png")
+                else -> getTileVisual(tile.movesToMake)
             }
 
             val cardView = CardView(
@@ -116,11 +114,8 @@ class GameScene(
                 height = 160,
                 posX = 0,
                 posY = 0,
-                front = CompoundVisual(
-                    startingColor,
-                    TextVisual("${tile.movesToMake}")
-                ),
-                back = ColorVisual.RED
+                front = startingColor,
+                back = ImageVisual("GameScene/Tile_Collapsed.png")
             ).apply {
                 showFront()
                 if(!currentState.currentPlayer.position.neighbours.contains(coordinate)) {
@@ -193,6 +188,16 @@ class GameScene(
         }
     }
 
+    private fun getTileVisual(movesOnTile: Int) : ImageVisual {
+        return when (movesOnTile) {
+            1 -> ImageVisual("GameScene/Tile_1.png")
+            2 -> ImageVisual("GameScene/Tile_2.png")
+            3 -> ImageVisual("GameScene/Tile_3.png")
+            4 -> ImageVisual("GameScene/Tile_4.png")
+            else -> throw IllegalArgumentException("Invalid number of moves on tile: $movesOnTile")
+        }
+    }
+
     private fun getPlayerPosX(posX : Int) : Int {
         return when (posX) {
             0 -> 658
@@ -205,10 +210,10 @@ class GameScene(
 
     private fun getPlayerPosY(posY : Int) : Int {
         return when (posY) {
-            0 -> 232
-            1 -> 412
-            2 -> 592
-            3 -> 772
+            0 -> 268
+            1 -> 448
+            2 -> 628
+            3 -> 808
             else -> throw IllegalArgumentException("Invalid player position X: $posY")
         }
     }

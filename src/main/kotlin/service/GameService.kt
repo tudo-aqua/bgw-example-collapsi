@@ -124,6 +124,8 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
 
         root.currentGame = null
 
+        onAllRefreshables { refreshAfterGameEnd() }
+
         println("Game Finished")
     }
 
