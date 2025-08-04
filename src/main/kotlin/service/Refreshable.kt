@@ -1,5 +1,7 @@
 package service
 
+import entity.Coordinate
+
 /**
  * This interface provides a mechanism for the service layer classes to communicate
  * (usually to the view classes) that certain changes have been made to the entity
@@ -15,6 +17,11 @@ interface Refreshable {
      * Perform refreshes that are necessary after a new game started.
      */
     fun refreshAfterStartNewGame() {}
+
+    /**
+     * Perform refreshes that are necessary after a move is excecuted.
+     */
+    fun refreshAfterMoveTo(from : Coordinate, to : Coordinate) {}
 
     /**
      * Perform refreshes that are necessary after the last round was played.

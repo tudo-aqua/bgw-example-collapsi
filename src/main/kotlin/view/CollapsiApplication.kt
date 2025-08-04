@@ -1,14 +1,34 @@
 package view
 
+import service.Refreshable
+import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
-class CollapsiApplication : BoardGameApplication("Callapsi") {
+class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
-   private val helloScene = HelloScene()
+    private val rootService = RootService()
 
-   init {
-        this.showGameScene(helloScene)
+    private val protoMenu = ProtoMenu(rootService)
+    private val gameScene = GameScene(rootService)
+
+
+    init {
+        rootService.addRefreshables(
+            this,
+            protoMenu,
+            gameScene
+        )
+
+        this.showGameScene(gameScene)
+        this.showMenuScene(protoMenu)
     }
 
+    override fun refreshAfterStartNewGame() {
+        hideMenuScene(500)
+    }
+
+    override fun refreshAfterGameEnd() {
+        //showMenuScene(TODO)
+    }
 }
 

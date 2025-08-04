@@ -32,6 +32,8 @@ class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
         player.position = destination
         player.remainingMoves--
 
+        onAllRefreshables { refreshAfterMoveTo(previousTile.position, destination) }
+
         if (player.remainingMoves <= 0) {
             root.gameService.endTurn()
         }

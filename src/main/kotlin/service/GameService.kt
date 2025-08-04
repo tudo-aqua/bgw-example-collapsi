@@ -13,7 +13,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
         require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
         require(boardSize >= playerTypes.size + 2)
-        { "Board size for ${playerTypes.size} players must be at least ${playerTypes.size - 1}" }
+        { "Playeramount of ${playerTypes.size} requires a minimal boardsize of ${playerTypes.size + 2}." }
 
         val board = mutableMapOf<Coordinate, Tile>()
 
@@ -71,6 +71,8 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         if (gameState.currentPlayer.type == PlayerType.BOT) {
             root.botService.makeTurn()
         }
+
+        onAllRefreshables { refreshAfterStartNewGame() }
     }
 
     /**
