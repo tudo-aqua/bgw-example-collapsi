@@ -8,7 +8,18 @@ import kotlin.test.*
  * This class tests the remaining (smaller) functions of the [GameService] class.
  */
 class GameServiceTest {
-    private val rootService = RootService()
+    private var rootService = RootService()
+    private var testRefreshable = TestRefreshable(rootService)
+
+    /**
+     * Setup function to attach a [TestRefreshable] to a new [RootService] before each test.
+     */
+    @BeforeTest
+    fun setup() {
+        rootService = RootService()
+        testRefreshable = TestRefreshable(rootService)
+        rootService.addRefreshable(testRefreshable)
+    }
 
     /**
      * Test to end the game.

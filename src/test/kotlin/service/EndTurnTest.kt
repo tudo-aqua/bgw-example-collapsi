@@ -7,13 +7,19 @@ import kotlin.test.*
  * Test class for the endTurn() functionality in the [GameService].
  */
 class EndTurnTest {
-    private val rootService = RootService()
+    private var rootService = RootService()
+    private var testRefreshable = TestRefreshable(rootService)
 
     /**
      * Setup function to start a new game with two players and a board size of 4x4 for each test.
+     * Also attaches a [TestRefreshable] to a new [RootService] before each test.
      */
     @BeforeTest
     fun setup() {
+        rootService = RootService()
+        testRefreshable = TestRefreshable(rootService)
+        rootService.addRefreshable(testRefreshable)
+
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
             botDifficulties = listOf(0.0, 0.0),

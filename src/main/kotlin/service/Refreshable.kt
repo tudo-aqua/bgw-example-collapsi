@@ -19,12 +19,17 @@ interface Refreshable {
     fun refreshAfterStartNewGame() {}
 
     /**
-     * Perform refreshes that are necessary after a move is excecuted.
+     * Perform refreshes that are necessary after a move is executed.
      */
     fun refreshAfterMoveTo(from : Coordinate, to : Coordinate) {}
 
     /**
-     * Perform refreshes that are necessary after the last round was played.
+     * Perform refreshes that are necessary after a turn ended.
+     */
+    fun refreshAfterEndTurn() {}
+
+    /**
+     * Perform refreshes that are necessary after the game has ended.
      */
     fun refreshAfterGameEnd() {}
 }

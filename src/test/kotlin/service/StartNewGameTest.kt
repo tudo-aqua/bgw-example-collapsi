@@ -7,7 +7,18 @@ import kotlin.test.*
  * Test class for the function startNewGame(...) in the [GameService].
  */
 class StartNewGameTest {
-    private val rootService = RootService()
+    private var rootService = RootService()
+    private var testRefreshable = TestRefreshable(rootService)
+
+    /**
+     * Setup function to attach a [TestRefreshable] to a new [RootService] before each test.
+     */
+    @BeforeTest
+    fun setup() {
+        rootService = RootService()
+        testRefreshable = TestRefreshable(rootService)
+        rootService.addRefreshable(testRefreshable)
+    }
 
     /**
      * Test to start a new game with two players, a board size of 4x4 and valid parameters.
