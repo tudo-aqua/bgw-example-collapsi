@@ -25,17 +25,17 @@ class PlayerTest {
         assertEquals(PlayerColor.GREEN_SQUARE, player.color)
         assertEquals(PlayerType.LOCAL, player.type)
         assertEquals(Coordinate(3, 2, 4), player.position)
-        assertEquals(0, player.remainingMoves)
+        assertEquals(1, player.remainingMoves)
         assertTrue(player.visitedTiles.isEmpty())
         assertTrue(player.alive)
 
         player.position = Coordinate(4, 2, 4)
         player.remainingMoves++
-        player.visitedTiles.add(Tile(Coordinate(3, 2, 4), 1, null))
+        player.visitedTiles.add(Coordinate(3, 2, 4))
         player.alive = false
 
         assertEquals(Coordinate(4, 2, 4), player.position)
-        assertEquals(1, player.remainingMoves)
+        assertEquals(2, player.remainingMoves)
         assertEquals(1, player.visitedTiles.size)
         assertFalse(player.alive)
     }
