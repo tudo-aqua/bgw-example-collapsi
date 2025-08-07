@@ -119,6 +119,8 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
                 root.botService.makeTurn()
             }
         }
+
+        onAllRefreshables { refreshAfterEndTurn() }
     }
 
     fun endGame() {
