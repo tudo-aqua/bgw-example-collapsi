@@ -8,7 +8,7 @@ import entity.*
  * @param root The root service that provides access to the overall game state.
  */
 class GameService(val root: RootService) : AbstractRefreshingService() {
-    fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Double>, boardSize: Int) {
+    fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
         require(botDifficulties.size == playerTypes.size)

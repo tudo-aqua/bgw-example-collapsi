@@ -8,8 +8,6 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     private val rootService = RootService()
 
-    private val protoMenu = ProtoMenu(rootService)
-
     private val lobbyScene = LobbyScene(rootService)
 
     private val gameScene = GameScene(rootService)
@@ -20,7 +18,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     init {
         rootService.addRefreshables(
             this,
-            protoMenu,
+            lobbyScene,
             gameScene
         )
 

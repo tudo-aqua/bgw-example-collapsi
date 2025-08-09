@@ -23,7 +23,7 @@ class MoveToTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0),
+            botDifficulties = listOf(0, 0),
             boardSize = 4
         )
     }
@@ -40,7 +40,7 @@ class MoveToTest {
 
         // Move the player to a new position.
         var newPosition = currentPlayer.position.rightNeighbour
-        if(newPosition == gameState.players[1].position) newPosition = currentPlayer.position.leftNeighbour
+        if (newPosition == gameState.players[1].position) newPosition = currentPlayer.position.leftNeighbour
         val oldPosition = currentPlayer.position
         rootService.playerActionService.moveTo(newPosition)
 
@@ -66,7 +66,7 @@ class MoveToTest {
 
         // Move the player to a new position.
         var newPosition = currentPlayer.position.rightNeighbour
-        if(newPosition == gameState.players[1].position) newPosition = currentPlayer.position.leftNeighbour
+        if (newPosition == gameState.players[1].position) newPosition = currentPlayer.position.leftNeighbour
         val oldPosition = currentPlayer.position
         rootService.playerActionService.moveTo(newPosition)
 
@@ -95,7 +95,7 @@ class MoveToTest {
 
         // Try to move the player to a new position with wrong wrapping.
         var newPosition = currentPlayer.position.rightNeighbour.copy(boardSize = 5)
-        if(currentPlayer.position.rightNeighbour == gameState.players[1].position) {
+        if (currentPlayer.position.rightNeighbour == gameState.players[1].position) {
             newPosition = currentPlayer.position.leftNeighbour.copy(boardSize = 5)
         }
 

@@ -37,7 +37,7 @@
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g57" /><defs
+     inkscape:current-layer="svg1" /><defs
      id="defs1"><linearGradient
        id="linearGradient9"
        inkscape:collect="always"
@@ -84,8 +84,8 @@
        id="filter4-4"
        x="-2.4641015e-17"
        y="0"
-       width="1.1000000000000001"
-       height="1.1000000000000001"
+       width="1.2"
+       height="1.2"
        inkscape:auto-region="false"><feFlood
          result="flood"
          in="SourceGraphic"

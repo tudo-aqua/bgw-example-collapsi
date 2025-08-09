@@ -7,7 +7,7 @@ package entity
 enum class PlayerType {
     LOCAL,
 
-    REMOTE,
+    BOT,
 
-    BOT
+    REMOTE
 }

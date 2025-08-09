@@ -29,7 +29,7 @@ class StartNewGameTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0),
+            botDifficulties = listOf(0, 0),
             boardSize = 4
         )
 
@@ -63,7 +63,7 @@ class StartNewGameTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0, 0.0),
+            botDifficulties = listOf(0, 0, 0),
             boardSize = 5
         )
 
@@ -97,7 +97,7 @@ class StartNewGameTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL, PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0, 0.0, 0.0),
+            botDifficulties = listOf(0, 0, 0, 0),
             boardSize = 6
         )
 
@@ -132,7 +132,7 @@ class StartNewGameTest {
         assertFailsWith<IllegalArgumentException> {
             rootService.gameService.startNewGame(
                 playerTypes = listOf(PlayerType.LOCAL),
-                botDifficulties = listOf(0.0, 0.0),
+                botDifficulties = listOf(0, 0),
                 boardSize = 4
             )
         }
@@ -150,7 +150,7 @@ class StartNewGameTest {
         assertFailsWith<IllegalArgumentException> {
             rootService.gameService.startNewGame(
                 playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-                botDifficulties = listOf(0.0),
+                botDifficulties = listOf(0),
                 boardSize = 4
             )
         }
@@ -168,7 +168,7 @@ class StartNewGameTest {
         assertFailsWith<IllegalArgumentException> {
             rootService.gameService.startNewGame(
                 playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-                botDifficulties = listOf(0.0, 0.0),
+                botDifficulties = listOf(0, 0),
                 boardSize = 3
             )
         }
@@ -186,7 +186,7 @@ class StartNewGameTest {
         assertFailsWith<IllegalArgumentException> {
             rootService.gameService.startNewGame(
                 playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL, PlayerType.LOCAL),
-                botDifficulties = listOf(0.0, 0.0, 0.0),
+                botDifficulties = listOf(0, 0, 0),
                 boardSize = 4
             )
         }
@@ -203,7 +203,7 @@ class StartNewGameTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0),
+            botDifficulties = listOf(0, 0),
             boardSize = 4
         )
 
@@ -212,7 +212,7 @@ class StartNewGameTest {
         assertFailsWith<IllegalStateException> {
             rootService.gameService.startNewGame(
                 playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-                botDifficulties = listOf(0.0, 0.0),
+                botDifficulties = listOf(0, 0),
                 boardSize = 4
             )
         }

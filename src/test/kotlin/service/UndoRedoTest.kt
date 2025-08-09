@@ -23,7 +23,7 @@ class UndoRedoTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0),
+            botDifficulties = listOf(0, 0),
             boardSize = 4
         )
     }
@@ -38,7 +38,7 @@ class UndoRedoTest {
         val currentPlayer = gameState.currentPlayer
         val oldPosition = currentPlayer.position
         var newPosition = currentPlayer.position.rightNeighbour
-        if(gameState.players[1].position == newPosition) {
+        if (gameState.players[1].position == newPosition) {
             newPosition = currentPlayer.position.leftNeighbour
         }
 
@@ -68,7 +68,7 @@ class UndoRedoTest {
         val currentPlayer = gameState.currentPlayer
         val oldPosition = currentPlayer.position
         var newPosition = currentPlayer.position.rightNeighbour
-        if(gameState.players[1].position == newPosition) {
+        if (gameState.players[1].position == newPosition) {
             newPosition = currentPlayer.position.leftNeighbour
         }
 

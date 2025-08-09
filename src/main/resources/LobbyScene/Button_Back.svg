@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="256"
-   height="256"
-   viewBox="0 0 256 256"
+   width="242"
+   height="168"
+   viewBox="0 0 242 168"
    version="1.1"
    id="svg1"
    inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
@@ -30,16 +30,16 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="px"
      inkscape:zoom="1.026783"
-     inkscape:cx="144.13952"
+     inkscape:cx="145.11343"
      inkscape:cy="156.31346"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="g7"
+     inkscape:current-layer="svg1"
      showguides="true"><sodipodi:guide
-       position="128,128"
+       position="128,72"
        orientation="0,-1"
        id="guide3"
        inkscape:locked="false" /></sodipodi:namedview><defs
@@ -128,7 +128,7 @@
      id="g9"
      inkscape:label="Main"
      style="display:inline;filter:url(#filter2)"
-     transform="matrix(0.93775934,0,0,0.93775934,14.06639,14.06639)"><g
+     transform="matrix(0.93775934,0,0,0.93775934,-1.0440003,-36.744051)"><g
        inkscape:label="Drop Shadow"
        inkscape:groupmode="layer"
        id="g7"

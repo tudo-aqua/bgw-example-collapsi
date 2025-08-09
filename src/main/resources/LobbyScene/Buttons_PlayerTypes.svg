@@ -119,7 +119,7 @@
          in2="comp1"
          id="feComposite4-5" /></filter></defs><g
      id="g4"
-     inkscape:label="Human_Deselected"
+     inkscape:label="Local_Deselected"
      style="display:inline"><rect
        style="display:inline;fill:none;stroke:none;stroke-width:5.34846;-inkscape-stroke:none"
        id="rect2"
@@ -148,7 +148,7 @@
          style="stroke-width:0.814768"
          inkscape:label="Human" /></g></g><g
      id="g9"
-     inkscape:label="Human_Selected"
+     inkscape:label="Local_Selected"
      style="display:inline"
      transform="translate(15,15)"><rect
        style="display:inline;fill:none;stroke:none;stroke-width:5.34846;-inkscape-stroke:none"
@@ -240,7 +240,7 @@
          inkscape:label="Robot"
          transform="matrix(3.5131288,0,0,3.4088326,-28.9548,-857.87104)" /></g></g><g
      id="g17"
-     inkscape:label="Network_Deselected"
+     inkscape:label="Remote_Deselected"
      style="display:inline"><rect
        style="display:inline;fill:none;stroke:none;stroke-width:5.34846;-inkscape-stroke:none"
        id="rect5"
@@ -270,7 +270,7 @@
          style="display:inline;fill:#ffffff;stroke-width:0.791012"
          inkscape:label="Network" /></g></g><g
      id="g20"
-     inkscape:label="Network_Selected"
+     inkscape:label="Remote_Selected"
      style="display:inline"
      transform="translate(15,15)"><rect
        style="display:inline;fill:none;stroke:none;stroke-width:5.34846;-inkscape-stroke:none"

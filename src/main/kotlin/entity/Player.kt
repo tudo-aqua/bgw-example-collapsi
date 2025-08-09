@@ -13,7 +13,7 @@ data class Player(
     val color: PlayerColor,
     var position: Coordinate,
     val type: PlayerType,
-    val botDifficulty: Double = 0.0
+    val botDifficulty: Int = 0
 ) {
     /** The number of moves the player has left to make in his current turn. */
     var remainingMoves = 1

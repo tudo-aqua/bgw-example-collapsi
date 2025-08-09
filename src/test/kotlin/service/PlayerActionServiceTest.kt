@@ -24,7 +24,7 @@ class PlayerActionServiceTest {
 
         rootService.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
-            botDifficulties = listOf(0.0, 0.0),
+            botDifficulties = listOf(0, 0),
             boardSize = 4
         )
     }
