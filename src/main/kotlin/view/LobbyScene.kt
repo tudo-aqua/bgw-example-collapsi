@@ -129,6 +129,7 @@ class LobbyScene(
         botDifficulties.add(3)
 
         playerSetupViews[index].setIsIncluded(true)
+        playerSetupViews[index].difficultySelection.selectButton(3)
 
         // Always disable remove buttons for Player 1 and 2.
         if (index <= 1)
