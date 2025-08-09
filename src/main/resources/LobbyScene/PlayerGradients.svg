@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="700"
+   width="500"
    height="1000"
-   viewBox="0 0 700 1000"
+   viewBox="0 0 500 1000"
    version="1.1"
    id="svg1"
    inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
@@ -28,13 +28,13 @@
      inkscape:document-units="px"
      inkscape:zoom="0.36302259"
      inkscape:cx="247.91846"
-     inkscape:cy="629.43742"
+     inkscape:cy="632.19206"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg1" />
+     inkscape:current-layer="g5" />
   <defs
      id="defs1">
     <linearGradient
@@ -126,7 +126,8 @@
      inkscape:label="P1"
      inkscape:groupmode="layer"
      id="layer1"
-     style="display:inline">
+     style="display:inline"
+     transform="scale(0.71428571,1)">
     <rect
        style="fill:url(#linearGradient6);stroke-width:5.34846;-inkscape-stroke:none"
        id="rect2"
@@ -140,7 +141,8 @@
      inkscape:label="P2"
      inkscape:groupmode="layer"
      id="g3"
-     style="display:inline">
+     style="display:inline"
+     transform="scale(0.71428571,1)">
     <rect
        style="fill:url(#linearGradient2);stroke-width:5.34846;-inkscape-stroke:none"
        id="rect3"
@@ -154,7 +156,8 @@
      inkscape:label="P3"
      inkscape:groupmode="layer"
      id="g4"
-     style="display:inline">
+     style="display:inline"
+     transform="scale(0.71428571,1)">
     <rect
        style="display:inline;fill:url(#linearGradient10);stroke-width:5.34846;-inkscape-stroke:none"
        id="rect4"
@@ -168,7 +171,8 @@
      inkscape:label="P4"
      inkscape:groupmode="layer"
      id="g5"
-     style="display:inline">
+     style="display:inline"
+     transform="scale(0.71428571,1)">
     <rect
        style="fill:url(#linearGradient11);stroke-width:5.34846;-inkscape-stroke:none"
        id="rect5"

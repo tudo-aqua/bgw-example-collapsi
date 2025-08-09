@@ -9,7 +9,11 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     private val rootService = RootService()
 
     private val protoMenu = ProtoMenu(rootService)
+
+    private val lobbyScene = LobbyScene(rootService)
+
     private val gameScene = GameScene(rootService)
+
     private val endGameMenuScene = EndGameMenuScene(rootService)
 
 
@@ -21,7 +25,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
         )
 
         this.showGameScene(gameScene)
-        this.showMenuScene(protoMenu)
+        this.showMenuScene(lobbyScene)
     }
 
     override fun refreshAfterStartNewGame() {
