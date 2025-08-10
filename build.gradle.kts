@@ -1,62 +1,54 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import edu.udo.cs.sopra.util.addFileToDistribution
+import edu.udo.cs.sopra.util.ignoreClassesInCoverageReport
+import edu.udo.cs.sopra.util.sonatypeSnapshots
+import edu.udo.cs.sopra.util.sopraPackageRegistry
+import org.gradle.kotlin.dsl.application
 
 plugins {
-    kotlin("jvm") version "1.5.21"
+    kotlin("jvm") version "1.9.25"
     application
-    jacoco
-    id("io.gitlab.arturbosch.detekt") version "1.18.0-RC3"
-    id("org.jetbrains.dokka") version "1.4.32"
+    id("edu.udo.cs.sopra") version "1.0.3"
 }
 
 group = "edu.udo.cs.sopra"
 version = "1.0"
 
-repositories {
-    mavenCentral()
+/* Change this to the version of the BGW you want to use */
+val bgwVersion = "0.10"
+
+kotlin {
+    jvmToolchain(11)
 }
 
 application {
     mainClass.set("MainKt")
 }
 
+repositories {
+    mavenCentral()
+    sonatypeSnapshots()
+    sopraPackageRegistry()
+}
+
 dependencies {
     testImplementation(kotlin("test-junit5"))
-    implementation(group = "tools.aqua", name = "bgw-core", version = "0.2")
+    implementation(group = "tools.aqua", name = "bgw-gui", version = bgwVersion)
+    implementation(group = "tools.aqua", name = "bgw-net-common", version = bgwVersion)
+    implementation(group = "tools.aqua", name = "bgw-net-client", version = bgwVersion)
 }
 
-tasks.distZip {
-    archiveFileName.set("distribution.zip")
-}
+/* This is how you can add the HowToPlay.pdf to the distribution zip file */
+addFileToDistribution(file("HowToPlay.pdf"))
 
-tasks.test {
-    useJUnitPlatform()
-    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
-}
+/* This is how you can ignore additional classes from test coverage */
+/* All classes in gui, entity and service.bot package are already excluded. */
 
-tasks.jacocoTestReport {
-    dependsOn(tasks.test) // tests are required to run before generating the report
-    reports {
-        xml.required.set(true)
-        csv.required.set(false)
-    }
+/* To ignore a class Foo in the package foo.bar.baz you would use the following line */
+// this.ignoreClassesInCoverageReport("foo.bar.baz.Foo")
 
-    classDirectories.setFrom(files(classDirectories.files.map {
-        fileTree(it) {
-            exclude(listOf("view/**"))
-        }
-    }))
-}
+/* To ignore all classes in the foo.bar.baz package use a wildcard like this */
+// this.ignoreClassesInCoverageReport("foo.bar.baz.*")
 
-detekt {
-    // Version of Detekt that will be used. When unspecified the latest detekt
-    // version found will be used. Override to stay on the same version.
-    toolVersion = "1.18.0-RC3"
-
-    //source.setFrom()
-    config = files("detektConfig.yml")
-
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+tasks.clean {
+    delete.add("public")
 }
