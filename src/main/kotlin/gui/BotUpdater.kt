@@ -1,31 +1,51 @@
 package gui
 
-import entity.PlayerType
-import service.RootService
+import entity.*
+import service.*
+import kotlin.math.*
 
 class BotUpdater(private val root: RootService) : Refreshable {
     private var callBot = false
 
     private var updateThread: Thread? = null
 
-    override fun refreshAfterStartNewGame() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val player = game.currentGame.currentPlayer
+    /** The delay between each move based on [entity.CollapsiGame.simulationSpeed]. */
+    private val moveDelayMultiplier = 0.35
 
-        val thread = Thread {
-            while (root.currentGame != null) {
-                Thread.sleep(10)
+    private fun updateThread() {
+        while (root.currentGame != null) {
+            Thread.sleep(10)
 
-                if (callBot) {
-                    callBot = false
-                    root.botService.makeTurn()
+            if (callBot) {
+                callBot = false
+
+                val game = checkNotNull(root.currentGame) { "No game is currently running." }
+                val player = game.currentGame.currentPlayer
+
+                root.botService.calculateBestTurn()
+
+                // Move (with delay) until the game ends or the player switches.
+                while (root.currentGame != null && game.currentGame.currentPlayer == player) {
+                    Thread.sleep((game.simulationSpeed * moveDelayMultiplier * 1000).roundToLong())
+
+                    root.botService.makeMove()
                 }
+
+                // Delay after a full turn.
+                Thread.sleep((game.simulationSpeed * 1000).roundToLong())
             }
         }
+    }
+
+    override fun refreshAfterStartNewGame() {
+        val thread = Thread { updateThread() }
         updateThread = thread
         thread.start()
 
-        if (player.type == PlayerType.BOT) {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val player = game.currentGame.currentPlayer
+
+        if (player.type == PlayerType.BOT && game.simulationSpeed >= 0) {
             callBot = true
         }
     }
@@ -38,7 +58,8 @@ class BotUpdater(private val root: RootService) : Refreshable {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val player = game.currentGame.currentPlayer
 
-        if (player.type == PlayerType.BOT) {
+        // Make the next move if the next player is a bot and the game isn't paused.
+        if (player.type == PlayerType.BOT && game.simulationSpeed >= 0) {
             callBot = true
         }
     }

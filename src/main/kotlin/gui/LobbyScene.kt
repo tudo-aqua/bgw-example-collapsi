@@ -91,6 +91,7 @@ class LobbyScene(
                 botDifficulties,
                 boardSize
             )
+            root.currentGame?.simulationSpeed = 1.0
         }
     }
 

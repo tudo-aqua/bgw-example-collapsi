@@ -15,7 +15,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         { "Difficulty needs to be defined for all players (even non-bot players)." }
         require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
         require(boardSize >= playerTypes.size + 2)
-        { "Playeramount of ${playerTypes.size} requires a minimal boardsize of ${playerTypes.size + 2}." }
+        { "Player amount of ${playerTypes.size} requires a minimal board size of ${playerTypes.size + 2}." }
 
         val board = mutableMapOf<Coordinate, Tile>()
 

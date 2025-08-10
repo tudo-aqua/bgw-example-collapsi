@@ -12,19 +12,14 @@ import kotlin.random.Random
  * @param root The root service that provides access to the overall game state.
  */
 class BotService(private val root: RootService) {
-    fun makeTurn() {
+    fun calculateBestTurn() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
         check(player.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
         check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
-
-        // Todo: The final version of the bot will only look at where it can end it's turn,
-        // Todo: since the route to get there doesn't matter.
-        while (root.currentGame != null && gameState.currentPlayer == player) {
-            makeMove()
-        }
+        check(player.visitedTiles.isEmpty()) { "Tried to calculate a turn for a player that already moved." }
     }
 
     fun makeMove() {
