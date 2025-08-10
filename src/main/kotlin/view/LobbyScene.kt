@@ -101,7 +101,7 @@ class LobbyScene(
     var boardSize = 4
 
     init {
-        opacity = 0.0
+        background = Visual.EMPTY
 
         addComponents(
             contentPane

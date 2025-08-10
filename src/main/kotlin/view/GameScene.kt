@@ -12,7 +12,6 @@ import tools.aqua.bgw.components.gamecomponentviews.CardView
 import tools.aqua.bgw.components.gamecomponentviews.TokenView
 import tools.aqua.bgw.components.layoutviews.GridPane
 import tools.aqua.bgw.components.layoutviews.Pane
-import tools.aqua.bgw.components.reposition
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
@@ -122,8 +121,7 @@ class GameScene(
         width = 720,
         height = 720,
         posX = 660,
-        posY = 190,
-        visual = ColorVisual.BLACK
+        posY = 190
     )
 
     init {
@@ -145,12 +143,11 @@ class GameScene(
         playTiles.clear()
 
         val playArea = GridPane<ComponentView>(
-            posX = 0,
-            posY = 0,
+            posX = playContainer.width / 2,
+            posY = playContainer.height / 2,
             rows = currentState.boardSize,
             columns = currentState.boardSize,
-            spacing = 20,
-            visual = ColorVisual.LIGHT_GRAY
+            spacing = 20
         )
 
         players.clear()
@@ -167,7 +164,7 @@ class GameScene(
         addComponents(greenPlayer, orangePlayer, yellowPlayer, redPlayer)
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
-            val startingColor : ImageVisual = when (tile.startTileColor) {
+            val startingColor: ImageVisual = when (tile.startTileColor) {
                 PlayerColor.GREEN_SQUARE -> ImageVisual("GameScene/Tile_P1.png")
                 PlayerColor.ORANGE_HEXAGON -> ImageVisual("GameScene/Tile_P2.png")
                 PlayerColor.YELLOW_CIRCLE -> ImageVisual("GameScene/Tile_P3.png")
@@ -184,7 +181,7 @@ class GameScene(
                 back = ImageVisual("GameScene/Tile_Collapsed.png")
             ).apply {
                 showFront()
-                if(!currentState.currentPlayer.position.neighbours.contains(coordinate)) {
+                if (!currentState.currentPlayer.position.neighbours.contains(coordinate)) {
                     isDisabled = true
                 }
                 onMouseClicked = {
@@ -202,7 +199,7 @@ class GameScene(
         positionPlayers()
     }
 
-    override fun refreshAfterMoveTo(from : Coordinate, to: Coordinate) {
+    override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
         val game = rootService.currentGame
         checkNotNull(game)
         val currentState = game.currentGame
@@ -215,7 +212,7 @@ class GameScene(
             posY = getPlayerPosY(to.y).toDouble()
         }
 
-        if(currentState.currentPlayer.visitedTiles.size == 1) {
+        if (currentState.currentPlayer.visitedTiles.size == 1) {
             val collapsedTileView = playTiles[currentState.getTileAt(from)]
             checkNotNull(collapsedTileView)
             collapsedTileView.apply { showBack() }
@@ -233,7 +230,7 @@ class GameScene(
 
             neighbourTileView.apply { isDisabled = true }
         }
-        if(currentState.currentPlayer.remainingMoves > 0) {
+        if (currentState.currentPlayer.remainingMoves > 0) {
             currentState.getTileAt(to).position.neighbours.forEach { neighbour ->
                 val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
                 checkNotNull(neighbourTileView)
@@ -262,7 +259,7 @@ class GameScene(
         }
         stepTokenLine.clear()
 
-        for(i in 0 until currentState.currentPlayer.remainingMoves) {
+        for (i in 0 until currentState.currentPlayer.remainingMoves) {
             stepTokenList[i].apply {
                 isVisible = true
             }
@@ -309,20 +306,38 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentGame
 
-        greenPlayer.posX = getPlayerPosX(currentState.players.first{ it.color == PlayerColor.GREEN_SQUARE }.position.x).toDouble()
-        greenPlayer.posY = getPlayerPosY(currentState.players.first{ it.color == PlayerColor.GREEN_SQUARE }.position.y).toDouble()
-        orangePlayer.posX = getPlayerPosX(currentState.players.first{ it.color == PlayerColor.ORANGE_HEXAGON }.position.x).toDouble()
-        orangePlayer.posY = getPlayerPosY(currentState.players.first{ it.color == PlayerColor.ORANGE_HEXAGON }.position.y).toDouble()
-        if(currentState.players.size == 3) {
-            yellowPlayer.posX = getPlayerPosX(currentState.players.first{ it.color == PlayerColor.YELLOW_CIRCLE }.position.x).toDouble()
-            yellowPlayer.posY = getPlayerPosY(currentState.players.first{ it.color == PlayerColor.YELLOW_CIRCLE }.position.y).toDouble()
-        } else if(currentState.players.size == 4) {
-            yellowPlayer.posX = getPlayerPosX(currentState.players.first{ it.color == PlayerColor.YELLOW_CIRCLE }.position.x).toDouble()
-            yellowPlayer.posY = getPlayerPosY(currentState.players.first{ it.color == PlayerColor.YELLOW_CIRCLE }.position.y).toDouble()
+        // Todo: Create getPlayerByColor function somewhere. Or maybe a player to color bi-map?
+        greenPlayer.posX = getPlayerPosX(
+            currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.position.x
+        ).toDouble()
+        greenPlayer.posY = getPlayerPosY(
+            currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.position.y
+        ).toDouble()
+        orangePlayer.posX = getPlayerPosX(
+            currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.position.x
+        ).toDouble()
+        orangePlayer.posY = getPlayerPosY(
+            currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.position.y
+        ).toDouble()
+
+        if (currentState.players.size == 3) {
+            yellowPlayer.posX = getPlayerPosX(
+                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position.x
+            ).toDouble()
+            yellowPlayer.posY = getPlayerPosY(
+                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position.y
+            ).toDouble()
+        } else if (currentState.players.size == 4) {
+            yellowPlayer.posX = getPlayerPosX(
+                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position.x
+            ).toDouble()
+            yellowPlayer.posY = getPlayerPosY(
+                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position.y
+            ).toDouble()
         }
     }
 
-    private fun getTileVisual(movesOnTile: Int) : ImageVisual {
+    private fun getTileVisual(movesOnTile: Int): ImageVisual {
         return when (movesOnTile) {
             1 -> ImageVisual("GameScene/Tile_1.png")
             2 -> ImageVisual("GameScene/Tile_2.png")
@@ -332,22 +347,23 @@ class GameScene(
         }
     }
 
-    private fun getPlayerPosX(posX : Int) : Int {
+    // Todo: ???????????????? Just do (160 + 20) * posX + (660 + 48 + 10) ????
+    private fun getPlayerPosX(posX: Int): Int {
         return when (posX) {
-            0 -> 660 + 48
-            1 -> 660 + posX * 160 + 20 + 48
-            2 -> 660 + posX * 160 + 40 + 48
-            3 -> 660 + posX * 160 + 60 + 48
+            0 -> 660 + 48 + 10
+            1 -> 660 + posX * 160 + 20 + 48 + 10
+            2 -> 660 + posX * 160 + 40 + 48 + 10
+            3 -> 660 + posX * 160 + 60 + 48 + 10
             else -> throw IllegalArgumentException("Invalid player position X: $posX")
         }
     }
 
-    private fun getPlayerPosY(posY : Int) : Int {
+    private fun getPlayerPosY(posY: Int): Int {
         return when (posY) {
-            0 -> 190 + 48
-            1 -> 190 + posY * 160 + 20 + 48
-            2 -> 190 + posY * 160 + 40 + 48
-            3 -> 190 + posY * 160 + 60 + 48
+            0 -> 190 + 48 + 10
+            1 -> 190 + posY * 160 + 20 + 48 + 10
+            2 -> 190 + posY * 160 + 40 + 48 + 10
+            3 -> 190 + posY * 160 + 60 + 48 + 10
             else -> throw IllegalArgumentException("Invalid player position Y: $posY")
         }
     }
