@@ -43,7 +43,7 @@ class LobbyScene(
             removeButton.onMouseClicked = { removePlayer() }
             typeSelection.onSelectionChanged = {
                 if (playerTypes.size > index)
-                    playerTypes[index] = PlayerType.values()[it]
+                    playerTypes[index] = PlayerType.entries[it]
 
                 // Only show difficulty selection if the player type is bot.
                 difficultySelection.isVisible = it == 1

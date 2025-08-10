@@ -7,7 +7,7 @@ import entity.*
  *
  * @param root The root service that provides access to the overall game state.
  */
-class GameService(val root: RootService) : AbstractRefreshingService() {
+class GameService(private val root: RootService) : AbstractRefreshingService() {
     fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
@@ -29,7 +29,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         val playerTiles = mutableListOf<Tile>()
         for (i in playerTypes.indices) {
             val position = unassignedPositions.removeFirst()
-            val tile = Tile(position, 1, PlayerColor.values()[i])
+            val tile = Tile(position, 1, PlayerColor.entries[i])
             playerTiles.add(tile)
             board.put(position, tile)
         }
@@ -61,7 +61,7 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         // Create the Player list.
         val players = mutableListOf<Player>()
         for ((i, type) in playerTypes.withIndex()) {
-            players.add(Player(PlayerColor.values()[i], playerTiles[i].position, type, botDifficulties[i]))
+            players.add(Player(PlayerColor.entries[i], playerTiles[i].position, type, botDifficulties[i]))
         }
         players.shuffle()
 
@@ -71,10 +71,6 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         root.currentGame = game
 
         onAllRefreshables { refreshAfterStartNewGame() }
-
-        if (gameState.currentPlayer.type == PlayerType.BOT) {
-            root.botService.makeTurn()
-        }
     }
 
     /**
@@ -118,10 +114,6 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
             onAllRefreshables { refreshAfterPlayerDied(player) }
 
             endTurn()
-        } else {
-            if (player.type == PlayerType.BOT) {
-                root.botService.makeTurn()
-            }
         }
     }
 

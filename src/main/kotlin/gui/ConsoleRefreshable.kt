@@ -4,7 +4,7 @@ import entity.Coordinate
 import entity.Player
 import service.RootService
 
-class ConsoleRefreshable(val root: RootService) : Refreshable {
+class ConsoleRefreshable(private val root: RootService) : Refreshable {
     override fun refreshAfterStartNewGame() {
         println("[Refresh] Start New Game:")
 

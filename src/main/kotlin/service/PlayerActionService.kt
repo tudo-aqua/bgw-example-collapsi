@@ -7,7 +7,7 @@ import entity.*
  *
  * @param root The root service that provides access to the overall game state.
  */
-class PlayerActionService(val root: RootService) : AbstractRefreshingService() {
+class PlayerActionService(private val root: RootService) : AbstractRefreshingService() {
     fun moveTo(destination: Coordinate) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame

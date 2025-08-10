@@ -1,6 +1,7 @@
 package service
 
 import entity.Coordinate
+import entity.Player
 import gui.Refreshable
 
 /**
@@ -45,7 +46,7 @@ class TestRefreshable(val rootService: RootService) : Refreshable {
         refreshAfterEndTurnCalled = true
     }
 
-    override fun refreshAfterGameEnd() {
+    override fun refreshAfterGameEnd(winner: Player) {
         refreshAfterGameEndCalled = true
     }
 }

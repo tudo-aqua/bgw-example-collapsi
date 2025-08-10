@@ -11,7 +11,7 @@ import kotlin.random.Random
  *
  * @param root The root service that provides access to the overall game state.
  */
-class BotService(val root: RootService) {
+class BotService(private val root: RootService) {
     fun makeTurn() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame

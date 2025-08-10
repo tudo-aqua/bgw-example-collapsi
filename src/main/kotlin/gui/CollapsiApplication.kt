@@ -1,26 +1,30 @@
 package gui
 
 import entity.Player
-import gui.Refreshable
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
 class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
-    private val rootService = RootService()
+    private val root = RootService()
 
-    private val lobbyScene = LobbyScene(rootService)
+    private val lobbyScene = LobbyScene(root)
 
-    private val gameScene = GameScene(rootService)
+    private val gameScene = GameScene(root)
 
-    private val endGameMenuScene = EndGameMenuScene(rootService)
+    private val endGameMenuScene = EndGameMenuScene(root)
 
+    private val botUpdater = BotUpdater(root)
+
+    private val consoleRefreshable = ConsoleRefreshable(root)
 
     init {
-        rootService.addRefreshables(
+        root.addRefreshables(
             this,
             lobbyScene,
-            gameScene
+            gameScene,
+            botUpdater,
+            consoleRefreshable
         )
 
         this.showGameScene(gameScene)
