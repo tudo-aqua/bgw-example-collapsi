@@ -70,11 +70,11 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         val game = CollapsiGame(gameState)
         root.currentGame = game
 
+        onAllRefreshables { refreshAfterStartNewGame() }
+
         if (gameState.currentPlayer.type == PlayerType.BOT) {
             root.botService.makeTurn()
         }
-
-        onAllRefreshables { refreshAfterStartNewGame() }
     }
 
     /**
@@ -108,10 +108,14 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
         if (game.undoStack.isNotEmpty())
             game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
 
+        onAllRefreshables { refreshAfterEndTurn() }
+
         // Collapse the tile if the player has nowhere to move at the start of their turn.
         if (!root.playerActionService.hasValidMove()) {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
+
+            onAllRefreshables { refreshAfterPlayerDied(player) }
 
             endTurn()
         } else {
@@ -119,18 +123,17 @@ class GameService(val root: RootService) : AbstractRefreshingService() {
                 root.botService.makeTurn()
             }
         }
-
-        onAllRefreshables { refreshAfterEndTurn() }
     }
 
     fun endGame() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        check(game.currentGame.players.count { it.alive } == 1) { "Game should end with exactly 1 alive player." }
+
+        val winner = game.currentGame.players.first { it.alive }
+
+        onAllRefreshables { refreshAfterGameEnd(winner) }
 
         root.currentGame = null
-
-        onAllRefreshables { refreshAfterGameEnd() }
-
-        println("Game Finished")
     }
 
     fun save() {

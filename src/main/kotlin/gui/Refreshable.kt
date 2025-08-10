@@ -1,6 +1,6 @@
 package gui
 
-import entity.Coordinate
+import entity.*
 
 /**
  * This interface provides a mechanism for the service layer classes to communicate
@@ -29,7 +29,12 @@ interface Refreshable {
     fun refreshAfterEndTurn() {}
 
     /**
+     * Perform refreshes that are necessary after a player died because of a collapsing tile.
+     */
+    fun refreshAfterPlayerDied(player: Player) {}
+
+    /**
      * Perform refreshes that are necessary after the game has ended.
      */
-    fun refreshAfterGameEnd() {}
+    fun refreshAfterGameEnd(winner: Player) {}
 }

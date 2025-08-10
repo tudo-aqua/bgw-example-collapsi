@@ -1,5 +1,6 @@
 package gui
 
+import entity.Player
 import gui.Refreshable
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
@@ -30,7 +31,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
         hideMenuScene(500)
     }
 
-    override fun refreshAfterGameEnd() {
+    override fun refreshAfterGameEnd(winner: Player) {
         showMenuScene(endGameMenuScene)
     }
 }

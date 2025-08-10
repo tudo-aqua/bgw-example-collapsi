@@ -37,9 +37,6 @@ class BotService(val root: RootService) {
 
         val move = possibleMoves[Random.nextInt(possibleMoves.size)]
 
-        // Todo: Replace this with a ConsoleRefreshable
-        println("Moved ${game.currentGame.currentPlayer.color} to $move.")
-
         root.playerActionService.moveTo(move)
     }
 
