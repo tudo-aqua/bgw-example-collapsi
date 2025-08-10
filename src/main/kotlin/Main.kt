@@ -1,6 +1,4 @@
-import entity.PlayerType
-import service.RootService
-import view.CollapsiApplication
+import gui.CollapsiApplication
 
 fun main() {
 //    val root = RootService()

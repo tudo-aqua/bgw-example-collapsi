@@ -1,10 +1,10 @@
-package view
+package gui
 
 import entity.Coordinate
 import entity.Player
 import entity.PlayerColor
 import entity.Tile
-import service.Refreshable
+import gui.Refreshable
 import service.RootService
 import tools.aqua.bgw.components.ComponentView
 import tools.aqua.bgw.components.container.LinearLayout
@@ -12,7 +12,6 @@ import tools.aqua.bgw.components.gamecomponentviews.CardView
 import tools.aqua.bgw.components.gamecomponentviews.TokenView
 import tools.aqua.bgw.components.layoutviews.GridPane
 import tools.aqua.bgw.components.layoutviews.Pane
-import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.visual.*

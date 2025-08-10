@@ -1,4 +1,4 @@
-package service
+package gui
 
 import entity.Coordinate
 
@@ -10,7 +10,7 @@ import entity.Coordinate
  * Default (empty) implementations are provided for all methods, so that implementing
  * UI classes only need to react to events relevant to them.
  *
- * @see AbstractRefreshingService
+ * @see service.AbstractRefreshingService
  */
 interface Refreshable {
     /**
@@ -21,7 +21,7 @@ interface Refreshable {
     /**
      * Perform refreshes that are necessary after a move is executed.
      */
-    fun refreshAfterMoveTo(from : Coordinate, to : Coordinate) {}
+    fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {}
 
     /**
      * Perform refreshes that are necessary after a turn ended.

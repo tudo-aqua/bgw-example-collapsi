@@ -1,4 +1,4 @@
-package view
+package gui
 
 import entity.PlayerType
 import service.*
@@ -8,8 +8,8 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
-import view.components.ExclusiveButtonGroup
-import view.components.PlayerSetupView
+import gui.components.ExclusiveButtonGroup
+import gui.components.PlayerSetupView
 
 class LobbyScene(
     private val root: RootService

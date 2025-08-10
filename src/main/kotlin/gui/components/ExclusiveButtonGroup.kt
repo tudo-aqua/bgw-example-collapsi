@@ -1,4 +1,4 @@
-package view.components
+package gui.components
 
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane

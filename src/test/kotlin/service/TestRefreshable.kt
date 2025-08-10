@@ -1,9 +1,10 @@
 package service
 
 import entity.Coordinate
+import gui.Refreshable
 
 /**
- * [Refreshable] implementation that refreshes nothing, but remembers
+ * [gui.Refreshable] implementation that refreshes nothing, but remembers
  * if a refresh method has been called (since last [reset])
  *
  * @param rootService The root service to which this service belongs
@@ -36,7 +37,7 @@ class TestRefreshable(val rootService: RootService) : Refreshable {
         refreshAfterStartNewGameCalled = true
     }
 
-    override fun refreshAfterMoveTo(from : Coordinate, to : Coordinate) {
+    override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
         refreshAfterMoveToCalled = true
     }
 

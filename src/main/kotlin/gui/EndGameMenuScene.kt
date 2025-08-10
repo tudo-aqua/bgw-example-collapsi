@@ -1,6 +1,6 @@
-package view
+package gui
 
-import service.Refreshable
+import gui.Refreshable
 import service.RootService
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.MenuScene

@@ -1,4 +1,4 @@
-package view
+package gui
 
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.BoardGameScene
