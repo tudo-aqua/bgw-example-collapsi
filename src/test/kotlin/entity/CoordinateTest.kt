@@ -20,10 +20,10 @@ class CoordinateTest {
         assertEquals(2, testCoordinate.y)
         assertEquals(4, testCoordinate.boardSize)
 
-        assertEquals(Coordinate(3, 2, 4), testCoordinate.leftNeighbour)
-        assertEquals(Coordinate(1, 2, 4), testCoordinate.rightNeighbour)
-        assertEquals(Coordinate(2, 3, 4), testCoordinate.upNeighbour)
-        assertEquals(Coordinate(2, 1, 4), testCoordinate.downNeighbour)
+        assertEquals(Coordinate(1, 2, 4), testCoordinate.leftNeighbour)
+        assertEquals(Coordinate(3, 2, 4), testCoordinate.rightNeighbour)
+        assertEquals(Coordinate(2, 1, 4), testCoordinate.upNeighbour)
+        assertEquals(Coordinate(2, 3, 4), testCoordinate.downNeighbour)
     }
 
     /**

@@ -239,7 +239,7 @@ class GameScene(
         activePlayer.posX = currentLabel.actualPosX - 10
 
         if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
-            rootService.botService.calculateBestTurn()
+            rootService.botService.calculateTurn()
 
             playAnimation(DelayAnimation(((game.simulationSpeed + 1) * 1000).roundToInt()).apply {
                 onFinished = { makeNextBotMove() }
@@ -319,7 +319,7 @@ class GameScene(
             && game.simulationSpeed >= 0
             && rootService.playerActionService.hasValidMove()
         ) {
-            rootService.botService.calculateBestTurn()
+            rootService.botService.calculateTurn()
 
             playAnimation(DelayAnimation((game.simulationSpeed * 1000).roundToInt()).apply {
                 onFinished = { makeNextBotMove() }

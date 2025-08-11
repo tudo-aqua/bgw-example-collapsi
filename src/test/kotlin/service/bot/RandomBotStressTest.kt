@@ -13,7 +13,7 @@ import kotlin.test.BeforeTest
 class RandomBotStressTest {
     private var root = RootService()
 
-    val botDifficulty = 0
+    val botDifficulty = 1
 
     @BeforeTest
     fun setup() {
@@ -94,7 +94,7 @@ class RandomBotStressTest {
         while (root.currentGame != null) {
             val currentPlayer = gameState.currentPlayer
 
-            root.botService.calculateBestTurn()
+            root.botService.calculateTurn()
 
             // Move until the game ends or the player switches.
             while (root.currentGame != null && gameState.currentPlayer == currentPlayer) {

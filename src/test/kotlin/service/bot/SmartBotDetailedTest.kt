@@ -7,15 +7,15 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 
 /**
- * This class runs one full game on each board size using the random bot and logs the games.
+ * This class runs one full game on each board size using the smart bot and logs the games.
  *
  * The idea is to be able to debug constantly occurring problems in the bot or to supply a means
  * to enter debug mode without needing to start a game using the UI.
  */
-class RandomBotDetailedTest {
+class SmartBotDetailedTest {
     private var root = RootService()
 
-    val botDifficulty = 1
+    val botDifficulty = 4
 
     @BeforeTest
     fun setup() {

@@ -6,8 +6,8 @@ package entity
  * @property color The color (or playing pieces) of the player, represented by a [PlayerColor].
  * @property type The type of the player, represented by a [PlayerType].
  * @property position The current position of the player on the board, represented by a [Coordinate].
- * @property botDifficulty The difficulty of the player if [type] is set to [PlayerType.BOT]. (Range 0-1).
- * 0 means random moves. 1 means always make the best move the bot can find.
+ * @property botDifficulty The difficulty of the player if [type] is set to [PlayerType.BOT]. (Range 1-4).
+ * 1 means random moves. 4 means always make the best move the bot can find.
  */
 data class Player(
     val color: PlayerColor,

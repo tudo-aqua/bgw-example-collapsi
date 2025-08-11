@@ -1,6 +1,7 @@
 package service
 
 import entity.*
+import kotlin.random.Random
 
 /**
  * Service class that manages al game-related operations in the Collapsi game.
@@ -8,6 +9,9 @@ import entity.*
  * @param root The root service that provides access to the overall game state.
  */
 class GameService(private val root: RootService) : AbstractRefreshingService() {
+    // Todo: For debugging only. Remove in final version.
+    val random = Random(1)
+
     fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }

@@ -33,8 +33,8 @@ class GameServiceTest {
         )
 
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        assertNotNull(game.currentGame)
 
+        game.currentGame.players[1].alive = false
         rootService.gameService.endGame()
 
         assertNull(rootService.currentGame)
