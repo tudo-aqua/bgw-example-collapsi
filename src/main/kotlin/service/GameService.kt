@@ -27,25 +27,18 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
 
         // Initialize player starting tiles.
         val playerTiles = mutableListOf<Tile>()
-        for (i in playerTypes.indices) {
+        val expectedPlayerTiles = boardSize - 2
+        for (i in 0..expectedPlayerTiles - 1) {
             val position = unassignedPositions.removeFirst()
             val tile = Tile(position, 1, PlayerColor.entries[i])
-            playerTiles.add(tile)
             board.put(position, tile)
-        }
-        // If there are not enough players to fill the board, starting tiles are added to the board already collapsed.
-        if (boardSize == 5 && playerTypes.size == 2 || boardSize == 6 && playerTypes.size <= 3) {
-            val position = unassignedPositions.removeFirst()
-            val tile = Tile(position, 1, null).apply { collapsed = true }
-            board.put(position, tile)
-        }
-        if (boardSize == 6 && playerTypes.size == 2) {
-            val position = unassignedPositions.removeFirst()
-            val tile = Tile(position, 1, null).apply { collapsed = true }
-            board.put(position, tile)
-        }
-        println(board)
 
+            if (i < playerTypes.size) {
+                playerTiles.add(tile)
+            } else {
+                tile.collapsed = true
+            }
+        }
 
         // Initialize all other tiles.
 

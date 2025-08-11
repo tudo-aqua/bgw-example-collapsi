@@ -43,9 +43,9 @@ class StartNewGameTest {
         assertEquals(16, currentState.board.size)
         assertEquals(4, currentState.boardSize)
         // Check that there are two starting tiles on the board.
-        assertEquals(currentState.board.count { it.value.startTileColor != null }, 2)
+        assertEquals(currentState.board.count { it.value.startTileColor != null && !it.value.collapsed }, 2)
         // Check that there are four tiles with a step value of 1 (+ the two starting Tiles).
-        assertEquals(currentState.board.count { it.value.movesToMake == 1 }, 6)
+        assertEquals(currentState.board.count { it.value.movesToMake == 1 && !it.value.collapsed }, 6)
         // Check that there are four tiles with a step value of 2.
         assertEquals(currentState.board.count { it.value.movesToMake == 2 }, 4)
         // Check that there are four tiles with a step value of 3.
@@ -77,9 +77,9 @@ class StartNewGameTest {
         assertEquals(25, currentState.board.size)
         assertEquals(5, currentState.boardSize)
         // Check that there are three starting tiles on the board.
-        assertEquals(currentState.board.count { it.value.startTileColor != null }, 3)
+        assertEquals(currentState.board.count { it.value.startTileColor != null && !it.value.collapsed }, 3)
         // Check that there are six tiles with a step value of 1 (+ the three starting Tiles).
-        assertEquals(currentState.board.count { it.value.movesToMake == 1 }, 9)
+        assertEquals(currentState.board.count { it.value.movesToMake == 1 && !it.value.collapsed }, 9)
         // Check that there are six tiles with a step value of 2.
         assertEquals(currentState.board.count { it.value.movesToMake == 2 }, 6)
         // Check that there are six tiles with a step value of 3.
