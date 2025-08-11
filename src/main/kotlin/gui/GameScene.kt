@@ -3,8 +3,10 @@ package gui
 import entity.Coordinate
 import entity.Player
 import entity.PlayerColor
+import entity.PlayerType
 import entity.Tile
 import service.RootService
+import tools.aqua.bgw.animation.DelayAnimation
 import tools.aqua.bgw.components.ComponentView
 import tools.aqua.bgw.components.container.LinearLayout
 import tools.aqua.bgw.components.gamecomponentviews.CardView
@@ -15,7 +17,7 @@ import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.visual.*
-import javax.swing.text.Position
+import kotlin.math.roundToInt
 
 class GameScene(
     val rootService: RootService
@@ -180,7 +182,7 @@ class GameScene(
         addComponents(greenPlayer, orangePlayer, yellowPlayer, redPlayer)
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
-            val startingColor : ImageVisual = when (tile.startTileColor) {
+            val startingColor: ImageVisual = when (tile.startTileColor) {
                 PlayerColor.GREEN_SQUARE -> ImageVisual("GameScene/Tile_P1.png")
                 PlayerColor.ORANGE_HEXAGON -> ImageVisual("GameScene/Tile_P2.png")
                 PlayerColor.YELLOW_CIRCLE -> ImageVisual("GameScene/Tile_P3.png")
@@ -203,7 +205,7 @@ class GameScene(
                     width = 108.33
                     height = 108.33
                 }
-                if ( !tile.collapsed) showFront()
+                if (!tile.collapsed) showFront()
                 if (!currentState.currentPlayer.position.neighbours.contains(coordinate)) {
                     isDisabled = true
                 }
@@ -235,9 +237,17 @@ class GameScene(
         val currentLabel = activePlayerLabel[currentState.currentPlayer.color]
         checkNotNull(currentLabel)
         activePlayer.posX = currentLabel.actualPosX - 10
+
+        if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
+            rootService.botService.calculateBestTurn()
+
+            playAnimation(DelayAnimation(((game.simulationSpeed + 1) * 1000).roundToInt()).apply {
+                onFinished = { makeNextBotMove() }
+            })
+        }
     }
 
-    override fun refreshAfterMoveTo(from : Coordinate, to: Coordinate) {
+    override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
         val game = rootService.currentGame
         checkNotNull(game)
         val currentState = game.currentGame
@@ -304,11 +314,39 @@ class GameScene(
             }
             stepTokenLine.add(stepTokenList[i])
         }
+
+        if (currentState.currentPlayer.type == PlayerType.BOT
+            && game.simulationSpeed >= 0
+            && rootService.playerActionService.hasValidMove()
+        ) {
+            rootService.botService.calculateBestTurn()
+
+            playAnimation(DelayAnimation((game.simulationSpeed * 1000).roundToInt()).apply {
+                onFinished = { makeNextBotMove() }
+            })
+        }
     }
 
     //--------------------^ Refreshes ^--------------------
 
     //--------------------v Helper Functions v--------------------
+
+    fun makeNextBotMove() {
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val gameState = game.currentGame
+        val originalPlayer = gameState.currentPlayer
+
+        playAnimation(DelayAnimation((0.35 * game.simulationSpeed * 1000).roundToInt()).apply {
+            onFinished = {
+                rootService.botService.makeMove()
+
+                // Move until the player switches.
+                if (gameState.currentPlayer == originalPlayer) {
+                    makeNextBotMove()
+                }
+            }
+        })
+    }
 
     /**
      * Function to initialize the scene with information given after the start of the game.

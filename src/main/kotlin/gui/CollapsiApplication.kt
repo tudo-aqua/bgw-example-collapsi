@@ -14,8 +14,6 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     private val endGameMenuScene = EndGameMenuScene(root)
 
-    private val botUpdater = BotUpdater(root)
-
     private val consoleRefreshable = ConsoleRefreshable(root)
 
     init {
@@ -23,7 +21,6 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
             this,
             lobbyScene,
             gameScene,
-            botUpdater,
             consoleRefreshable
         )
 
