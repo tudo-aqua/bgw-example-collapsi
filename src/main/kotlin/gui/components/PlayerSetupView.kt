@@ -67,7 +67,7 @@ class PlayerSetupView(
             "LobbyScene/Exports/Button_PlayerTypes_Local",
             "LobbyScene/Exports/Button_PlayerTypes_Bot"
         ),
-        selectedIndex = 0
+        initialSelectedIndex = 0
     ).apply {
         isVisible = false
     }
@@ -87,7 +87,7 @@ class PlayerSetupView(
             "LobbyScene/Exports/Button_BotDifficulty_3",
             "LobbyScene/Exports/Button_BotDifficulty_4"
         ),
-        selectedIndex = 3
+        initialSelectedIndex = 3
     ).apply {
         buttons[0].isDisabled = true
         isVisible = false

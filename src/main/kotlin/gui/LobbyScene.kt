@@ -65,9 +65,9 @@ class LobbyScene(
             "LobbyScene/Exports/Button_BoardSize_5x5",
             "LobbyScene/Exports/Button_BoardSize_6x6"
         ),
-        selectedIndex = 0
+        initialSelectedIndex = 0
     ).apply {
-        onSelectionChanged = { boardSize = it + 4 }
+        onSelectionChanged = { selectedIndex -> boardSize = selectedIndex + 4 }
     }
 
     private val backButton = Button(

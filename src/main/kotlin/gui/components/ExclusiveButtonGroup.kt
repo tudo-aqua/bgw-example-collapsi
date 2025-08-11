@@ -14,9 +14,9 @@ class ExclusiveButtonGroup(
     buttonSize: Number,
     spacing: Number,
     val imagePaths: List<String>,
-    var selectedIndex: Int
+    initialSelectedIndex: Int
 ) :
-    Pane<StaticComponentView<*>>(
+    Pane<Label>(
         posX = posX,
         posY = posY,
         width = width,
@@ -36,6 +36,8 @@ class ExclusiveButtonGroup(
             onMouseClicked = { if (selectedIndex != buttonIndex) selectButton(buttonIndex) }
         }
     }
+
+    private var selectedIndex = initialSelectedIndex
 
     // Not called when the user presses the same button twice.
     var onSelectionChanged: ((Int) -> Unit)? = null
