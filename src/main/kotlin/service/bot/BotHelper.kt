@@ -1,19 +1,35 @@
 package service.bot
 
-import entity.Coordinate
+import entity.*
 import service.RootService
 
 class BotHelper(private val root: RootService) {
     // This returns the list of paths the player can take. Only one path per end position.
-    fun getPossibleUniquePaths(): List<List<Coordinate>> {
-        val paths = mutableListOf<List<Coordinate>>()
+    fun getPossibleUniquePaths(): List<Path> {
+        val paths = mutableListOf<Path>()
 
         completePath(paths)
 
         return paths
     }
 
-    fun completePath(allPaths: MutableList<List<Coordinate>>) {
+    fun getPossibleUniquePathsForPlayer(color: PlayerColor): List<Path> {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val gameState = game.currentGame
+
+        val paths = mutableListOf<Path>()
+
+        val oldPlayerIndex = gameState.currentPlayerIndex
+        gameState.currentPlayerIndex = gameState.players.indexOfFirst { it.color == color }
+
+        completePath(paths)
+
+        gameState.currentPlayerIndex = oldPlayerIndex
+
+        return paths
+    }
+
+    fun completePath(allPaths: MutableList<Path>) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer

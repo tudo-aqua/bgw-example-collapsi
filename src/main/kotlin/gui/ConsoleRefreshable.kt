@@ -2,6 +2,7 @@ package gui
 
 import entity.Coordinate
 import entity.Player
+import entity.PlayerType
 import service.RootService
 
 class ConsoleRefreshable(private val root: RootService) : Refreshable {
@@ -13,7 +14,15 @@ class ConsoleRefreshable(private val root: RootService) : Refreshable {
 
         println("- ${gameState.boardSize}x${gameState.boardSize} board")
         println("- ${gameState.players.size} players")
-        println("- ${gameState.currentPlayer.color} starts")
+        for (player in gameState.players) {
+            val playerTypeString = when (player.type) {
+                PlayerType.LOCAL -> "Local"
+                PlayerType.BOT -> "Lvl. ${player.botDifficulty} Bot"
+                PlayerType.REMOTE -> "Remote"
+            }
+            println("- ${player.color} ($playerTypeString) starts on ${player.position}")
+        }
+        println("- ${gameState.currentPlayer.color} is first to move.")
         println()
     }
 

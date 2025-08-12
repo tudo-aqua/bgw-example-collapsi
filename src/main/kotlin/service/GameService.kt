@@ -110,10 +110,6 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         gameState.nextPlayer()
         player = gameState.currentPlayer
 
-        // Replace the most recent state in the undo stack to be at the start of the next player's turn instead.
-        if (game.undoStack.isNotEmpty())
-            game.undoStack[game.undoStack.lastIndex] = game.currentGame.clone()
-
         onAllRefreshables { refreshAfterEndTurn() }
 
         // Collapse the tile if the player has nowhere to move at the start of their turn.
