@@ -24,6 +24,8 @@ class TestRefreshable(val rootService: RootService) : Refreshable {
     var refreshAfterGameEndCalled: Boolean = false
         private set
 
+    var winner: Player? = null
+
     /**
      * resets all *Called properties to false
      */
@@ -32,6 +34,7 @@ class TestRefreshable(val rootService: RootService) : Refreshable {
         refreshAfterMoveToCalled = false
         refreshAfterEndTurnCalled = false
         refreshAfterGameEndCalled = false
+        winner = null
     }
 
     override fun refreshAfterStartNewGame() {
@@ -48,5 +51,6 @@ class TestRefreshable(val rootService: RootService) : Refreshable {
 
     override fun refreshAfterGameEnd(winner: Player) {
         refreshAfterGameEndCalled = true
+        this.winner = winner
     }
 }
