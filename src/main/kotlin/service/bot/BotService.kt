@@ -17,7 +17,7 @@ typealias Path = List<Coordinate>
  * Value at index i is the evaluation from the pov of player i.
  *
  * In classic minimax, there are only 2 players, so a player's success is directly correlated to
- * the failure of the opponent, which can both be represented as a single Double value.
+ * the failure of the opponent, which can both be represented using a single [Double] value.
  * One player therefore tries to maximize that value while the other one tries to minimize it
  * (hence the term "minimax").
  *
@@ -47,6 +47,9 @@ class BotService(private val mainRootService: RootService) {
      * The [BotService] as well as the [NetworkService] are some of the only classes that are occasionally
      * allowed to break this rule. This is because the variables stored there are not related to the state
      * of the game, but rather the plan of the bot or the state of the network respectively.
+     *
+     * @see calculateTurn
+     * @see makeMove
      */
     val intendedMoves = mutableListOf<Coordinate>()
 
@@ -71,6 +74,9 @@ class BotService(private val mainRootService: RootService) {
         root = RootService()
         helper = BotHelper(root)
 
+        // Clone the GameState, so we can work on a separate instance without disturbing the original.
+        // Tip: If the bot should not have access to certain information (such as the draw stack in other games),
+        // then you could remove that data here.
         val game = CollapsiGame(oldGame.currentGame.clone())
         root.currentGame = game
 
@@ -104,6 +110,7 @@ class BotService(private val mainRootService: RootService) {
      * @throws IllegalStateException if there were no moves stored. This can happen if [calculateTurn] wasn't called.
      *
      * @see calculateTurn
+     * @see PlayerActionService.moveTo
      */
     fun makeMove() {
         check(intendedMoves.isNotEmpty()) { "Tried to make a move without having calculated first." }
@@ -112,7 +119,7 @@ class BotService(private val mainRootService: RootService) {
     }
 
     /**
-     * Calculate the path for bot level 1: Random
+     * Calculate the [Path] for bot level 1: Random
      *
      * This bot player simply looks at all the possible end positions and picks a random one to go to.
      */
@@ -124,7 +131,7 @@ class BotService(private val mainRootService: RootService) {
     }
 
     /**
-     * Calculate the path for bot level 2: Minimax at depth 1.
+     * Calculate the [Path] for bot level 2: Minimax at depth 1.
      *
      * @see minimax
      */
@@ -133,7 +140,7 @@ class BotService(private val mainRootService: RootService) {
     }
 
     /**
-     * Calculate the path for bot level 2: Minimax at depth 4.
+     * Calculate the [Path] for bot level 3: Minimax at depth 4.
      *
      * @see minimax
      */
@@ -142,12 +149,17 @@ class BotService(private val mainRootService: RootService) {
     }
 
     /**
-     * Calculate the path for bot level 2: Minimax at depth 8.
+     * Calculate the [Path] for bot level 4: Minimax at variable depth.
      *
      * @see minimax
      */
     private fun getLevel4Path(): Path {
-        return minimax(8).first
+        val game = checkNotNull(mainRootService.currentGame) { "No game is currently running." }
+        val gameState = game.currentGame
+
+        val depth = 12 - gameState.boardSize
+
+        return minimax(depth).first
     }
 
     /**
@@ -167,7 +179,8 @@ class BotService(private val mainRootService: RootService) {
      *
      * These [Evaluation]s are then propagated upwards. Minimax assumes that every player will make
      * the decision that benefits themselves the most. If that assumption happens to be wrong,
-     * that player has put themselves at a disadvantage anyway.
+     * that player has put themselves at a disadvantage anyway. (Note: This logic only works for 2-player
+     * minimax; see [Evaluation])
      *
      * For Collapsi in particular, it doesn't make sense to look at the individual steps of a turn.
      * Only the final position matters, which is why we simulate a full path of one player
@@ -175,7 +188,7 @@ class BotService(private val mainRootService: RootService) {
      *
      * @param depth The remaining depth to search. Must be at least 1.
      *
-     * @return The [Path] to take this turn and the evaluation this will lead to.
+     * @return The [Path] to take this turn and the [Evaluation] this will lead to.
      *
      * @see Evaluation
      * @see evaluate
@@ -201,14 +214,12 @@ class BotService(private val mainRootService: RootService) {
             val gameEnded = root.currentGame == null
             root.currentGame = game
 
-            val currentEval: Evaluation
-
             // Evaluate the current position depending on depth.
             // If the depth is >1, we go deeper. Otherwise, we stop here.
-            if (depth > 1 && !gameEnded) {
-                currentEval = minimax(depth - 1).second
+            val currentEval: Evaluation = if (depth > 1 && !gameEnded) {
+                minimax(depth - 1).second
             } else {
-                currentEval = evaluate()
+                evaluate()
             }
 
             // Update bestResult if the current result is better.
@@ -230,9 +241,10 @@ class BotService(private val mainRootService: RootService) {
     }
 
     /**
-     * Evaluates the current [GameState].
+     * Evaluates the current [GameState] for each player.
      *
-     * The evaluation function is a key component for a minimax bot.
+     * The evaluation function is a key component for a minimax bot. In games where the players have
+     * a lot of options every turn, this function is where most of the bots intelligence comes from.
      *
      * If we could simulate every possible continuation of a state in [minimax],
      * this function would simply return -1 for a loss and +1 for a win.

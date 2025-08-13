@@ -3,8 +3,22 @@ package service.bot
 import entity.*
 import service.RootService
 
+/**
+ * Helper class for the [BotService].
+ *
+ * This class contains deterministic methods that are only relevant for the bot.
+ */
 class BotHelper(private val root: RootService) {
-    // This returns the list of paths the player can take. Only one path per end position.
+    /**
+     * Returns a list of all [Path]s the current player could take.
+     *
+     * In Collapsi, the exact moves you take to get to a destination don't matter, so this
+     * method only returns one path per unique end position (last element in the path).
+     *
+     * @return All paths with unique end positions for the current player.
+     *
+     * @see Path
+     */
     fun getPossibleUniquePaths(): List<Path> {
         val paths = mutableListOf<Path>()
 
@@ -13,6 +27,18 @@ class BotHelper(private val root: RootService) {
         return paths
     }
 
+    /**
+     * Returns a list of all [Path]s the given player could take if it was their turn.
+     *
+     * In Collapsi, the exact moves you take to get to a destination don't matter, so this
+     * method only returns one path per unique end position (last element in the path).
+     *
+     * @param color The color of the player to get the paths for.
+     *
+     * @return All paths with unique end positions for the player with the color in [color].
+     *
+     * @see Path
+     */
     fun getPossibleUniquePathsForPlayer(color: PlayerColor): List<Path> {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
@@ -29,7 +55,15 @@ class BotHelper(private val root: RootService) {
         return paths
     }
 
-    fun completePath(allPaths: MutableList<Path>) {
+    /**
+     * Recursive method to collect all [Path]s that the current player could take.
+     *
+     * Will call itself if the player has more than 1 move remaining, otherwise it will add the
+     * newly found paths to [allPaths] using [Player.visitedTiles].
+     *
+     * @param allPaths The list of already found paths. Will be modified if a new path is found.
+     */
+    private fun completePath(allPaths: MutableList<Path>) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer
@@ -57,10 +91,14 @@ class BotHelper(private val root: RootService) {
         }
     }
 
-    fun getPossibleMoves(): List<Coordinate> {
+    /**
+     * Finds all the valid [Coordinate]s the current player could move to in 1 step.
+     *
+     * @return A list of valid [Coordinate]s for [service.PlayerActionService.moveTo].
+     */
+    private fun getPossibleMoves(): List<Coordinate> {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
-        val player = gameState.currentPlayer
+        val player = game.currentGame.currentPlayer
 
         return player.position.neighbours.filter { root.playerActionService.canMoveTo(it) }
     }
