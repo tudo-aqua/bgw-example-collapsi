@@ -12,6 +12,21 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
     // Todo: For debugging only. Remove in final version.
     val random = Random(1)
 
+    /**
+     * Initializes a new instance of [CollapsiGame] in [RootService].
+     *
+     * Creates the board and distributes tiles to fill it.
+     *
+     * @param playerTypes A list of players that are in this game.
+     * @param botDifficulties A list of values for [Player.botDifficulty] for each player.
+     * Must be the same size as [playerTypes].
+     * @param boardSize The size of the board (4-6). The board will be quadratic, so 4x4, 5x5 or 6x6.
+     *
+     * @throws IllegalStateException if a game was already running in [root].
+     * @throws IllegalArgumentException if [playerTypes] or [botDifficulties] weren't between 2-4 and the same size.
+     * @throws IllegalArgumentException if [boardSize] wasn't between 4-6.
+     * @throws IllegalArgumentException if [boardSize] isn't big enough for the given player count.
+     */
     fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
         require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
@@ -86,6 +101,13 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
     /**
      * Ends the current player's turn and starts the next player's turn.
      * Called when the current player has no remaining moves to make or no legal moves as options.
+     *
+     * Will also call [endTurn] again if the next player has no legal moves.
+     *
+     * Will end the game and declare a winner if only one player is left alive.
+     *
+     * @throws IllegalStateException if no game was running.
+     * @throws IllegalStateException if the current player still had valid moves and steps to take.
      */
     fun endTurn() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
@@ -123,6 +145,12 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         }
     }
 
+    /**
+     * Ends the game, finds the winner and sets [RootService.currentGame] to null.
+     *
+     * @throws IllegalStateException if no game was running.
+     * @throws IllegalStateException if not exactly 1 player was alive.
+     */
     fun endGame() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         check(game.currentGame.players.count { it.alive } == 1) { "Game should end with exactly 1 alive player." }

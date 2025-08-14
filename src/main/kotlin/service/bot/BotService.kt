@@ -65,6 +65,7 @@ class BotService(private val mainRootService: RootService) {
      *
      * This needs to be called before [makeMove] for all types of bots.
      *
+     * @throws IllegalStateException if no game was running.
      * @throws IllegalStateException if the current player is not a bot.
      *
      * @see makeMove
