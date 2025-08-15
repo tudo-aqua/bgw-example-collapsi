@@ -203,6 +203,8 @@ class BotService(private val mainRootService: RootService) {
         // Get all paths the player could take right now.
         val possiblePaths = helper.getPossibleUniquePaths()
 
+        check(possiblePaths.isNotEmpty())
+
         // We only care about the path with the best result.
         var bestPath: Path? = null
         var bestEval: Evaluation? = null

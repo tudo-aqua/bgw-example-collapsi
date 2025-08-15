@@ -2,6 +2,7 @@ package service.bot
 
 import entity.*
 import org.junit.jupiter.api.RepeatedTest
+import org.junit.jupiter.api.assertDoesNotThrow
 import service.*
 import kotlin.test.BeforeTest
 
@@ -40,7 +41,7 @@ class RandomBotStressTest {
             boardSize = 4
         )
 
-        runGame()
+        assertDoesNotThrow { runGame() }
     }
 
     /**
@@ -54,7 +55,7 @@ class RandomBotStressTest {
             boardSize = 5
         )
 
-        runGame()
+        assertDoesNotThrow { runGame() }
     }
 
     /**
@@ -68,7 +69,7 @@ class RandomBotStressTest {
             boardSize = 6
         )
 
-        runGame()
+        assertDoesNotThrow { runGame() }
     }
 
     /**
@@ -82,7 +83,7 @@ class RandomBotStressTest {
             boardSize = 5
         )
 
-        runGame()
+        assertDoesNotThrow { runGame() }
     }
 
     /**
@@ -96,7 +97,7 @@ class RandomBotStressTest {
             boardSize = 6
         )
 
-        runGame()
+        assertDoesNotThrow { runGame() }
     }
 
     /**
@@ -110,7 +111,7 @@ class RandomBotStressTest {
             boardSize = 6
         )
 
-        runGame()
+        assertDoesNotThrow { runGame() }
     }
 
     /**
