@@ -7,6 +7,8 @@ import entity.PlayerType
 import entity.Tile
 import service.RootService
 import tools.aqua.bgw.animation.DelayAnimation
+import tools.aqua.bgw.animation.FlipAnimation
+import tools.aqua.bgw.animation.MovementAnimation
 import tools.aqua.bgw.components.ComponentView
 import tools.aqua.bgw.components.container.LinearLayout
 import tools.aqua.bgw.components.gamecomponentviews.CardView
@@ -16,6 +18,7 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
+import tools.aqua.bgw.core.DEFAULT_LINEAR_LAYOUT_SPACING
 import tools.aqua.bgw.visual.*
 import kotlin.math.roundToInt
 
@@ -35,21 +38,21 @@ class GameScene(
     //--------------------v Left Info Pane v--------------------
 
     private val infoPane = Pane<ComponentView>(
-        width = 480,
+        width = 540,
         height = 1080,
-        visual = ImageVisual("GameScene/GameHudBackground.png"),
+        visual = ImageVisual("GameScene/GameHudBackgroundV1.png"),
     ).apply {
         isFocusable = false
         isDisabled = true
     }
 
     private val playerLine = LinearLayout<TokenView>(
-        width = 480,
+        width = 460,
         height = 128,
-        posX = 0,
-        posY = 64,
+        posX = 40,
+        posY = 144,
         alignment = Alignment.CENTER,
-        spacing = 64,
+        spacing = 40,
     )
 
     private val greenPlayerVisual = TokenView(
@@ -79,18 +82,17 @@ class GameScene(
     private val activePlayer = Label(
         width = 84,
         height = 116,
-        //posX = 134,
-        posY = 90,
+        posY = 170,
         visual = ImageVisual("GameScene/CurrentPlayerArrow.png")
     )
 
     private val stepTokenLine = LinearLayout<TokenView>(
-        width = 480,
+        width = 460,
         height = 128,
-        posX = 0,
-        posY = 244,
+        posX = 40,
+        posY = 308,
         alignment = Alignment.CENTER,
-        spacing = 48,
+        spacing = 40,
     )
 
     //--------------------^ Left Info Pane ^--------------------
@@ -128,10 +130,10 @@ class GameScene(
     //--------------------^ Player Tokens ^--------------------
 
     private val playContainer = Pane<ComponentView>(
-        width = 720,
-        height = 720,
+        width = 784,
+        height = 784,
         posX = 660,
-        posY = 190,
+        posY = 148,
         //visual = ColorVisual.BLACK
     )
 
@@ -139,7 +141,6 @@ class GameScene(
         background = ImageVisual("gameScene/Background.png")
 
         infoPane.addAll(activePlayer, playerLine, stepTokenLine)
-        playerLine.addAll(greenPlayerVisual, orangePlayerVisual)
 
         addComponents(playContainer, infoPane)
     }
@@ -191,19 +192,19 @@ class GameScene(
             }
 
             val cardView = CardView(
-                width = 160,
-                height = 160,
+                width = 176, //192, //160,
+                height = 176, //192, //160,
                 posX = 0,
                 posY = 0,
                 front = startingColor,
                 back = ImageVisual("GameScene/Tile_Collapsed.png")
             ).apply {
                 if (currentState.boardSize == 5) {
-                    width = 128.0
-                    height = 128.0
+                    width = 140.8 //153.6 //128.0
+                    height = 140.8 //153.6 //128.0
                 } else if (currentState.boardSize == 6) {
-                    width = 108.33
-                    height = 108.33
+                    width = 119.167 //130.0 //108.33
+                    height = 119.167 //130.0 //108.33
                 }
                 if (!tile.collapsed) showFront()
                 if (!currentState.currentPlayer.position.neighbours.contains(coordinate)) {
@@ -255,19 +256,33 @@ class GameScene(
         val playerTokenToMove = players.filter { it.key.color == currentState.currentPlayer.color }.values.firstOrNull()
         checkNotNull(playerTokenToMove)
 
-        playerTokenToMove.apply {
-            posX = getPlayerPosX(to)
-            posY = getPlayerPosY(to)
-        }
+        playAnimation(MovementAnimation(playerTokenToMove, getPlayerPosX(from), getPlayerPosX(to), getPlayerPosY(from), getPlayerPosY(to), 500).apply {
+            onFinished = {
+                playerTokenToMove.apply {
+                    posX = getPlayerPosX(to)
+                    posY = getPlayerPosY(to)
+                }
+            }
+        })
 
         if (currentState.currentPlayer.visitedTiles.size == 1) {
             val collapsedTileView = playTiles[currentState.getTileAt(from)]
             checkNotNull(collapsedTileView)
-            collapsedTileView.apply { showBack() }
+            collapsedTileView.apply {
+                playAnimation(FlipAnimation(collapsedTileView, collapsedTileView.frontVisual, collapsedTileView.backVisual, 500).apply {
+                    onFinished = {
+                        collapsedTileView.showBack()
+                    }
+                })
+            }
         }
 
         val stepToken = stepTokenList[currentState.currentPlayer.remainingMoves]
-        stepToken.offset(getPlayerPosX(from) - stepToken.actualPosX, getPlayerPosY(from) - stepToken.actualPosY)
+        playAnimation(MovementAnimation(stepToken, stepToken.actualPosX, getPlayerPosX(from), stepToken.actualPosY, getPlayerPosY(from), 500).apply {
+            onFinished = {
+                stepToken.offset(getPlayerPosX(from) - stepToken.actualPosX, getPlayerPosY(from) - stepToken.actualPosY)
+            }
+        })
 
         currentState.getTileAt(from).position.neighbours.forEach { neighbour ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
@@ -282,6 +297,14 @@ class GameScene(
 
                 neighbourTileView.apply { isDisabled = false }
             }
+        }
+
+        if (currentState.currentPlayer.remainingMoves <= 0) {
+            playAnimation(DelayAnimation(1000).apply {
+                onFinished = {
+                    rootService.gameService.endTurn()
+                }
+            })
         }
     }
 
@@ -356,12 +379,18 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentGame
 
+        for (player in currentState.players) {
+            val playerVisualToAdd = activePlayerLabel[player.color]
+            checkNotNull(playerVisualToAdd)
+            playerLine.add(playerVisualToAdd)
+        }
+
         if (currentState.players.size >= 3) {
-            playerLine.add(yellowPlayerVisual)
+            yellowPlayer.apply { isVisible = true }
             playerLine.apply { spacing = 56.0 }
         }
         if (currentState.players.size == 4) {
-            playerLine.add(redPlayerVisual)
+            redPlayer.apply { isVisible = true }
             playerLine.apply { spacing = 48.0 }
         }
 
@@ -397,19 +426,20 @@ class GameScene(
             currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.position
         )
 
-        if (currentState.players.size == 3) {
+        if (currentState.players.size >= 3) {
             yellowPlayer.posX = getPlayerPosX(
                 currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position
             )
             yellowPlayer.posY = getPlayerPosY(
                 currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position
             )
-        } else if (currentState.players.size == 4) {
-            yellowPlayer.posX = getPlayerPosX(
-                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position
+        }
+        if (currentState.players.size == 4) {
+            redPlayer.posX = getPlayerPosX(
+                currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.position
             )
-            yellowPlayer.posY = getPlayerPosY(
-                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position
+            redPlayer.posY = getPlayerPosY(
+                currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.position
             )
         }
     }

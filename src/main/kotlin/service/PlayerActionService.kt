@@ -47,11 +47,6 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         player.remainingMoves--
 
         onAllRefreshables { refreshAfterMoveTo(previousTile.position, destination) }
-
-        // End the turn if the player has used all steps.
-        if (player.remainingMoves <= 0) {
-            root.gameService.endTurn()
-        }
     }
 
     /**
