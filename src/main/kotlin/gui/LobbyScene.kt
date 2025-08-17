@@ -11,6 +11,13 @@ import tools.aqua.bgw.visual.*
 import gui.components.ExclusiveButtonGroup
 import gui.components.PlayerSetupView
 
+/**
+ * Scene for setting up the players and the game rules.
+ *
+ * Also works for online games.
+ *
+ * @param root The root service of the game.
+ */
 class LobbyScene(
     private val root: RootService
 ) : MenuScene(1920, 1080), Refreshable {
@@ -121,6 +128,11 @@ class LobbyScene(
         playerSetupViews[2].addButton.isVisible = true
     }
 
+    /**
+     * Adds a player in the next free slot.
+     *
+     * @throws IllegalStateException if there were already 4 players present.
+     */
     fun addPlayer() {
         check(playerTypes.size < 4) { "Tried to add a fifth player." }
 
@@ -145,6 +157,11 @@ class LobbyScene(
             playerSetupViews[3].addButton.isVisible = true
     }
 
+    /**
+     * Removes the right-most player.
+     *
+     * @throws IllegalStateException if there were only 2 players (2 players is the minimum).
+     */
     fun removePlayer() {
         check(playerTypes.size > 2) { "Tried to remove the second player." }
 

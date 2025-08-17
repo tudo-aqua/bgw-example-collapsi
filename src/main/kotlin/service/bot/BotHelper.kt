@@ -102,4 +102,29 @@ class BotHelper(private val root: RootService) {
 
         return player.position.neighbours.filter { root.playerActionService.canMoveTo(it) }
     }
+
+    /**
+     * Calls [BotService.calculateTurn] and [BotService.makeMove] until the current game is over.
+     * A game must have been started beforehand.
+     *
+     * @throws IllegalStateException if no game has been started.
+     * @throws IllegalStateException if one of the players wasn't a bot.
+     */
+    fun runGame() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val gameState = game.currentGame
+
+        check(gameState.players.all { it.type == PlayerType.BOT }) { "Tried to run a game with a non-bot player." }
+
+        // Call the bots until the game is over.
+        while (root.currentGame != null) {
+            root.botService.calculateTurn()
+
+            repeat(gameState.currentPlayer.remainingMoves) {
+                root.botService.makeMove()
+            }
+
+            root.gameService.endTurn()
+        }
+    }
 }

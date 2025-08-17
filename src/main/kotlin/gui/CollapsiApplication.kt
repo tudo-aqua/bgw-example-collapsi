@@ -4,6 +4,9 @@ import entity.Player
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
 
+/**
+ * Implementation of the BGW [BoardGameApplication] for the game "Collapsi".
+ */
 class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     private val root = RootService()

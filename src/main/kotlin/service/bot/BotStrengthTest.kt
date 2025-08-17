@@ -1,8 +1,8 @@
 package service.bot
 
-import service.*
 import entity.*
-import kotlin.test.*
+import service.*
+import java.util.Locale
 
 /**
  * This class tests the improvements in bot strength over different levels by repeatedly running matches
@@ -12,26 +12,13 @@ class BotStrengthTest {
     /**
      * The current [RootService].
      */
-    private var root = RootService()
+    private val root = RootService()
 
-    /**
-     * The current [TestRefreshable].
-     */
-    private var testRefreshable = TestRefreshable(root)
-
-    /**
-     * Setup function that creates a [RootService] with a [TestRefreshable].
-     */
-    @BeforeTest
-    fun setup() {
-        root = RootService()
-        root.addRefreshable(testRefreshable)
-    }
+    private val helper = BotHelper(root)
 
     /**
      * Fight between two lvl-1 bots as a sanity check. The result should be around 50% for both.
      */
-    @Test
     fun lvl1VsLvl1BoardSize4() {
         runMatches(
             difficulties = listOf(1, 1),
@@ -43,7 +30,6 @@ class BotStrengthTest {
     /**
      * Fight between two lvl-2 bots as a sanity check. The result should be around 50% for both.
      */
-    @Test
     fun lvl2VsLvl2BoardSize4() {
         runMatches(
             difficulties = listOf(2, 2),
@@ -55,7 +41,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-1 vs. a lvl-2 bot on a 4x4 board.
      */
-    @Test
     fun lvl1VsLvl2BoardSize4() {
         runMatches(
             difficulties = listOf(1, 2),
@@ -67,7 +52,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-1 vs. a lvl-2 bot on a 5x5 board.
      */
-    @Test
     fun lvl1VsLvl2BoardSize5() {
         runMatches(
             difficulties = listOf(1, 2),
@@ -79,7 +63,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-1 vs. a lvl-2 bot on a 6x6 board.
      */
-    @Test
     fun lvl1VsLvl2BoardSize6() {
         runMatches(
             difficulties = listOf(1, 2),
@@ -91,7 +74,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-1 vs. a lvl-3 bot on a 4x4 board.
      */
-    @Test
     fun lvl1VsLvl3BoardSize4() {
         runMatches(
             difficulties = listOf(1, 3),
@@ -103,7 +85,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-2 vs. a lvl-3 bot on a 4x4 board.
      */
-    @Test
     fun lvl2VsLvl3BoardSize4() {
         runMatches(
             difficulties = listOf(2, 3),
@@ -115,7 +96,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-1 vs. a lvl-4 bot on a 4x4 board.
      */
-    @Test
     fun lvl1VsLvl4BoardSize4() {
         runMatches(
             difficulties = listOf(1, 4),
@@ -127,7 +107,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-2 vs. a lvl-4 bot on a 4x4 board.
      */
-    @Test
     fun lvl2VsLvl4BoardSize4() {
         runMatches(
             difficulties = listOf(2, 4),
@@ -139,7 +118,6 @@ class BotStrengthTest {
     /**
      * Tests a lvl-3 vs. a lvl-4 bot on a 4x4 board.
      */
-    @Test
     fun lvl3VsLvl4BoardSize4() {
         runMatches(
             difficulties = listOf(3, 4),
@@ -156,7 +134,7 @@ class BotStrengthTest {
      * @param boardSize The size of the board that the matches take place on.
      * @param iterations The number of games to simulate.
      */
-    fun runMatches(difficulties: List<Int>, boardSize: Int, iterations: Int) {
+    private fun runMatches(difficulties: List<Int>, boardSize: Int, iterations: Int) {
         // Wins sorted by color.
         val wins = MutableList(difficulties.size) { 0 }
 
@@ -167,11 +145,13 @@ class BotStrengthTest {
                 boardSize = boardSize
             )
 
-            runGame()
+            // Cache game, because it will be set to null on the game end.
+            val game = checkNotNull(root.currentGame)
+
+            helper.runGame()
 
             // Award a point to the winner.
-            assertTrue(testRefreshable.refreshAfterGameEndCalled)
-            val winner = assertNotNull(testRefreshable.winner)
+            val winner = game.currentGame.players.first { it.alive }
             wins[winner.color.ordinal]++
         }
 
@@ -182,34 +162,9 @@ class BotStrengthTest {
         println("- ${boardSize}x${boardSize} board.")
         for ((i, difficulty) in difficulties.withIndex()) {
             val percentage = wins[i].toDouble() / iterations
-            val percentageString = String.format("%.1f", percentage * 100)
+            val percentageString = String.format(Locale.US, "%.1f", percentage * 100)
             println("- Lvl. $difficulty bot won ${wins[i]} (${percentageString}%)")
         }
         println()
-    }
-
-    /**
-     * Calls [BotService.calculateTurn] and [BotService.makeMove] until the current game is over.
-     * A game must have been started beforehand.
-     *
-     * @throws IllegalStateException if no game has been started.
-     * @throws IllegalStateException if one of the players wasn't a bot.
-     */
-    fun runGame() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
-
-        check(gameState.players.all { it.type == PlayerType.BOT }) { "Tried to run a game with a non-bot player." }
-
-        // Call the bots until the game is over.
-        while (root.currentGame != null) {
-            root.botService.calculateTurn()
-
-            repeat(gameState.currentPlayer.remainingMoves) {
-                root.botService.makeMove()
-            }
-
-            root.gameService.endTurn()
-        }
     }
 }

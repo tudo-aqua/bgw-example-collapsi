@@ -11,7 +11,8 @@ class TileTest {
      * Tests the initialization and properties of a [Tile] instance.
      * This test checks that the [Tile] is correctly initialized with the specified position, moves to make, and start
      * tile color as well as the default values for collapsed and visited status.
-     * It also verifies that the [Tile]s properties for collapsed and visited status can be modified after initialization.
+     * It also verifies that the [Tile]s properties for collapsed and visited status can be modified
+     * after initialization.
      */
     @Test
     fun testTileInitialization() {

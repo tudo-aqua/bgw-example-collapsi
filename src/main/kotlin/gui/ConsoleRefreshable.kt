@@ -5,6 +5,11 @@ import entity.Player
 import entity.PlayerType
 import service.RootService
 
+/**
+ * Refreshable that listens to all refreshes and logs them to the console.
+ *
+ * This can be useful for debugging or for understanding the game state without the need for a GUI.
+ */
 class ConsoleRefreshable(private val root: RootService) : Refreshable {
     override fun refreshAfterStartNewGame() {
         println("[Refresh] Start New Game:")

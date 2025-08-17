@@ -1,9 +1,9 @@
-package service.bot
+package service
 
-import entity.*
+import entity.PlayerType
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.assertDoesNotThrow
-import service.*
+import service.bot.BotHelper
 import kotlin.test.BeforeTest
 
 /**
@@ -17,8 +17,10 @@ class RandomBotStressTest {
      */
     private var root = RootService()
 
+    private var botHelper = BotHelper(root)
+
     /**
-     * The value of [Player.botDifficulty] for each bot.
+     * The value of [entity.Player.botDifficulty] for each bot.
      */
     val botDifficulty = 1
 
@@ -28,6 +30,7 @@ class RandomBotStressTest {
     @BeforeTest
     fun setup() {
         root = RootService()
+        botHelper = BotHelper(root)
     }
 
     /**
@@ -41,7 +44,7 @@ class RandomBotStressTest {
             boardSize = 4
         )
 
-        assertDoesNotThrow { runGame() }
+        assertDoesNotThrow { botHelper.runGame() }
     }
 
     /**
@@ -55,7 +58,7 @@ class RandomBotStressTest {
             boardSize = 5
         )
 
-        assertDoesNotThrow { runGame() }
+        assertDoesNotThrow { botHelper.runGame() }
     }
 
     /**
@@ -69,7 +72,7 @@ class RandomBotStressTest {
             boardSize = 6
         )
 
-        assertDoesNotThrow { runGame() }
+        assertDoesNotThrow { botHelper.runGame() }
     }
 
     /**
@@ -83,7 +86,7 @@ class RandomBotStressTest {
             boardSize = 5
         )
 
-        assertDoesNotThrow { runGame() }
+        assertDoesNotThrow { botHelper.runGame() }
     }
 
     /**
@@ -97,7 +100,7 @@ class RandomBotStressTest {
             boardSize = 6
         )
 
-        assertDoesNotThrow { runGame() }
+        assertDoesNotThrow { botHelper.runGame() }
     }
 
     /**
@@ -111,31 +114,6 @@ class RandomBotStressTest {
             boardSize = 6
         )
 
-        assertDoesNotThrow { runGame() }
-    }
-
-    /**
-     * Calls [BotService.calculateTurn] and [BotService.makeMove] until the current game is over.
-     * A game must have been started beforehand.
-     *
-     * @throws IllegalStateException if no game has been started.
-     * @throws IllegalStateException if one of the players wasn't a bot.
-     */
-    fun runGame() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
-
-        check(gameState.players.all { it.type == PlayerType.BOT }) { "Tried to run a game with a non-bot player." }
-
-        // Call the bots until the game is over.
-        while (root.currentGame != null) {
-            root.botService.calculateTurn()
-
-            repeat(gameState.currentPlayer.remainingMoves) {
-                root.botService.makeMove()
-            }
-
-            root.gameService.endTurn()
-        }
+        assertDoesNotThrow { botHelper.runGame() }
     }
 }

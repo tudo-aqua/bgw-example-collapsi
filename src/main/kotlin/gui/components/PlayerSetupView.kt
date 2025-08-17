@@ -6,6 +6,17 @@ import tools.aqua.bgw.components.uicomponents.*
 import tools.aqua.bgw.visual.ImageVisual
 import tools.aqua.bgw.visual.Visual
 
+/**
+ * Custom component for the player view in the [gui.LobbyScene].
+ *
+ * Contains the player pawn as well as buttons for player type and bot difficulty.
+ *
+ * @param posX The x position of the component.
+ * @param posY The y position of the component.
+ * @param width The width of the component.
+ * @param height The height of the component.
+ * @param playerId The index of the player this view is for. 0-3.
+ */
 class PlayerSetupView(
     posX: Number,
     posY: Number,
@@ -103,6 +114,13 @@ class PlayerSetupView(
         )
     }
 
+    /**
+     * Will change whether this player is currently displayed as being included in the upcoming game.
+     *
+     * Only included players have the gradient behind them and can have their settings edited.
+     *
+     * @param isIncluded The new value for [PlayerSetupView.isIncluded].
+     */
     fun setIsIncluded(isIncluded: Boolean) {
         this.isIncluded = isIncluded
 

@@ -5,6 +5,20 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.visual.ImageVisual
 
+/**
+ * Custom component for a set of buttons where exactly one of them needs to be selected at all times.
+ *
+ * @param posX The x position of the component.
+ * @param posY The y position of the component.
+ * @param width The width of the component.
+ * @param height The height of the component.
+ * @param buttonCount The number of buttons that are in this group.
+ * @param buttonSize The width/height of the buttons. Buttons are always square.
+ * @param spacing The spacing between the individual buttons.
+ * @param imagePaths The images used for the buttons. Size must match [buttonCount].
+ * Path must lead to two images. Once when adding "_Selected.png" and one when adding "_Deselected.png".
+ * @param initialSelectedIndex The index of the initially selected button.
+ */
 class ExclusiveButtonGroup(
     posX: Number,
     posY: Number,
@@ -23,6 +37,9 @@ class ExclusiveButtonGroup(
         height = height,
     ) {
 
+    /**
+     * The buttons that are in this group.
+     */
     val buttons = List(buttonCount) { buttonIndex ->
         Label(
             posX = -buttonSize.toDouble() / 2
@@ -33,13 +50,23 @@ class ExclusiveButtonGroup(
             height = buttonSize,
             visual = ImageVisual("${imagePaths[buttonIndex]}_Deselected.png")
         ).apply {
+            // Only call selectButton if a new button was selected.
             onMouseClicked = { if (selectedIndex != buttonIndex) selectButton(buttonIndex) }
         }
     }
 
+    /**
+     * The index of the button that is currently selected.
+     */
     private var selectedIndex = initialSelectedIndex
 
-    // Not called when the user presses the same button twice.
+    /**
+     * A custom function that is called whenever the selection changes.
+     *
+     * This function is not triggered if the same button is pressed twice.
+     *
+     * The given value is the index of the newly selected button.
+     */
     var onSelectionChanged: ((Int) -> Unit)? = null
 
     init {
@@ -50,6 +77,13 @@ class ExclusiveButtonGroup(
         selectButton(selectedIndex)
     }
 
+    /**
+     * Selects the given button.
+     *
+     * Updates the images and calls [onSelectionChanged].
+     *
+     * @param index The index of the button to select.
+     */
     fun selectButton(index: Int) {
         selectedIndex = index
 
