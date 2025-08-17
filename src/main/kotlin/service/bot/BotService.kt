@@ -203,7 +203,7 @@ class BotService(private val mainRootService: RootService) {
         // Get all paths the player could take right now.
         val possiblePaths = helper.getPossibleUniquePaths()
 
-        check(possiblePaths.isNotEmpty())
+        check(possiblePaths.isNotEmpty()) { "Bot could not find any possible paths." }
 
         // We only care about the path with the best result.
         var bestPath: Path? = null
@@ -212,6 +212,7 @@ class BotService(private val mainRootService: RootService) {
         for (currentPath in possiblePaths) {
             // Try out the path.
             currentPath.forEach { root.playerActionService.moveTo(it) }
+            root.gameService.endTurn()
 
             // Undo the game being set to null in endGame().
             val gameEnded = root.currentGame == null

@@ -203,14 +203,13 @@ class BotStrengthTest {
 
         // Call the bots until the game is over.
         while (root.currentGame != null) {
-            val currentPlayer = gameState.currentPlayer
-
             root.botService.calculateTurn()
 
-            // Move until the player switches.
-            while (gameState.currentPlayer == currentPlayer) {
+            repeat(gameState.currentPlayer.remainingMoves) {
                 root.botService.makeMove()
             }
+
+            root.gameService.endTurn()
         }
     }
 }
