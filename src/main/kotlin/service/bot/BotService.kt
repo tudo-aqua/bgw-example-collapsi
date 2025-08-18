@@ -35,9 +35,9 @@ typealias Evaluation = List<Double>
  * Service class for the bot functionality in the Collapsi game.
  * This class is responsible for managing bot players and their actions.
  *
- * @param mainRootService The root service that provides access to the overall game state.
+ * @param root The root service that provides access to the overall game state.
  */
-class BotService(private val mainRootService: RootService) {
+class BotService(private val root: RootService) {
     /**
      * A list of moves the bot intends to do during their turn.
      * This is calculated at the start of their turn in [calculateTurn] and acted upon as the gui calls [makeMove].
@@ -54,9 +54,10 @@ class BotService(private val mainRootService: RootService) {
      */
     val intendedMoves = mutableListOf<Coordinate>()
 
-    lateinit var root: RootService
-
-    lateinit var helper: BotHelper
+    /**
+     * The helper class for the [BotService]. Contains deterministic methods only relevant for the bot.
+     */
+    val helper = BotHelper(root)
 
     // Todo: For debugging only. Remove in final version.
     val random = Random(1)
@@ -72,34 +73,29 @@ class BotService(private val mainRootService: RootService) {
      * @see makeMove
      */
     fun calculateTurn() {
-        val oldGame = checkNotNull(mainRootService.currentGame) { "No game is currently running." }
-        root = RootService()
-        helper = BotHelper(root)
+        val oldGame = checkNotNull(root.currentGame) { "No game is currently running." }
 
         // Clone the GameState, so we can work on a separate instance without disturbing the original.
         // Tip: If the bot should not have access to certain information (such as the draw stack in other games),
         // then you could remove that data here.
         val game = CollapsiGame(oldGame.currentGame.clone())
-        root.currentGame = game
+        val currentPlayer = oldGame.currentGame.currentPlayer
 
-        val gameState = oldGame.currentGame
-        val player = gameState.currentPlayer
-
-        check(player.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
-        check(mainRootService.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
-        check(player.visitedTiles.isEmpty()) { "Tried to calculate a turn for a player that already moved." }
-        check(player.botDifficulty in 1..4) { "Bot difficulty needs to be between 1 and 4 (inclusive)." }
+        check(currentPlayer.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
+        check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
+        check(currentPlayer.visitedTiles.isEmpty()) { "Tried to calculate a turn for a player that already moved." }
+        check(currentPlayer.botDifficulty in 1..4) { "Bot difficulty needs to be between 1 and 4 (inclusive)." }
         check(intendedMoves.isEmpty()) { "Tried to calculate move when upcoming moves were already set." }
 
-        val path = when (player.botDifficulty) {
-            1 -> getLevel1Path()
-            2 -> getLevel2Path()
-            3 -> getLevel3Path()
-            4 -> getLevel4Path()
-            else -> throw IllegalStateException("Unsupported bot difficulty: ${player.botDifficulty}")
+        val path = when (currentPlayer.botDifficulty) {
+            1 -> getLevel1Path(game)
+            2 -> getLevel2Path(game)
+            3 -> getLevel3Path(game)
+            4 -> getLevel4Path(game)
+            else -> throw IllegalStateException("Unsupported bot difficulty: ${currentPlayer.botDifficulty}")
         }
 
-        check(path.size == player.remainingMoves) { "The calculated path wasn't of the correct size." }
+        check(path.size == currentPlayer.remainingMoves) { "The calculated path wasn't of the correct size." }
 
         intendedMoves.addAll(path)
     }
@@ -117,16 +113,18 @@ class BotService(private val mainRootService: RootService) {
     fun makeMove() {
         check(intendedMoves.isNotEmpty()) { "Tried to make a move without having calculated first." }
 
-        mainRootService.playerActionService.moveTo(intendedMoves.removeFirst())
+        root.playerActionService.moveTo(intendedMoves.removeFirst())
     }
 
     /**
      * Calculate the [Path] for bot level 1: Random
      *
      * This bot player simply looks at all the possible end positions and picks a random one to go to.
+     *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      */
-    private fun getLevel1Path(): Path {
-        val possiblePaths = helper.getPossibleUniquePaths()
+    private fun getLevel1Path(game: CollapsiGame): Path {
+        val possiblePaths = helper.getPossibleUniquePaths(game)
         check(possiblePaths.isNotEmpty()) { "Possible paths was empty." }
 
         return possiblePaths[Random.nextInt(possiblePaths.size)]
@@ -135,36 +133,42 @@ class BotService(private val mainRootService: RootService) {
     /**
      * Calculate the [Path] for bot level 2: Minimax at depth 1.
      *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
      * @see minimax
      */
-    private fun getLevel2Path(): Path {
-        return minimax(1, Date().time + 9000).path
+    private fun getLevel2Path(game: CollapsiGame): Path {
+        return minimax(1, Date().time + 3000, game).bestPath
     }
 
     /**
      * Calculate the [Path] for bot level 3: Minimax at depth 4.
      *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
      * @see minimax
      */
-    private fun getLevel3Path(): Path {
-        return minimax(4, Date().time + 9000).path
+    private fun getLevel3Path(game: CollapsiGame): Path {
+        return minimax(4, Date().time + 3000, game).bestPath
     }
 
     /**
      * Calculate the [Path] for bot level 4: Minimax at variable depth.
      *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
      * @see minimax
      */
-    private fun getLevel4Path(): Path {
+    private fun getLevel4Path(game: CollapsiGame): Path {
         var depth = 2
-        val endTime = Date().time + 9000
+        val endTime = Date().time + 3000
 
         var bestResult: MinimaxResult? = null;
 
         while (Date().time < endTime) {
             depth++
             println("Searching at depth $depth.")
-            val minimaxResult = minimax(depth, endTime)
+            val minimaxResult = minimax(depth, endTime, game)
 
             if (Date().time < endTime) {
                 bestResult = minimaxResult
@@ -182,7 +186,7 @@ class BotService(private val mainRootService: RootService) {
 
         println("Evaluation: ${bestResult.evaluation}.")
 
-        return bestResult.path
+        return bestResult.bestPath
     }
 
     /**
@@ -211,20 +215,22 @@ class BotService(private val mainRootService: RootService) {
      *
      * @param maxDepth The remaining depth to search. Must be at least 1.
      * @param maxTime The timestamp at which this method aborts.
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      *
-     * @return The [Path] to take this turn and the [Evaluation] this will lead to.
+     * @return The result of the minimax including the best path and its evaluation.
+     * See [MinimaxResult] for more info.
      *
      * @see Evaluation
      * @see evaluate
+     * @see MinimaxResult
      */
-    private fun minimax(maxDepth: Int, maxTime: Long): MinimaxResult {
+    private fun minimax(maxDepth: Int, maxTime: Long, game: CollapsiGame): MinimaxResult {
         require(maxDepth >= 1) { "Depth must be at least 1." }
 
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentPlayerIndex = game.currentGame.currentPlayerIndex
 
         // Get all paths the player could take right now.
-        val possiblePaths = helper.getPossibleUniquePaths()
+        val possiblePaths = helper.getPossibleUniquePaths(game)
 
         check(possiblePaths.isNotEmpty()) { "Bot could not find any possible paths." }
 
@@ -235,23 +241,21 @@ class BotService(private val mainRootService: RootService) {
 
         for (currentPath in possiblePaths) {
             // Try out the path.
-            currentPath.forEach { root.playerActionService.moveTo(it) }
-            root.gameService.endTurn()
+            currentPath.forEach { root.playerActionService.moveTo(it, game) }
+            root.gameService.endTurn(game)
 
-            // Undo the game being set to null in endGame().
-            val gameEnded = root.currentGame == null
-            root.currentGame = game
+            val gameEnded = game.currentGame.players.count { it.alive } == 1
 
             // Evaluate the current position depending on depth.
-            // If the depth is >1, we go deeper. Otherwise, we stop here.
+            // If the maxDepth or maxTime was reached or the game ended, we stop here.
             val currentEval: Evaluation
             if (maxDepth > 1 && !gameEnded && Date().time < maxTime) {
-                val minimaxResult = minimax(maxDepth - 1, maxTime)
+                val minimaxResult = minimax(maxDepth - 1, maxTime, game)
 
                 currentEval = minimaxResult.evaluation
                 maxDepthReached = maxDepthReached || minimaxResult.maxDepthReached
             } else {
-                currentEval = evaluate()
+                currentEval = evaluate(game)
                 maxDepthReached = maxDepthReached || maxDepth <= 1
             }
 
@@ -263,7 +267,7 @@ class BotService(private val mainRootService: RootService) {
             }
 
             // Undo all the moves.
-            repeat(currentPath.size) { root.playerActionService.undo() }
+            repeat(currentPath.size) { root.playerActionService.undo(game) }
         }
 
         // Cast to non-nullable.
@@ -291,13 +295,14 @@ class BotService(private val mainRootService: RootService) {
      *
      * Of course, dying or winning is always more important and will therefore override the other evaluation.
      *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
      * @return The evaluation of the current state.
      *
      * @see Evaluation
      * @see minimax
      */
-    private fun evaluate(): Evaluation {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    private fun evaluate(game: CollapsiGame): Evaluation {
         val gameState = game.currentGame
 
         val gameEnded = gameState.players.count { it.alive } == 1
@@ -306,11 +311,11 @@ class BotService(private val mainRootService: RootService) {
             val player = gameState.players[playerIndex]
 
             if (!player.alive) // Player died. Gain a penalty.
-                -50.0
+                -99.0
             else if (gameEnded) // Player won. Earn a reward.
-                50.0
+                100.0
             else // Game still going. Associate more movement options with a better evaluation.
-                helper.getPossibleUniquePathsForPlayer(player.color).size.toDouble()
+                helper.getPossibleUniquePathsForPlayer(player.color, game).size.toDouble()
         }
 
         return eval

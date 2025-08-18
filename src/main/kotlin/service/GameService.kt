@@ -106,16 +106,18 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
      *
      * Will end the game and declare a winner if only one player is left alive.
      *
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
+     *
      * @throws IllegalStateException if no game was running.
      * @throws IllegalStateException if the current player still had valid moves and steps to take.
      */
-    fun endTurn() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun endTurn(game: CollapsiGame? = root.currentGame) {
+        checkNotNull(game) { "No game is currently running." }
         val gameState = game.currentGame
         var player = gameState.currentPlayer
         val currentTile = gameState.getTileAt(player.position)
 
-        check(player.remainingMoves <= 0 || !root.playerActionService.hasValidMove())
+        check(player.remainingMoves <= 0 || !root.playerActionService.hasValidMove(game))
         { "A player ended their turn with ${player.remainingMoves} steps left and some possible valid move." }
 
         player.visitedTiles.forEach { gameState.getTileAt(it).visited = false }
@@ -124,7 +126,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
 
         // Declare a winner.
         if (gameState.players.count { it.alive } <= 1) {
-            root.gameService.endGame()
+            root.gameService.endGame(game)
 
             return
         }
@@ -132,34 +134,40 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         gameState.nextPlayer()
         player = gameState.currentPlayer
 
-        onAllRefreshables { refreshAfterEndTurn() }
+        if (game == root.currentGame)
+            onAllRefreshables { refreshAfterEndTurn() }
 
         // Collapse the tile if the player has nowhere to move at the start of their turn.
-        if (!root.playerActionService.hasValidMove()) {
+        if (!root.playerActionService.hasValidMove(game)) {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
 
-            onAllRefreshables { refreshAfterPlayerDied(player) }
+            if (game == root.currentGame)
+                onAllRefreshables { refreshAfterPlayerDied(player) }
 
-            endTurn()
+            endTurn(game)
         }
     }
 
     /**
      * Ends the game, finds the winner and sets [RootService.currentGame] to null.
      *
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
+     *
      * @throws IllegalStateException if no game was running.
      * @throws IllegalStateException if not exactly 1 player was alive.
      */
-    fun endGame() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    private fun endGame(game: CollapsiGame? = root.currentGame) {
+        checkNotNull(game) { "No game is currently running." }
         check(game.currentGame.players.count { it.alive } == 1) { "Game should end with exactly 1 alive player." }
 
         val winner = game.currentGame.players.first { it.alive }
 
-        onAllRefreshables { refreshAfterGameEnd(winner) }
+        if (game == root.currentGame) {
+            onAllRefreshables { refreshAfterGameEnd(winner) }
 
-        root.currentGame = null
+            root.currentGame = null
+        }
     }
 
     fun save() {

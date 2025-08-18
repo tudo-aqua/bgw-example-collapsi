@@ -14,20 +14,21 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      * Ends the turn if the player had no more steps left.
      *
      * @param destination The [Coordinate] that the current player should move to.
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
      *
-     * @throws IllegalStateException if no game was running.
+     * @throws IllegalStateException if the given [game] was null.
      * @throws IllegalStateException if the move was not valid based on [canMoveTo].
      *
      * @see canMoveTo
      * @see hasValidMove
      */
-    fun moveTo(destination: Coordinate) {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun moveTo(destination: Coordinate, game: CollapsiGame? = root.currentGame) {
+        checkNotNull(game) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
         require(destination.boardSize == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
-        check(canMoveTo(destination)) { "Tried to perform an illegal move to $destination." }
+        check(canMoveTo(destination, game)) { "Tried to perform an illegal move to $destination." }
 
         val previousTile = gameState.getTileAt(player.position)
 
@@ -46,7 +47,8 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         player.position = destination
         player.remainingMoves--
 
-        onAllRefreshables { refreshAfterMoveTo(previousTile.position, destination) }
+        if (game == root.currentGame)
+            onAllRefreshables { refreshAfterMoveTo(previousTile.position, destination) }
     }
 
     /**
@@ -61,6 +63,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      * has at least one valid path from the current position as well.)
      *
      * @param destination The [Coordinate] that the current player wants to move to.
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
      *
      * @return True if this is a valid move.
      *
@@ -71,8 +74,8 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      * @see hasValidMove
      * @see moveTo
      */
-    fun canMoveTo(destination: Coordinate): Boolean {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun canMoveTo(destination: Coordinate, game: CollapsiGame? = root.currentGame): Boolean {
+        checkNotNull(game) { "No game is currently running." }
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
@@ -92,7 +95,8 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         val hasValidMovesOnDestination = hasValidMove(
             destination,
             player.remainingMoves - 1,
-            extendedVisitedTiles
+            extendedVisitedTiles,
+            game
         )
 
         return !tile.collapsed && !tile.visited && isAdjacent && hasValidMovesOnDestination
@@ -102,12 +106,14 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      * Checks whether there is any sequence of legal moves that the current player can perform given the
      * current game state.
      *
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
+     *
      * @throws IllegalStateException if no game was running.
      */
-    fun hasValidMove(): Boolean {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun hasValidMove(game: CollapsiGame? = root.currentGame): Boolean {
+        checkNotNull(game) { "No game is currently running." }
         val player = game.currentGame.currentPlayer
-        return hasValidMove(player.position, player.remainingMoves, player.visitedTiles)
+        return hasValidMove(player.position, player.remainingMoves, player.visitedTiles, game)
     }
 
     /**
@@ -117,6 +123,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      * @param remainingMoves The number of moves that this player still needs to make from this position.
      * @param visitedTiles The path the player took to this position. Empty if the player starts at the
      * specified position. Will be modified but will return to its original state after this function is done.
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
      *
      * @return True if there exists a path starting from [position] that makes [remainingMoves] steps and doesn't
      * end on a player or go through a collapsed or visited tile.
@@ -127,9 +134,10 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
     private fun hasValidMove(
         position: Coordinate,
         remainingMoves: Int,
-        visitedTiles: MutableList<Coordinate> = mutableListOf()
+        visitedTiles: MutableList<Coordinate> = mutableListOf(),
+        game: CollapsiGame? = root.currentGame
     ): Boolean {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        checkNotNull(game) { "No game is currently running." }
         val gameState = game.currentGame
         val tile = gameState.getTileAt(position)
 
@@ -148,7 +156,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
             if (visitedTiles.contains(destination))
                 continue
 
-            if (hasValidMove(destination, remainingMoves - 1, visitedTiles)) {
+            if (hasValidMove(destination, remainingMoves - 1, visitedTiles, game)) {
                 visitedTiles.removeLast()
                 return true
             }
@@ -162,13 +170,15 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
     /**
      * Returns to the previous [GameState] saved in [CollapsiGame.undoStack].
      *
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
+     *
      * @throws IllegalStateException if no game was running.
      * @throws IllegalStateException if [CollapsiGame.undoStack] was empty.
      *
      * @see redo
      */
-    fun undo() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun undo(game: CollapsiGame? = root.currentGame) {
+        checkNotNull(game) { "No game is currently running." }
         check(game.undoStack.isNotEmpty()) { "Can't undo, because there are no past states." }
 
         game.redoStack.add(game.currentGame)
@@ -178,13 +188,15 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
     /**
      * After calling [undo], this will return to the most recent "future" [GameState] saved in [CollapsiGame.redoStack].
      *
+     * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
+     *
      * @throws IllegalStateException if no game was running.
      * @throws IllegalStateException if [CollapsiGame.redoStack] was empty.
      *
      * @see undo
      */
-    fun redo() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun redo(game: CollapsiGame? = root.currentGame) {
+        checkNotNull(game) { "No game is currently running." }
         check(game.redoStack.isNotEmpty()) { "Can't redo, because there are no future states." }
 
         game.undoStack.add(game.currentGame)

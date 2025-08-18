@@ -15,14 +15,16 @@ class BotHelper(private val root: RootService) {
      * In Collapsi, the exact moves you take to get to a destination don't matter, so this
      * method only returns one path per unique end position (last element in the path).
      *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
      * @return All paths with unique end positions for the current player.
      *
      * @see Path
      */
-    fun getPossibleUniquePaths(): List<Path> {
+    fun getPossibleUniquePaths(game: CollapsiGame): List<Path> {
         val paths = mutableListOf<Path>()
 
-        completePath(paths)
+        completePath(paths, game)
 
         return paths
     }
@@ -34,13 +36,13 @@ class BotHelper(private val root: RootService) {
      * method only returns one path per unique end position (last element in the path).
      *
      * @param color The color of the player to get the paths for.
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      *
      * @return All paths with unique end positions for the player with the color in [color].
      *
      * @see Path
      */
-    fun getPossibleUniquePathsForPlayer(color: PlayerColor): List<Path> {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    fun getPossibleUniquePathsForPlayer(color: PlayerColor, game: CollapsiGame): List<Path> {
         val gameState = game.currentGame
 
         val paths = mutableListOf<Path>()
@@ -48,7 +50,7 @@ class BotHelper(private val root: RootService) {
         val oldPlayerIndex = gameState.currentPlayerIndex
         gameState.currentPlayerIndex = gameState.players.indexOfFirst { it.color == color }
 
-        completePath(paths)
+        completePath(paths, game)
 
         gameState.currentPlayerIndex = oldPlayerIndex
 
@@ -62,14 +64,14 @@ class BotHelper(private val root: RootService) {
      * newly found paths to [allPaths] using [Player.visitedTiles].
      *
      * @param allPaths The list of already found paths. Will be modified if a new path is found.
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      */
-    private fun completePath(allPaths: MutableList<Path>) {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    private fun completePath(allPaths: MutableList<Path>, game: CollapsiGame) {
         val gameState = game.currentGame
         val player = gameState.currentPlayer
 
         if (player.remainingMoves <= 1) {
-            for (newPosition in getPossibleMoves()) {
+            for (newPosition in getPossibleMoves(game)) {
                 // Ignore this path if there is already a path with this end position.
                 if (allPaths.any { it.last() == newPosition })
                     continue
@@ -83,10 +85,10 @@ class BotHelper(private val root: RootService) {
                 allPaths.add(extendedPath)
             }
         } else {
-            for (newPosition in getPossibleMoves()) {
-                root.playerActionService.moveTo(newPosition)
-                completePath(allPaths)
-                root.playerActionService.undo()
+            for (newPosition in getPossibleMoves(game)) {
+                root.playerActionService.moveTo(newPosition, game)
+                completePath(allPaths, game)
+                root.playerActionService.undo(game)
             }
         }
     }
@@ -94,13 +96,14 @@ class BotHelper(private val root: RootService) {
     /**
      * Finds all the valid [Coordinate]s the current player could move to in 1 step.
      *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
      * @return A list of valid [Coordinate]s for [service.PlayerActionService.moveTo].
      */
-    private fun getPossibleMoves(): List<Coordinate> {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+    private fun getPossibleMoves(game: CollapsiGame): List<Coordinate> {
         val player = game.currentGame.currentPlayer
 
-        return player.position.neighbours.filter { root.playerActionService.canMoveTo(it) }
+        return player.position.neighbours.filter { root.playerActionService.canMoveTo(it, game) }
     }
 
     /**
