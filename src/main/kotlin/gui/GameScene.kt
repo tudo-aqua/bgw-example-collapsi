@@ -40,7 +40,7 @@ class GameScene(
     private val infoPane = Pane<ComponentView>(
         width = 540,
         height = 1080,
-        visual = ImageVisual("GameScene/GameHudBackgroundV1.png"),
+        visual = ImageVisual("GameScene/GameHudBackground.png"),
     ).apply {
         isFocusable = false
         isDisabled = true
@@ -256,33 +256,58 @@ class GameScene(
         val playerTokenToMove = players.filter { it.key.color == currentState.currentPlayer.color }.values.firstOrNull()
         checkNotNull(playerTokenToMove)
 
-        playAnimation(MovementAnimation(playerTokenToMove, getPlayerPosX(from), getPlayerPosX(to), getPlayerPosY(from), getPlayerPosY(to), 500).apply {
-            onFinished = {
-                playerTokenToMove.apply {
-                    posX = getPlayerPosX(to)
-                    posY = getPlayerPosY(to)
+        playAnimation(
+            MovementAnimation(
+                playerTokenToMove,
+                getPlayerPosX(from),
+                getPlayerPosX(to),
+                getPlayerPosY(from),
+                getPlayerPosY(to),
+                500
+            ).apply {
+                onFinished = {
+                    playerTokenToMove.apply {
+                        posX = getPlayerPosX(to)
+                        posY = getPlayerPosY(to)
+                    }
                 }
-            }
-        })
+            })
 
         if (currentState.currentPlayer.visitedTiles.size == 1) {
             val collapsedTileView = playTiles[currentState.getTileAt(from)]
             checkNotNull(collapsedTileView)
             collapsedTileView.apply {
-                playAnimation(FlipAnimation(collapsedTileView, collapsedTileView.frontVisual, collapsedTileView.backVisual, 500).apply {
-                    onFinished = {
-                        collapsedTileView.showBack()
-                    }
-                })
+                playAnimation(
+                    FlipAnimation(
+                        collapsedTileView,
+                        collapsedTileView.frontVisual,
+                        collapsedTileView.backVisual,
+                        500
+                    ).apply {
+                        onFinished = {
+                            collapsedTileView.showBack()
+                        }
+                    })
             }
         }
 
         val stepToken = stepTokenList[currentState.currentPlayer.remainingMoves]
-        playAnimation(MovementAnimation(stepToken, stepToken.actualPosX, getPlayerPosX(from), stepToken.actualPosY, getPlayerPosY(from), 500).apply {
-            onFinished = {
-                stepToken.offset(getPlayerPosX(from) - stepToken.actualPosX, getPlayerPosY(from) - stepToken.actualPosY)
-            }
-        })
+        playAnimation(
+            MovementAnimation(
+                stepToken,
+                stepToken.actualPosX,
+                getPlayerPosX(from),
+                stepToken.actualPosY,
+                getPlayerPosY(from),
+                500
+            ).apply {
+                onFinished = {
+                    stepToken.offset(
+                        getPlayerPosX(from) - stepToken.actualPosX,
+                        getPlayerPosY(from) - stepToken.actualPosY
+                    )
+                }
+            })
 
         currentState.getTileAt(from).position.neighbours.forEach { neighbour ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
@@ -364,7 +389,7 @@ class GameScene(
                 rootService.botService.makeMove()
 
                 // Move until the player switches.
-                if (gameState.currentPlayer == originalPlayer) {
+                if (gameState.currentPlayer == originalPlayer && originalPlayer.remainingMoves > 0) {
                     makeNextBotMove()
                 }
             }

@@ -2,6 +2,7 @@ package service.bot
 
 import entity.*
 import service.*
+import java.util.Date
 import kotlin.random.Random
 
 /**
@@ -137,7 +138,7 @@ class BotService(private val mainRootService: RootService) {
      * @see minimax
      */
     private fun getLevel2Path(): Path {
-        return minimax(1).first
+        return minimax(1, Date().time + 9000).path
     }
 
     /**
@@ -146,7 +147,7 @@ class BotService(private val mainRootService: RootService) {
      * @see minimax
      */
     private fun getLevel3Path(): Path {
-        return minimax(4).first
+        return minimax(4, Date().time + 9000).path
     }
 
     /**
@@ -155,12 +156,33 @@ class BotService(private val mainRootService: RootService) {
      * @see minimax
      */
     private fun getLevel4Path(): Path {
-        val game = checkNotNull(mainRootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        var depth = 2
+        val endTime = Date().time + 9000
 
-        val depth = 12 - gameState.boardSize
+        var bestResult: MinimaxResult? = null;
 
-        return minimax(depth).first
+        while (Date().time < endTime) {
+            depth++
+            println("Searching at depth $depth.")
+            val minimaxResult = minimax(depth, endTime)
+
+            if (Date().time < endTime) {
+                bestResult = minimaxResult
+            } else {
+                println("Ran out of time at depth $depth.")
+            }
+
+            if (!minimaxResult.maxDepthReached) {
+                println("Fully evaluated all paths at depth $depth.")
+                break
+            }
+        }
+
+        checkNotNull(bestResult) { "Minimax couldn't find any path in time." }
+
+        println("Evaluation: ${bestResult.evaluation}.")
+
+        return bestResult.path
     }
 
     /**
@@ -172,7 +194,7 @@ class BotService(private val mainRootService: RootService) {
      * You can think of this like a tree, where each node represents a [GameState], the root is
      * [RootService.currentGame] and the edges are [Path]s (actions).
      *
-     * The number of states to look at will increase exponentially; hence we include a [depth] parameter
+     * The number of states to look at will increase exponentially; hence we include a [maxDepth] parameter
      * to stop the search after a certain number of moves has been made.
      *
      * At the leaves of the tree, the [evaluate] function decides how favourable the [GameState] is
@@ -187,15 +209,16 @@ class BotService(private val mainRootService: RootService) {
      * Only the final position matters, which is why we simulate a full path of one player
      * per iteration of the for-loop.
      *
-     * @param depth The remaining depth to search. Must be at least 1.
+     * @param maxDepth The remaining depth to search. Must be at least 1.
+     * @param maxTime The timestamp at which this method aborts.
      *
      * @return The [Path] to take this turn and the [Evaluation] this will lead to.
      *
      * @see Evaluation
      * @see evaluate
      */
-    private fun minimax(depth: Int): Pair<Path, Evaluation> {
-        require(depth >= 1) { "Depth must be at least 1." }
+    private fun minimax(maxDepth: Int, maxTime: Long): MinimaxResult {
+        require(maxDepth >= 1) { "Depth must be at least 1." }
 
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentPlayerIndex = game.currentGame.currentPlayerIndex
@@ -208,6 +231,7 @@ class BotService(private val mainRootService: RootService) {
         // We only care about the path with the best result.
         var bestPath: Path? = null
         var bestEval: Evaluation? = null
+        var maxDepthReached = false
 
         for (currentPath in possiblePaths) {
             // Try out the path.
@@ -220,10 +244,15 @@ class BotService(private val mainRootService: RootService) {
 
             // Evaluate the current position depending on depth.
             // If the depth is >1, we go deeper. Otherwise, we stop here.
-            val currentEval: Evaluation = if (depth > 1 && !gameEnded) {
-                minimax(depth - 1).second
+            val currentEval: Evaluation
+            if (maxDepth > 1 && !gameEnded && Date().time < maxTime) {
+                val minimaxResult = minimax(maxDepth - 1, maxTime)
+
+                currentEval = minimaxResult.evaluation
+                maxDepthReached = maxDepthReached || minimaxResult.maxDepthReached
             } else {
-                evaluate()
+                currentEval = evaluate()
+                maxDepthReached = maxDepthReached || maxDepth <= 1
             }
 
             // Update bestResult if the current result is better.
@@ -241,7 +270,7 @@ class BotService(private val mainRootService: RootService) {
         checkNotNull(bestPath) { "Minimax couldn't find any paths." }
         checkNotNull(bestEval) { "Minimax couldn't find any evaluation." }
 
-        return Pair(bestPath, bestEval)
+        return MinimaxResult(bestPath, bestEval, maxDepthReached)
     }
 
     /**
