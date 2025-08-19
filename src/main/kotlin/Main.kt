@@ -36,5 +36,5 @@ private fun testBotWithConsole() {
  */
 @Suppress("unused")
 private fun runBotStrengthTest() {
-    BotStrengthTest().lvl1VsLvl1BoardSize4()
+    BotStrengthTest().lvl2VsLvl4BoardSize4()
 }

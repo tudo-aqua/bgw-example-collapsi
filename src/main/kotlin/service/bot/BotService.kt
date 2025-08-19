@@ -59,8 +59,9 @@ class BotService(private val root: RootService) {
      */
     val helper = BotHelper(root)
 
-    // Todo: For debugging only. Remove in final version.
-    val random = Random(1)
+    val winEval = 500.0
+
+    val lossEval = -499.0
 
     /**
      * Precalculate the exact order of moves to perform in the upcoming turn.
@@ -117,13 +118,78 @@ class BotService(private val root: RootService) {
     }
 
     /**
-     * Calculate the [Path] for bot level 1: Random
+     * Calculate the [Path] for bot level 1: Random.
      *
      * This bot player simply looks at all the possible end positions and picks a random one to go to.
      *
      * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      */
     private fun getLevel1Path(game: CollapsiGame): Path {
+        return getRandomPath(game)
+    }
+
+    /**
+     * Calculate the [Path] for bot level 2: Minimax at depth 6 for 0.4s at 33% accuracy.
+     *
+     * The bot will pick the best path it can find up to depth 6 with 0.4s with a 33% likelihood or
+     * a random path at 67%.
+     *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
+     * @see getRandomPath
+     * @see startTimedMinimax
+     * @see minimax
+     * @see Path
+     */
+    private fun getLevel2Path(game: CollapsiGame): Path {
+        return if (Random.nextDouble() < 0.33)
+            startTimedMinimax(game, 6, 400)
+        else
+            getRandomPath(game)
+    }
+
+    /**
+     * Calculate the [Path] for bot level 3: Minimax at depth 6 for 0.4s at 67% accuracy.
+     *
+     * The bot will pick the best path it can find up to depth 6 with 0.4s with a 67% likelihood or
+     * a random path at 33%.
+     *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
+     * @see getRandomPath
+     * @see startTimedMinimax
+     * @see minimax
+     * @see Path
+     */
+    private fun getLevel3Path(game: CollapsiGame): Path {
+        return if (Random.nextDouble() < 0.67)
+            startTimedMinimax(game, 6, 400)
+        else
+            getRandomPath(game)
+    }
+
+    /**
+     * Calculate the [Path] for bot level 4: Minimax at variable depth.
+     *
+     * This is the strongest available bot in this version of Collapsi.
+     * It calculates for up to 3 seconds.
+     *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     *
+     * @see startTimedMinimax
+     * @see minimax
+     * @see Path
+     */
+    private fun getLevel4Path(game: CollapsiGame): Path {
+        return startTimedMinimax(game, Int.MAX_VALUE, 3000)
+    }
+
+    /**
+     * Return a random valid path.
+     *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     */
+    private fun getRandomPath(game: CollapsiGame): Path {
         val possiblePaths = helper.getPossibleUniquePaths(game)
         check(possiblePaths.isNotEmpty()) { "Possible paths was empty." }
 
@@ -131,60 +197,50 @@ class BotService(private val root: RootService) {
     }
 
     /**
-     * Calculate the [Path] for bot level 2: Minimax at depth 1.
+     * Finds the best path according to the recursive [minimax].
+     *
+     * This function increases the depth until [maxDepth] or [maxDuration] is reached.
+     * In essence, it turns [minimax] into a breadth-first search where only the last complete layer is used.
      *
      * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     * @param maxDepth The maximum depth the minimax can search at. Depth increases from 1 to this value.
+     * @param maxDuration The maximum amount of time in milliseconds that the minimax can calculate for.
+     *
+     * @return The best path.
      *
      * @see minimax
+     * @see Path
      */
-    private fun getLevel2Path(game: CollapsiGame): Path {
-        return minimax(1, Date().time + 3000, game).bestPath
-    }
+    private fun startTimedMinimax(game: CollapsiGame, maxDepth: Int, maxDuration: Int): Path {
+        val log = false
 
-    /**
-     * Calculate the [Path] for bot level 3: Minimax at depth 4.
-     *
-     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
-     *
-     * @see minimax
-     */
-    private fun getLevel3Path(game: CollapsiGame): Path {
-        return minimax(4, Date().time + 3000, game).bestPath
-    }
-
-    /**
-     * Calculate the [Path] for bot level 4: Minimax at variable depth.
-     *
-     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
-     *
-     * @see minimax
-     */
-    private fun getLevel4Path(game: CollapsiGame): Path {
-        var depth = 2
-        val endTime = Date().time + 3000
+        var currentDepth = 1
+        val maxTime = Date().time + maxDuration
 
         var bestResult: MinimaxResult? = null;
 
-        while (Date().time < endTime) {
-            depth++
-            println("Searching at depth $depth.")
-            val minimaxResult = minimax(depth, endTime, game)
+        while (currentDepth <= maxDepth) {
+            if (log) println("Searching at depth $currentDepth.")
+            val minimaxResult = minimax(currentDepth, maxTime, game)
 
-            if (Date().time < endTime) {
-                bestResult = minimaxResult
-            } else {
-                println("Ran out of time at depth $depth.")
-            }
-
-            if (!minimaxResult.maxDepthReached) {
-                println("Fully evaluated all paths at depth $depth.")
+            if (minimaxResult.aborted) {
+                if (log) println("Ran out of time at depth $currentDepth.")
                 break
             }
+
+            bestResult = minimaxResult
+
+            if (!minimaxResult.estimatedEvaluation) {
+                if (log) println("Fully evaluated all paths at depth $currentDepth.")
+                break
+            }
+
+            currentDepth++
         }
 
         checkNotNull(bestResult) { "Minimax couldn't find any path in time." }
 
-        println("Evaluation: ${bestResult.evaluation}.")
+        if (log) println("Evaluation: ${bestResult.evaluation}.")
 
         return bestResult.bestPath
     }
@@ -227,6 +283,9 @@ class BotService(private val root: RootService) {
     private fun minimax(maxDepth: Int, maxTime: Long, game: CollapsiGame): MinimaxResult {
         require(maxDepth >= 1) { "Depth must be at least 1." }
 
+        if (Date().time > maxTime)
+            return MinimaxResult(listOf(), listOf(), estimatedEvaluation = false, aborted = true)
+
         val currentPlayerIndex = game.currentGame.currentPlayerIndex
 
         // Get all paths the player could take right now.
@@ -249,11 +308,13 @@ class BotService(private val root: RootService) {
             // Evaluate the current position depending on depth.
             // If the maxDepth or maxTime was reached or the game ended, we stop here.
             val currentEval: Evaluation
-            if (maxDepth > 1 && !gameEnded && Date().time < maxTime) {
+            if (maxDepth > 1 && !gameEnded) {
                 val minimaxResult = minimax(maxDepth - 1, maxTime, game)
+                if (minimaxResult.aborted)
+                    return minimaxResult
 
                 currentEval = minimaxResult.evaluation
-                maxDepthReached = maxDepthReached || minimaxResult.maxDepthReached
+                maxDepthReached = maxDepthReached || minimaxResult.estimatedEvaluation
             } else {
                 currentEval = evaluate(game)
                 maxDepthReached = maxDepthReached || maxDepth <= 1
@@ -268,13 +329,17 @@ class BotService(private val root: RootService) {
 
             // Undo all the moves.
             repeat(currentPath.size) { root.playerActionService.undo(game) }
+
+            // If this path results in a win, take it.
+            if (bestEval[currentPlayerIndex] >= winEval)
+                break
         }
 
         // Cast to non-nullable.
         checkNotNull(bestPath) { "Minimax couldn't find any paths." }
         checkNotNull(bestEval) { "Minimax couldn't find any evaluation." }
 
-        return MinimaxResult(bestPath, bestEval, maxDepthReached)
+        return MinimaxResult(bestPath, bestEval, maxDepthReached, aborted = false)
     }
 
     /**
@@ -311,9 +376,9 @@ class BotService(private val root: RootService) {
             val player = gameState.players[playerIndex]
 
             if (!player.alive) // Player died. Gain a penalty.
-                -99.0
+                lossEval
             else if (gameEnded) // Player won. Earn a reward.
-                100.0
+                winEval
             else // Game still going. Associate more movement options with a better evaluation.
                 helper.getPossibleUniquePathsForPlayer(player.color, game).size.toDouble()
         }
