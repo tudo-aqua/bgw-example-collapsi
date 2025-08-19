@@ -1,7 +1,9 @@
 package service.fileService
 
 import entity.PlayerType
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
 import service.RootService
 import service.TestRefreshable
 import kotlin.test.BeforeTest
@@ -23,6 +25,12 @@ class SaveLoadGameTest {
         root = RootService()
         testRefreshable = TestRefreshable(root)
         root.addRefreshable(testRefreshable)
+
+        // Delete saved game if it exists.
+        try {
+            root.fileService.deleteSavedGame()
+        } catch (e: IllegalStateException) {
+        }
     }
 
     @Test
@@ -60,5 +68,17 @@ class SaveLoadGameTest {
         }
 
         assertDoesNotThrow { root.fileService.deleteSavedGame() }
+    }
+
+    @Test
+    fun testExceptions() {
+        // No game running.
+        assertThrows(IllegalStateException::class.java) { root.fileService.saveGame() }
+
+        // No file found.
+        assertThrows(IllegalStateException::class.java) { root.fileService.loadGame() }
+
+        // No file found.
+        assertThrows(IllegalStateException::class.java) { root.fileService.deleteSavedGame() }
     }
 }

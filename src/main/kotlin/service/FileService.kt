@@ -83,4 +83,15 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
 
         return File(secretFilePath).readText()
     }
+
+    /**
+     * Deletes the secret for network server connection.
+     *
+     * @throws IllegalStateException if no file at [secretFilePath] exists.
+     */
+    fun deleteSecret() {
+        check(File(secretFilePath).exists()) { "Secret File doesn't exist." }
+
+        File(secretFilePath).delete()
+    }
 }
