@@ -1,10 +1,12 @@
-package service
+package service.rootService
 
-import kotlin.test.*
 import org.junit.jupiter.api.assertDoesNotThrow
+import service.RootService
+import service.TestRefreshable
+import kotlin.test.Test
 
 /**
- * Test class for the functionality of the [RootService].
+ * Test class for the functionality of the [service.RootService].
  */
 class RootServiceTest {
 

@@ -1,10 +1,17 @@
-package service
+package service.gameService
 
 import entity.PlayerType
-import kotlin.test.*
+import service.RootService
+import service.TestRefreshable
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 /**
- * Test class for the function startNewGame(...) in the [GameService].
+ * Test class for the function startNewGame(...) in the [service.GameService].
  */
 class StartNewGameTest {
     private var rootService = RootService()

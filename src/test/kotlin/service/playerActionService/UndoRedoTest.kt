@@ -1,11 +1,14 @@
-package service
+package service.playerActionService
 
-import entity.Coordinate
 import entity.PlayerType
-import kotlin.test.*
+import service.RootService
+import service.TestRefreshable
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 /**
- * Test class for the undo/redo functionality in the [GameService].
+ * Test class for the undo/redo functionality in the [service.GameService].
  */
 class UndoRedoTest {
     private var rootService = RootService()

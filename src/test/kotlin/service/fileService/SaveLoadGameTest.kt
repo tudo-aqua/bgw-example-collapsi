@@ -1,9 +1,14 @@
-package service
+package service.fileService
 
-import entity.Coordinate
 import entity.PlayerType
 import org.junit.jupiter.api.assertDoesNotThrow
-import kotlin.test.*
+import service.RootService
+import service.TestRefreshable
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNotSame
 
 class SaveLoadGameTest {
     private var root = RootService()

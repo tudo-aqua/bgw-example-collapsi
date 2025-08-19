@@ -1,10 +1,18 @@
-package service
+package service.gameService
 
 import entity.PlayerType
-import kotlin.test.*
+import service.RootService
+import service.TestRefreshable
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 /**
- * Test class for the endTurn() functionality in the [GameService].
+ * Test class for the endTurn() functionality in the [service.GameService].
  */
 class EndTurnTest {
     private var rootService = RootService()

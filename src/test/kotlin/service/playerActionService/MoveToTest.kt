@@ -1,11 +1,17 @@
-package service
+package service.playerActionService
 
 import entity.Coordinate
 import entity.PlayerType
-import kotlin.test.*
+import service.RootService
+import service.TestRefreshable
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /**
- * Test class for the function moveTo(...) in the [PlayerActionService].
+ * Test class for the function moveTo(...) in the [service.PlayerActionService].
  */
 class MoveToTest {
     private var rootService = RootService()
