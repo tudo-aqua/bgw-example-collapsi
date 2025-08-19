@@ -5,9 +5,10 @@ import edu.udo.cs.sopra.util.sopraPackageRegistry
 import org.gradle.kotlin.dsl.application
 
 plugins {
-    kotlin("jvm") version "1.9.25"
+    kotlin("jvm") version "2.2.10"
     application
     id("edu.udo.cs.sopra") version "1.0.3"
+    kotlin("plugin.serialization") version "2.2.10"
 }
 
 group = "edu.udo.cs.sopra"
@@ -35,7 +36,7 @@ dependencies {
     implementation(group = "tools.aqua", name = "bgw-gui", version = bgwVersion)
     implementation(group = "tools.aqua", name = "bgw-net-common", version = bgwVersion)
     implementation(group = "tools.aqua", name = "bgw-net-client", version = bgwVersion)
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 }
 
 /* This is how you can add the HowToPlay.pdf to the distribution zip file */

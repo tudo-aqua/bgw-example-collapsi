@@ -28,22 +28,39 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
     fun saveGame() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
 
-        val json = Json.encodeToString(game)
-        File(saveFilePath).writeText(json)
+        val json = Json {
+            allowStructuredMapKeys = true
+        }
+        val jsonString = json.encodeToString(game)
+        File(saveFilePath).writeText(jsonString)
     }
 
     /**
      * Loads the [CollapsiGame] from the file at [saveFilePath] into [RootService.currentGame].
      *
      * @throws IllegalStateException if a game was already running.
-     * @throws IllegalStateException if no file at [saveFilePath] existed.
+     * @throws IllegalStateException if no file at [saveFilePath] exists.
      */
     fun loadGame() {
         check(root.currentGame == null) { "Tried to load save file while a game was running." }
         check(File(saveFilePath).exists()) { "Save File doesn't exist." }
 
+        val json = Json {
+            allowStructuredMapKeys = true
+        }
         val jsonString = File(saveFilePath).readText()
-        root.currentGame = Json.decodeFromString(jsonString)
+        root.currentGame = json.decodeFromString(jsonString)
+    }
+
+    /**
+     * Deletes the [CollapsiGame] from the file at [saveFilePath].
+     *
+     * @throws IllegalStateException if no file at [saveFilePath] exists.
+     */
+    fun deleteSavedGame() {
+        check(File(saveFilePath).exists()) { "Save File doesn't exist." }
+
+        File(saveFilePath).delete()
     }
 
     /**
