@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity class that represents a player in the Collapsi game.
  *
@@ -9,6 +11,7 @@ package entity
  * @property botDifficulty The difficulty of the player if [type] is set to [PlayerType.BOT]. (Range 1-4).
  * 1 means random moves. 4 means always make the best move the bot can find.
  */
+@Serializable
 data class Player(
     val color: PlayerColor,
     var position: Coordinate,

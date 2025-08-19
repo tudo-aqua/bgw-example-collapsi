@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity class that represents a game state of "Collapsi".
  *
@@ -7,6 +9,7 @@ package entity
  * @property board A map containing all [Tile]s in the game, including those that are collapsed.
  * @property boardSize Size of one axis in [board], assuming the area is quadratic.
  */
+@Serializable
 data class GameState(
     val players: List<Player>,
     val board: Map<Coordinate, Tile>,

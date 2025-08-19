@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity class that represents a tile in the Collapsi game.
  *
@@ -7,6 +9,7 @@ package entity
  * @property movesToMake The number of moves required to make when starting the turn on this tile.
  * @property startTileColor Connects the tile to the [Player], if it's a starting tile. Else null.
  */
+@Serializable
 data class Tile(
     val position: Coordinate,
     val movesToMake: Int,

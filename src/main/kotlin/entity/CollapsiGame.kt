@@ -1,10 +1,13 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity class that represents the Collapsi game handling stacks of [GameState]s and the current simulation speed.
  *
  * @property currentGame The current [GameState] of the running game.
  */
+@Serializable
 data class CollapsiGame(
     var currentGame: GameState
 ) {

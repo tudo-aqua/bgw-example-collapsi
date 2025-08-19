@@ -1,7 +1,6 @@
 package service
 
 import entity.*
-import kotlin.random.Random
 
 /**
  * Service class that manages al game-related operations in the Collapsi game.
@@ -9,9 +8,6 @@ import kotlin.random.Random
  * @param root The root service that provides access to the overall game state.
  */
 class GameService(private val root: RootService) : AbstractRefreshingService() {
-    // Todo: For debugging only. Remove in final version.
-    val random = Random(1)
-
     /**
      * Initializes a new instance of [CollapsiGame] in [RootService].
      *
@@ -168,17 +164,5 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
 
             root.currentGame = null
         }
-    }
-
-    fun save() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-
-        TODO()
-    }
-
-    fun load() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-
-        TODO()
     }
 }

@@ -14,6 +14,8 @@ class RootService {
 
     val playerActionService = PlayerActionService(this)
 
+    val fileService = FileService(this)
+
     val botService = BotService(this)
 
     /**
@@ -28,6 +30,7 @@ class RootService {
     fun addRefreshable(newRefreshable: Refreshable) {
         gameService.addRefreshable(newRefreshable)
         playerActionService.addRefreshable(newRefreshable)
+        fileService.addRefreshable(newRefreshable)
     }
 
     /**

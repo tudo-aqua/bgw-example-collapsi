@@ -1,5 +1,7 @@
 package entity
 
+import kotlinx.serialization.Serializable
+
 /**
  * Entity class that represents a two-dimensional coordinate with integer coordinates.
  *
@@ -7,6 +9,7 @@ package entity
  * @property y The y-coordinate of the coordinate.
  * @property boardSize The size of the board used for wrapping the x/y coordinates.
  */
+@Serializable
 data class Coordinate(
     val x: Int,
     val y: Int,
