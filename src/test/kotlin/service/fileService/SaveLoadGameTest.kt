@@ -1,16 +1,10 @@
 package service.fileService
 
-import entity.PlayerType
+import entity.*
+import service.*
+import kotlin.test.*
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.assertDoesNotThrow
-import org.junit.jupiter.api.assertThrows
-import service.RootService
-import service.TestRefreshable
-import kotlin.test.BeforeTest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNotSame
 
 class SaveLoadGameTest {
     private var root = RootService()
@@ -29,7 +23,7 @@ class SaveLoadGameTest {
         // Delete saved game if it exists.
         try {
             root.fileService.deleteSavedGame()
-        } catch (e: IllegalStateException) {
+        } catch (_: IllegalStateException) {
         }
     }
 

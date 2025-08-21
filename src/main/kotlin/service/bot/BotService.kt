@@ -212,7 +212,7 @@ class BotService(private val root: RootService) {
      * @see Path
      */
     private fun startTimedMinimax(game: CollapsiGame, maxDepth: Int, maxDuration: Int): Path {
-        val log = false
+        val log = true
 
         var currentDepth = 1
         val maxTime = Date().time + maxDuration

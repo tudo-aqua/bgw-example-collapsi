@@ -18,7 +18,7 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
     /**
      * The path that the secret for the network will be saved in / loaded from.
      */
-    val secretFilePath = "src/main/resources/secret.json"
+    val secretFilePath = "src/main/resources/secret.txt"
 
     /**
      * Saves the [CollapsiGame] from [RootService.currentGame] into the file at [saveFilePath].

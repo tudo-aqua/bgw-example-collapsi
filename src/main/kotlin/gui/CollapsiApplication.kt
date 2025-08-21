@@ -3,6 +3,7 @@ package gui
 import entity.Player
 import service.RootService
 import tools.aqua.bgw.core.BoardGameApplication
+import tools.aqua.bgw.util.Font
 
 /**
  * Implementation of the BGW [BoardGameApplication] for the game "Collapsi".
@@ -11,7 +12,49 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     private val root = RootService()
 
-    private val lobbyScene = LobbyScene(root)
+    private val mainMenuScene: MainMenuScene by lazy {
+        MainMenuScene().apply {
+            localGameButton.onMouseClicked = {
+                showMenuScene(lobbyScene)
+            }
+            hostGameButton.onMouseClicked = {
+                hostOnlineLobbyScene.generateNewCode()
+                hostOnlineLobbyScene.loadSecret()
+                showMenuScene(hostOnlineLobbyScene)
+            }
+            joinGameButton.onMouseClicked = {
+                joinOnlineLobbyScene.loadSecret()
+                showMenuScene(joinOnlineLobbyScene)
+            }
+        }
+    }
+
+    private val lobbyScene = LobbyScene(root).apply {
+        backButton.onMouseClicked = {
+            // Todo: Show join scene if it was the previous scene, but where to save that information?
+            showMenuScene(mainMenuScene)
+        }
+    }
+
+    private val hostOnlineLobbyScene = HostOnlineLobbyScene(root).apply {
+        joinLobbyButton.onMouseClicked = {
+            saveSecret()
+            showMenuScene(lobbyScene)
+        }
+        backButton.onMouseClicked = {
+            showMenuScene(mainMenuScene)
+        }
+    }
+
+    private val joinOnlineLobbyScene = JoinOnlineLobbyScene(root).apply {
+        joinLobbyButton.onMouseClicked = {
+            saveSecret()
+            showMenuScene(lobbyScene)
+        }
+        backButton.onMouseClicked = {
+            showMenuScene(mainMenuScene)
+        }
+    }
 
     private val gameScene = GameScene(root)
 
@@ -20,6 +63,8 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     private val consoleRefreshable = ConsoleRefreshable(root)
 
     init {
+        loadFont("Fonts/RussoOne-Regular.ttf", "RussoOne", Font.FontWeight.NORMAL)
+
         root.addRefreshables(
             this,
             lobbyScene,
@@ -27,8 +72,8 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
             consoleRefreshable
         )
 
-        this.showGameScene(gameScene)
-        this.showMenuScene(lobbyScene)
+        showGameScene(gameScene)
+        showMenuScene(mainMenuScene)
     }
 
     override fun refreshAfterStartNewGame() {

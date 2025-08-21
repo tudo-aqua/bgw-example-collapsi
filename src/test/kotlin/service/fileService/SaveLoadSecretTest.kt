@@ -28,7 +28,7 @@ class SaveLoadSecretTest {
         // Delete secret if it exists.
         try {
             root.fileService.deleteSecret()
-        } catch (e: IllegalStateException) {
+        } catch (_: IllegalStateException) {
         }
     }
 

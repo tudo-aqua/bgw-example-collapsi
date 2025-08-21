@@ -1,8 +1,7 @@
 package gui
 
-import entity.PlayerType
+import entity.*
 import service.*
-import service.RootService
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -77,7 +76,7 @@ class LobbyScene(
         onSelectionChanged = { selectedIndex -> boardSize = selectedIndex + 4 }
     }
 
-    private val backButton = Button(
+    val backButton = Button(
         posX = 20,
         posY = 20,
         width = 80,

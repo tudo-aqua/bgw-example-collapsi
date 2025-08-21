@@ -3,3 +3,5 @@
 /.gradle/
 /public/
 *.asta.lock
+/src/main/resources/secret.txt
+/src/main/resources/saveFile.json
