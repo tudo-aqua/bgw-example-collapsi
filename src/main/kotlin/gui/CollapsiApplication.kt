@@ -12,53 +12,17 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     private val root = RootService()
 
-    private val mainMenuScene: MainMenuScene by lazy {
-        MainMenuScene().apply {
-            localGameButton.onMouseClicked = {
-                showMenuScene(lobbyScene)
-            }
-            hostGameButton.onMouseClicked = {
-                hostOnlineLobbyScene.generateNewCode()
-                hostOnlineLobbyScene.loadSecret()
-                showMenuScene(hostOnlineLobbyScene)
-            }
-            joinGameButton.onMouseClicked = {
-                joinOnlineLobbyScene.loadSecret()
-                showMenuScene(joinOnlineLobbyScene)
-            }
-        }
-    }
+    val mainMenuScene: MainMenuScene = MainMenuScene(this)
 
-    private val lobbyScene = LobbyScene(root).apply {
-        backButton.onMouseClicked = {
-            // Todo: Show join scene if it was the previous scene, but where to save that information?
-            showMenuScene(mainMenuScene)
-        }
-    }
+    val lobbyScene = LobbyScene(this, root)
 
-    private val hostOnlineLobbyScene = HostOnlineLobbyScene(root).apply {
-        joinLobbyButton.onMouseClicked = {
-            saveSecret()
-            showMenuScene(lobbyScene)
-        }
-        backButton.onMouseClicked = {
-            showMenuScene(mainMenuScene)
-        }
-    }
+    val hostOnlineLobbyScene = HostOnlineLobbyScene(this, root)
 
-    private val joinOnlineLobbyScene = JoinOnlineLobbyScene(root).apply {
-        joinLobbyButton.onMouseClicked = {
-            saveSecret()
-            showMenuScene(lobbyScene)
-        }
-        backButton.onMouseClicked = {
-            showMenuScene(mainMenuScene)
-        }
-    }
+    val joinOnlineLobbyScene = JoinOnlineLobbyScene(this, root)
 
-    private val gameScene = GameScene(root)
+    val waitingForHostScene = WaitingForHostScene(this)
 
-    private val endGameMenuScene = EndGameMenuScene(root)
+    val gameScene = GameScene(this, root)
 
     private val consoleRefreshable = ConsoleRefreshable(root)
 

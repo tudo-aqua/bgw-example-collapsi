@@ -23,7 +23,8 @@ import tools.aqua.bgw.visual.*
 import kotlin.math.roundToInt
 
 class GameScene(
-    val rootService: RootService
+    private val app: CollapsiApplication,
+    private val rootService: RootService
 ) : BoardGameScene(1920, 1080), Refreshable {
 
     private val playTiles = mutableMapOf<Tile, CardView>()
@@ -239,7 +240,16 @@ class GameScene(
 
         infoPane.addAll(activePlayer, playerLine, stepTokenLine)
 
-        addComponents(playContainer, infoPane, activeSpeed, buttonPane, playerRankOne, playerRankTwo, playerRankThree, playerRankFour)
+        addComponents(
+            playContainer,
+            infoPane,
+            activeSpeed,
+            buttonPane,
+            playerRankOne,
+            playerRankTwo,
+            playerRankThree,
+            playerRankFour
+        )
     }
 
     //--------------------v Refreshes v--------------------
@@ -275,7 +285,8 @@ class GameScene(
         pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.color] = orangePlayerCopy
         if (currentState.players.size >= 3) {
             players[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] = yellowPlayer
-            pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] = yellowPlayerCopy
+            pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] =
+                yellowPlayerCopy
             tokenScale = 0.8
             greenPlayer.apply { scale = tokenScale }
             greenPlayerCopy.apply { scale = tokenScale }
@@ -298,8 +309,10 @@ class GameScene(
             redPlayerCopy.apply { scale = tokenScale }
         }
         playContainer.add(playArea)
-        addComponents(greenPlayer, orangePlayer, yellowPlayer, redPlayer,
-            greenPlayerCopy, orangePlayerCopy, yellowPlayerCopy, redPlayerCopy)
+        addComponents(
+            greenPlayer, orangePlayer, yellowPlayer, redPlayer,
+            greenPlayerCopy, orangePlayerCopy, yellowPlayerCopy, redPlayerCopy
+        )
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
             val startingColor: ImageVisual = when (tile.startTileColor) {
@@ -428,14 +441,14 @@ class GameScene(
                 }
             })
 
-        currentState.getTileAt(from).position.neighbours.forEach { neighbour : Coordinate ->
+        currentState.getTileAt(from).position.neighbours.forEach { neighbour: Coordinate ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
             checkNotNull(neighbourTileView)
 
             neighbourTileView.apply { isDisabled = true }
         }
         if (currentState.currentPlayer.remainingMoves > 0) {
-            currentState.getTileAt(to).position.neighbours.forEach { neighbour : Coordinate ->
+            currentState.getTileAt(to).position.neighbours.forEach { neighbour: Coordinate ->
                 val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
                 checkNotNull(neighbourTileView)
 
@@ -444,7 +457,7 @@ class GameScene(
         }
 
         if (currentState.currentPlayer.remainingMoves <= 0) {
-            playAnimation(DelayAnimation(animationSpeed*2).apply {
+            playAnimation(DelayAnimation(animationSpeed * 2).apply {
                 onFinished = {
                     rootService.gameService.endTurn()
                 }
@@ -457,7 +470,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentGame
 
-        currentState.currentPlayer.position.neighbours.forEach { neighbour : Coordinate ->
+        currentState.currentPlayer.position.neighbours.forEach { neighbour: Coordinate ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
             checkNotNull(neighbourTileView)
 
@@ -506,7 +519,7 @@ class GameScene(
         val playerCopy = pseudoPlayerCopy[player.color]
         checkNotNull(playerCopy)
 
-        when(currentState.players.count { it.alive }) {
+        when (currentState.players.count { it.alive }) {
             3 -> {
                 this.removeComponents(playerCopy)
                 playerRankFour.add(playerCopy)
@@ -680,8 +693,8 @@ class GameScene(
     private fun addButtons() {
         buttonPane.addAll(
             Button(
-                width = 26.67*1.5,
-                height = 25*1.5,
+                width = 26.67 * 1.5,
+                height = 25 * 1.5,
                 posX = 20,
                 posY = 12.5,
                 visual = ImageVisual("GameScene/undo.png")
@@ -691,8 +704,8 @@ class GameScene(
                 }
             },
             Button(
-                width = 26.67*1.5,
-                height = 25*1.5,
+                width = 26.67 * 1.5,
+                height = 25 * 1.5,
                 posX = 120,
                 posY = 12.5,
                 visual = ImageVisual("GameScene/redo.png")
@@ -702,8 +715,8 @@ class GameScene(
                 }
             },
             Button(
-                width = 19.64*1.5,
-                height = 25*1.5,
+                width = 19.64 * 1.5,
+                height = 25 * 1.5,
                 posX = 220,
                 posY = 12.5,
                 visual = ImageVisual("GameScene/speed_one.png")
@@ -717,8 +730,8 @@ class GameScene(
                 }
             },
             Button(
-                width = 39.58*1.5,
-                height = 25*1.5,
+                width = 39.58 * 1.5,
+                height = 25 * 1.5,
                 posX = 320,
                 posY = 12.5,
                 visual = ImageVisual("GameScene/speed_two.png")
@@ -732,8 +745,8 @@ class GameScene(
                 }
             },
             Button(
-                width = 60.58*1.5,
-                height = 25*1.5,
+                width = 60.58 * 1.5,
+                height = 25 * 1.5,
                 posX = 420,
                 posY = 12.5,
                 visual = ImageVisual("GameScene/speed_three.png")

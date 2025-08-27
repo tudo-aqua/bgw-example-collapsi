@@ -18,6 +18,7 @@ import gui.components.PlayerSetupView
  * @param root The root service of the game.
  */
 class LobbyScene(
+    private val app: CollapsiApplication,
     private val root: RootService
 ) : MenuScene(1920, 1080), Refreshable {
 
@@ -76,13 +77,19 @@ class LobbyScene(
         onSelectionChanged = { selectedIndex -> boardSize = selectedIndex + 4 }
     }
 
+    var previousScene: MenuScene = app.mainMenuScene
+
     val backButton = Button(
         posX = 20,
         posY = 20,
         width = 80,
         height = 56,
         visual = ImageVisual("LobbyScene/Exports/Button_Back.png")
-    )
+    ).apply {
+        onMouseClicked = {
+            app.showMenuScene(previousScene)
+        }
+    }
 
     private val startButton = Button(
         posX = 1100 - 80 - 20,

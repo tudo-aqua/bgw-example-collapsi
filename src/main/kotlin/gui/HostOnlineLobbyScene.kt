@@ -9,7 +9,10 @@ import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.core.MenuScene
 import tools.aqua.bgw.visual.*
 
-class HostOnlineLobbyScene(private val root: RootService) : MenuScene(1920, 1080) {
+class HostOnlineLobbyScene(
+    private val app: CollapsiApplication,
+    private val root: RootService
+) : MenuScene(1920, 1080) {
     val paneWidth = 1100
 
     val paneHeight = 760
@@ -28,7 +31,11 @@ class HostOnlineLobbyScene(private val root: RootService) : MenuScene(1920, 1080
         width = 80,
         height = 56,
         visual = ImageVisual("LobbyScene/Exports/Button_Back.png")
-    )
+    ).apply {
+        onMouseClicked = {
+            app.showMenuScene(app.mainMenuScene)
+        }
+    }
 
     val lobbyCodeInput = TextField(
         posX = paneWidth / 2 - 200 / 2,
@@ -62,7 +69,13 @@ class HostOnlineLobbyScene(private val root: RootService) : MenuScene(1920, 1080
                 font = Constants.font_label
             )
         )
-    )
+    ).apply {
+        onMouseClicked = {
+            saveSecret()
+            app.lobbyScene.previousScene = app.hostOnlineLobbyScene
+            app.showMenuScene(app.lobbyScene)
+        }
+    }
 
     init {
         background = Visual.EMPTY

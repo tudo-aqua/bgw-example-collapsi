@@ -7,7 +7,9 @@ import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
 
-class MainMenuScene() : MenuScene(1920, 1080) {
+class MainMenuScene(
+    private val app: CollapsiApplication
+) : MenuScene(1920, 1080) {
     val paneWidth = 1100
 
     val paneHeight = 760
@@ -40,7 +42,12 @@ class MainMenuScene() : MenuScene(1920, 1080) {
                 font = Constants.font_label
             )
         )
-    )
+    ).apply {
+        onMouseClicked = {
+            app.lobbyScene.previousScene = app.mainMenuScene
+            app.showMenuScene(app.lobbyScene)
+        }
+    }
 
     val hostGameButton = Button(
         posX = paneWidth / 2 - 200 / 2,
@@ -54,7 +61,13 @@ class MainMenuScene() : MenuScene(1920, 1080) {
                 font = Constants.font_label
             )
         )
-    )
+    ).apply {
+        onMouseClicked = {
+            app.hostOnlineLobbyScene.generateNewCode()
+            app.hostOnlineLobbyScene.loadSecret()
+            app.showMenuScene(app.hostOnlineLobbyScene)
+        }
+    }
 
     val joinGameButton = Button(
         posX = paneWidth / 2 - 200 / 2,
@@ -68,7 +81,12 @@ class MainMenuScene() : MenuScene(1920, 1080) {
                 font = Constants.font_label
             )
         )
-    )
+    ).apply {
+        onMouseClicked = {
+            app.joinOnlineLobbyScene.loadSecret()
+            app.showMenuScene(app.joinOnlineLobbyScene)
+        }
+    }
 
     init {
         background = Visual.EMPTY
