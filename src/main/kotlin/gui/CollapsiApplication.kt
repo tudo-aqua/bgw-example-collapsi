@@ -81,7 +81,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     }
 
     override fun refreshAfterGameEnd(winner: Player) {
-        showMenuScene(endGameMenuScene)
+        //showMenuScene(endGameMenuScene)
     }
 }
 

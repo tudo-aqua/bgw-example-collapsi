@@ -15,10 +15,10 @@ import tools.aqua.bgw.components.gamecomponentviews.CardView
 import tools.aqua.bgw.components.gamecomponentviews.TokenView
 import tools.aqua.bgw.components.layoutviews.GridPane
 import tools.aqua.bgw.components.layoutviews.Pane
+import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
-import tools.aqua.bgw.core.DEFAULT_LINEAR_LAYOUT_SPACING
 import tools.aqua.bgw.visual.*
 import kotlin.math.roundToInt
 
@@ -28,11 +28,17 @@ class GameScene(
 
     private val playTiles = mutableMapOf<Tile, CardView>()
 
-    private val players = mutableMapOf<Player, TokenView>()
+    private val players = mutableMapOf<PlayerColor, TokenView>()
+
+    private val pseudoPlayerCopy = mutableMapOf<PlayerColor, TokenView>()
 
     private val stepTokenList = mutableListOf<TokenView>()
 
     private val activePlayerLabel = mutableMapOf<PlayerColor, TokenView>()
+
+    private var tokenScale = 1.0
+
+    private var animationSpeed = 500
 
 
     //--------------------v Left Info Pane v--------------------
@@ -97,6 +103,29 @@ class GameScene(
 
     //--------------------^ Left Info Pane ^--------------------
 
+    //--------------------v Button Pane v--------------------
+
+    private val buttonPane = Pane<Button>(
+        width = 640,
+        height = 90,
+        posX = 800,
+        posY = 990,
+        //visual = ColorVisual.GRAY
+    )
+
+    private val activeSpeed = Label(
+        width = 6,
+        height = 20,
+        posX = 1032.75,
+        posY = 1060,
+        visual = ColorVisual.WHITE
+    ).apply {
+        isFocusable = false
+        isDisabled = true
+    }
+
+    //--------------------^ Button Pane ^--------------------
+
     //--------------------v Player Tokens v--------------------
 
     private val greenPlayer = TokenView(
@@ -127,7 +156,75 @@ class GameScene(
         isVisible = false
     }
 
+    private val greenPlayerCopy = TokenView(
+        width = 64,
+        height = 64,
+        visual = ImageVisual("GameScene/Pawn_P1.png")
+    ).apply {
+        isVisible = false
+    }
+
+    private val orangePlayerCopy = TokenView(
+        width = 64,
+        height = 64,
+        visual = ImageVisual("GameScene/Pawn_P2.png")
+    ).apply {
+        isVisible = false
+    }
+
+    private val yellowPlayerCopy = TokenView(
+        width = 64,
+        height = 64,
+        visual = ImageVisual("GameScene/Pawn_P3.png")
+    ).apply {
+        isVisible = false
+    }
+
+    private val redPlayerCopy = TokenView(
+        width = 64,
+        height = 64,
+        visual = ImageVisual("GameScene/Pawn_P4.png")
+    ).apply {
+        isVisible = false
+    }
+
     //--------------------^ Player Tokens ^--------------------
+
+    //--------------------v Play Ranking v--------------------
+
+    private val playerRankOne = Pane<TokenView>(
+        width = 200,
+        height = 200,
+        posX = 1920,
+        posY = 120,
+        visual = ImageVisual("GameScene/PlayerRanking_1.png")
+    )
+
+    private val playerRankTwo = Pane<TokenView>(
+        width = 200,
+        height = 200,
+        posX = 1920,
+        posY = 320,
+        visual = ImageVisual("GameScene/PlayerRanking_2.png")
+    )
+
+    private val playerRankThree = Pane<TokenView>(
+        width = 200,
+        height = 200,
+        posX = 1920,
+        posY = 520,
+        visual = ImageVisual("GameScene/PlayerRanking_3.png")
+    )
+
+    private val playerRankFour = Pane<TokenView>(
+        width = 200,
+        height = 200,
+        posX = 1920,
+        posY = 720,
+        visual = ImageVisual("GameScene/PlayerRanking_4.png")
+    )
+
+    //--------------------^ Play Ranking ^--------------------
 
     private val playContainer = Pane<ComponentView>(
         width = 784,
@@ -142,7 +239,7 @@ class GameScene(
 
         infoPane.addAll(activePlayer, playerLine, stepTokenLine)
 
-        addComponents(playContainer, infoPane)
+        addComponents(playContainer, infoPane, activeSpeed, buttonPane, playerRankOne, playerRankTwo, playerRankThree, playerRankFour)
     }
 
     //--------------------v Refreshes v--------------------
@@ -170,17 +267,39 @@ class GameScene(
         }
 
         players.clear()
+        pseudoPlayerCopy.clear()
 
-        players[currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }] = greenPlayer
-        players[currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }] = orangePlayer
+        players[currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.color] = greenPlayer
+        pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.color] = greenPlayerCopy
+        players[currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.color] = orangePlayer
+        pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.color] = orangePlayerCopy
         if (currentState.players.size >= 3) {
-            players[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }] = yellowPlayer
+            players[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] = yellowPlayer
+            pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] = yellowPlayerCopy
+            tokenScale = 0.8
+            greenPlayer.apply { scale = tokenScale }
+            greenPlayerCopy.apply { scale = tokenScale }
+            orangePlayer.apply { scale = tokenScale }
+            orangePlayerCopy.apply { scale = tokenScale }
+            yellowPlayer.apply { scale = tokenScale }
+            yellowPlayerCopy.apply { scale = tokenScale }
         }
         if (currentState.players.size == 4) {
-            players[currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }] = redPlayer
+            players[currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.color] = redPlayer
+            pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.color] = redPlayerCopy
+            tokenScale = 0.677
+            greenPlayer.apply { scale = tokenScale }
+            greenPlayerCopy.apply { scale = tokenScale }
+            orangePlayer.apply { scale = tokenScale }
+            orangePlayerCopy.apply { scale = tokenScale }
+            yellowPlayer.apply { scale = tokenScale }
+            yellowPlayerCopy.apply { scale = tokenScale }
+            redPlayer.apply { scale = tokenScale }
+            redPlayerCopy.apply { scale = tokenScale }
         }
         playContainer.add(playArea)
-        addComponents(greenPlayer, orangePlayer, yellowPlayer, redPlayer)
+        addComponents(greenPlayer, orangePlayer, yellowPlayer, redPlayer,
+            greenPlayerCopy, orangePlayerCopy, yellowPlayerCopy, redPlayerCopy)
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
             val startingColor: ImageVisual = when (tile.startTileColor) {
@@ -212,7 +331,7 @@ class GameScene(
                 }
                 onMouseClicked = {
                     rootService.playerActionService.moveTo(
-                        Coordinate(coordinate.x, coordinate.y, currentState.boardSize)
+                        coordinate
                     )
                 }
             }
@@ -253,7 +372,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentGame
 
-        val playerTokenToMove = players.filter { it.key.color == currentState.currentPlayer.color }.values.firstOrNull()
+        val playerTokenToMove = players[currentState.currentPlayer.color]
         checkNotNull(playerTokenToMove)
 
         playAnimation(
@@ -263,7 +382,7 @@ class GameScene(
                 getPlayerPosX(to),
                 getPlayerPosY(from),
                 getPlayerPosY(to),
-                500
+                animationSpeed
             ).apply {
                 onFinished = {
                     playerTokenToMove.apply {
@@ -282,7 +401,7 @@ class GameScene(
                         collapsedTileView,
                         collapsedTileView.frontVisual,
                         collapsedTileView.backVisual,
-                        500
+                        animationSpeed
                     ).apply {
                         onFinished = {
                             collapsedTileView.showBack()
@@ -299,7 +418,7 @@ class GameScene(
                 getPlayerPosX(from),
                 stepToken.actualPosY,
                 getPlayerPosY(from),
-                500
+                animationSpeed
             ).apply {
                 onFinished = {
                     stepToken.offset(
@@ -309,14 +428,14 @@ class GameScene(
                 }
             })
 
-        currentState.getTileAt(from).position.neighbours.forEach { neighbour ->
+        currentState.getTileAt(from).position.neighbours.forEach { neighbour : Coordinate ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
             checkNotNull(neighbourTileView)
 
             neighbourTileView.apply { isDisabled = true }
         }
         if (currentState.currentPlayer.remainingMoves > 0) {
-            currentState.getTileAt(to).position.neighbours.forEach { neighbour ->
+            currentState.getTileAt(to).position.neighbours.forEach { neighbour : Coordinate ->
                 val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
                 checkNotNull(neighbourTileView)
 
@@ -325,7 +444,7 @@ class GameScene(
         }
 
         if (currentState.currentPlayer.remainingMoves <= 0) {
-            playAnimation(DelayAnimation(1000).apply {
+            playAnimation(DelayAnimation(animationSpeed*2).apply {
                 onFinished = {
                     rootService.gameService.endTurn()
                 }
@@ -338,7 +457,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentGame
 
-        currentState.currentPlayer.position.neighbours.forEach { neighbour ->
+        currentState.currentPlayer.position.neighbours.forEach { neighbour : Coordinate ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
             checkNotNull(neighbourTileView)
 
@@ -372,6 +491,130 @@ class GameScene(
             playAnimation(DelayAnimation((game.simulationSpeed * 1000).roundToInt()).apply {
                 onFinished = { makeNextBotMove() }
             })
+        }
+    }
+
+    override fun refreshAfterPlayerDied(player: Player) {
+        val game = rootService.currentGame
+        checkNotNull(game)
+        val currentState = game.currentGame
+
+        val playerTokenToRemove = players[player.color]
+        checkNotNull(playerTokenToRemove)
+        playerTokenToRemove.apply { isVisible = false }
+
+        val playerCopy = pseudoPlayerCopy[player.color]
+        checkNotNull(playerCopy)
+
+        when(currentState.players.count { it.alive }) {
+            3 -> {
+                this.removeComponents(playerCopy)
+                playerRankFour.add(playerCopy)
+                playerCopy.apply {
+                    isVisible = true
+                    scale = 0.8
+                }
+                playerCopy.posX = 44.0
+                playerCopy.posY = 57.0
+                playAnimation(
+                    MovementAnimation(
+                        playerRankFour,
+                        playerRankFour.posX,
+                        playerRankFour.posX - 300,
+                        playerRankFour.posY,
+                        playerRankFour.posY,
+                        animationSpeed
+                    ).apply {
+                        onFinished = {
+                            playerRankFour.apply {
+                                posX -= 300
+                            }
+                        }
+                    }
+
+                )
+            }
+
+            2 -> {
+                this.removeComponents(playerCopy)
+                playerRankThree.add(playerCopy)
+                playerCopy.apply {
+                    isVisible = true
+                    scale = 0.8
+                }
+                playerCopy.posX = 44.0
+                playerCopy.posY = 57.0
+                playAnimation(
+                    MovementAnimation(
+                        playerRankThree,
+                        playerRankThree.posX,
+                        playerRankThree.posX - 300,
+                        playerRankThree.posY,
+                        playerRankThree.posY,
+                        animationSpeed
+                    ).apply {
+                        onFinished = {
+                            playerRankThree.apply {
+                                posX -= 300
+                            }
+                        }
+                    }
+                )
+            }
+
+            1 -> {
+                val winner = pseudoPlayerCopy[currentState.players.first { it.alive }.color]
+                checkNotNull(winner)
+
+                this.removeComponents(playerCopy)
+                playerRankTwo.add(playerCopy)
+                playerCopy.apply {
+                    isVisible = true
+                    scale = 0.8
+                }
+                playerCopy.posX = 44.0
+                playerCopy.posY = 57.0
+                playAnimation(
+                    MovementAnimation(
+                        playerRankTwo,
+                        playerRankTwo.posX,
+                        playerRankTwo.posX - 300,
+                        playerRankTwo.posY,
+                        playerRankTwo.posY,
+                        animationSpeed
+                    ).apply {
+                        onFinished = {
+                            playerRankTwo.apply {
+                                posX -= 300
+                            }
+                        }
+                    }
+                )
+                this.removeComponents(winner)
+                playerRankOne.add(winner)
+                winner.apply {
+                    isVisible = true
+                    scale = 0.8
+                }
+                winner.posX = 44.0
+                winner.posY = 57.0
+                playAnimation(
+                    MovementAnimation(
+                        playerRankOne,
+                        playerRankOne.posX,
+                        playerRankOne.posX - 300,
+                        playerRankOne.posY,
+                        playerRankOne.posY,
+                        animationSpeed
+                    ).apply {
+                        onFinished = {
+                            playerRankOne.apply {
+                                posX -= 300
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -430,6 +673,80 @@ class GameScene(
             stepTokenList.add(stepToken)
         }
         stepTokenLine.add(stepTokenList[0].apply { isVisible = true })
+
+        addButtons()
+    }
+
+    private fun addButtons() {
+        buttonPane.addAll(
+            Button(
+                width = 26.67*1.5,
+                height = 25*1.5,
+                posX = 20,
+                posY = 12.5,
+                visual = ImageVisual("GameScene/undo.png")
+            ).apply {
+                onMouseClicked = {
+                    rootService.playerActionService.undo()
+                }
+            },
+            Button(
+                width = 26.67*1.5,
+                height = 25*1.5,
+                posX = 120,
+                posY = 12.5,
+                visual = ImageVisual("GameScene/redo.png")
+            ).apply {
+                onMouseClicked = {
+                    rootService.playerActionService.redo()
+                }
+            },
+            Button(
+                width = 19.64*1.5,
+                height = 25*1.5,
+                posX = 220,
+                posY = 12.5,
+                visual = ImageVisual("GameScene/speed_one.png")
+            ).apply {
+                onMouseClicked = {
+                    val game = rootService.currentGame
+                    checkNotNull(game)
+                    game.simulationSpeed = 0.0
+                    activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
+                    animationSpeed = 1000
+                }
+            },
+            Button(
+                width = 39.58*1.5,
+                height = 25*1.5,
+                posX = 320,
+                posY = 12.5,
+                visual = ImageVisual("GameScene/speed_two.png")
+            ).apply {
+                onMouseClicked = {
+                    val game = rootService.currentGame
+                    checkNotNull(game)
+                    game.simulationSpeed = 1.0
+                    activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
+                    animationSpeed = 500
+                }
+            },
+            Button(
+                width = 60.58*1.5,
+                height = 25*1.5,
+                posX = 420,
+                posY = 12.5,
+                visual = ImageVisual("GameScene/speed_three.png")
+            ).apply {
+                onMouseClicked = {
+                    val game = rootService.currentGame
+                    checkNotNull(game)
+                    game.simulationSpeed = 2.0
+                    activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
+                    animationSpeed = 200
+                }
+            },
+        )
     }
 
     private fun positionPlayers() {
