@@ -11,7 +11,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
-class SaveLoadSecretTest {
+class SaveLoadCredentialsTest {
     private var root = RootService()
 
     private var testRefreshable = TestRefreshable(root)
@@ -25,9 +25,9 @@ class SaveLoadSecretTest {
         testRefreshable = TestRefreshable(root)
         root.addRefreshable(testRefreshable)
 
-        // Delete secret if it exists.
+        // Delete property file if it exists.
         try {
-            root.fileService.deleteSecret()
+            root.fileService.deleteCredentials()
         } catch (_: IllegalStateException) {
         }
     }
@@ -40,31 +40,37 @@ class SaveLoadSecretTest {
             boardSize = 4
         )
 
+        val savedServer = "hello234"
         val savedSecret = "test123"
 
-        assertDoesNotThrow { root.fileService.saveSecret(savedSecret) }
+        assertDoesNotThrow { root.fileService.saveCredentials(savedServer, savedSecret) }
 
         // Test overriding an existing file.
-        assertDoesNotThrow { root.fileService.saveSecret(savedSecret) }
+        assertDoesNotThrow { root.fileService.saveCredentials(savedServer, savedSecret) }
 
         var loadedSecret: String? = null
         assertDoesNotThrow { loadedSecret = root.fileService.loadSecret() }
-
         assertNotNull(loadedSecret)
-
         assertEquals(savedSecret, loadedSecret)
 
-        assertDoesNotThrow { root.fileService.deleteSecret() }
+        var loadedServer: String? = null
+        assertDoesNotThrow { loadedServer = root.fileService.loadServer() }
+        assertNotNull(loadedServer)
+        assertEquals(savedServer, loadedServer)
+
+
+        assertDoesNotThrow { root.fileService.deleteCredentials() }
     }
 
     @Test
     fun testExceptions() {
         // No file found.
-        assertThrows(IllegalStateException::class.java) { root.fileService.deleteSecret() }
+        assertThrows(IllegalStateException::class.java) { root.fileService.deleteCredentials() }
     }
 
     @Test
     fun testLoadNoSecret() {
-        assertNull(root.fileService.loadSecret())
+        assertEquals("", root.fileService.loadSecret())
+        assertEquals("", root.fileService.loadServer())
     }
 }

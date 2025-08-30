@@ -116,7 +116,7 @@ class JoinOnlineLobbyScene(
         visual = ImageVisual("LobbyScene/Exports/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
-            saveSecret()
+            saveCredentials()
             app.showMenuScene(app.waitingForHostScene)
         }
     }
@@ -141,14 +141,12 @@ class JoinOnlineLobbyScene(
         )
     }
 
-    fun saveSecret() {
-        root.fileService.saveSecret(secretInput.text)
+    fun saveCredentials() {
+        root.fileService.saveCredentials(serverInput.text, secretInput.text)
     }
 
-    fun loadSecret() {
-        val secret = root.fileService.loadSecret()
-        if (secret != null) {
-            secretInput.text = secret
-        }
+    fun loadCredentials() {
+        secretInput.text = root.fileService.loadSecret()
+        serverInput.text = root.fileService.loadServer()
     }
 }

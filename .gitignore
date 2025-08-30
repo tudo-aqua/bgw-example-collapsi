@@ -3,5 +3,5 @@
 /.gradle/
 /public/
 *.asta.lock
-secret.txt
+app.properties
 saveFile.json

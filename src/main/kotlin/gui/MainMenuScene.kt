@@ -6,7 +6,6 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.*
-import tools.aqua.bgw.util.Font
 import tools.aqua.bgw.visual.*
 
 class MainMenuScene(
@@ -85,7 +84,7 @@ class MainMenuScene(
     ).apply {
         onMouseClicked = {
             app.hostOnlineLobbyScene.generateNewCode()
-            app.hostOnlineLobbyScene.loadSecret()
+            app.hostOnlineLobbyScene.loadCredentials()
             app.showMenuScene(app.hostOnlineLobbyScene)
         }
     }
@@ -98,7 +97,7 @@ class MainMenuScene(
         visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Join.png")
     ).apply {
         onMouseClicked = {
-            app.joinOnlineLobbyScene.loadSecret()
+            app.joinOnlineLobbyScene.loadCredentials()
             app.showMenuScene(app.joinOnlineLobbyScene)
         }
     }
