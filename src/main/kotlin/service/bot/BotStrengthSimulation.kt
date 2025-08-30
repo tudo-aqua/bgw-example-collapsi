@@ -8,7 +8,7 @@ import java.util.Locale
  * This class tests the improvements in bot strength over different levels by repeatedly running matches
  * between bots of varying strength and calculating/logging the win-percentages.
  */
-class BotStrengthTest {
+class BotStrengthSimulation {
     /**
      * The current [RootService].
      */

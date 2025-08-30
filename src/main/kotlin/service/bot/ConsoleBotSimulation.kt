@@ -10,7 +10,7 @@ import gui.*
  * The idea is to be able to debug constantly occurring problems in the bot or to supply a means
  * to enter debug mode without needing to start a game using the UI.
  */
-class ConsoleBotTest {
+class ConsoleBotSimulation {
     /**
      * The current [RootService].
      */

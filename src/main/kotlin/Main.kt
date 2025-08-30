@@ -1,6 +1,6 @@
 import gui.*
-import service.bot.BotStrengthTest
-import service.bot.ConsoleBotTest
+import service.bot.BotStrengthSimulation
+import service.bot.ConsoleBotSimulation
 
 /**
  * Main method of the program. Called when you press "run" in gradle.
@@ -25,16 +25,20 @@ private fun runGui() {
 
 /**
  * Run a game with bots using the same difficulty. Log each action to the console.
+ *
+ * @see ConsoleBotSimulation
  */
 @Suppress("unused")
 private fun testBotWithConsole() {
-    ConsoleBotTest().test2Player4x4Board()
+    ConsoleBotSimulation().test2Player4x4Board()
 }
 
 /**
  * Run multiple games to assess the strength of certain bot levels.
+ *
+ * @see BotStrengthSimulation
  */
 @Suppress("unused")
 private fun runBotStrengthTest() {
-    BotStrengthTest().lvl2VsLvl4BoardSize4()
+    BotStrengthSimulation().lvl2VsLvl4BoardSize4()
 }

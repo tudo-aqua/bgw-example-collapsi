@@ -66,7 +66,9 @@ class HostOnlineLobbyScene(
         visual = ColorVisual(Color(0x777777)),
         font = Constants.font_input,
         prompt = "..."
-    )
+    ).apply {
+        onTextChanged = { text = text.uppercase() }
+    }
 
     private val serverHeading = Label(
         posX = paneWidth / 2 - 200 / 2,
