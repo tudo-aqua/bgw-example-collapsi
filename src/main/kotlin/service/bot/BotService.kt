@@ -59,10 +59,6 @@ class BotService(private val root: RootService) {
      */
     val helper = BotHelper(root)
 
-    val winEval = 500.0
-
-    val lossEval = -499.0
-
     /**
      * Precalculate the exact order of moves to perform in the upcoming turn.
      *
@@ -142,8 +138,8 @@ class BotService(private val root: RootService) {
      * @see Path
      */
     private fun getLevel2Path(game: CollapsiGame): Path {
-        return if (Random.nextDouble() < 0.33)
-            startTimedMinimax(game, 6, 400)
+        return if (Random.nextDouble() < BotConstants.LVL2_SMART_MOVE_CHANCE)
+            startTimedMinimax(game, BotConstants.LVL2_MAX_DEPTH, BotConstants.LVL2_MAX_DURATION)
         else
             getRandomPath(game)
     }
@@ -162,8 +158,8 @@ class BotService(private val root: RootService) {
      * @see Path
      */
     private fun getLevel3Path(game: CollapsiGame): Path {
-        return if (Random.nextDouble() < 0.67)
-            startTimedMinimax(game, 6, 400)
+        return if (Random.nextDouble() < BotConstants.LVL3_SMART_MOVE_CHANCE)
+            startTimedMinimax(game, BotConstants.LVL3_MAX_DEPTH, BotConstants.LVL3_MAX_DURATION)
         else
             getRandomPath(game)
     }
@@ -181,7 +177,7 @@ class BotService(private val root: RootService) {
      * @see Path
      */
     private fun getLevel4Path(game: CollapsiGame): Path {
-        return startTimedMinimax(game, Int.MAX_VALUE, 3000)
+        return startTimedMinimax(game, BotConstants.LVL4_MAX_DEPTH, BotConstants.LVL4_MAX_DURATION)
     }
 
     /**
@@ -331,7 +327,7 @@ class BotService(private val root: RootService) {
             repeat(currentPath.size) { root.playerActionService.undo(game) }
 
             // If this path results in a win, take it.
-            if (bestEval[currentPlayerIndex] >= winEval)
+            if (bestEval[currentPlayerIndex] >= BotConstants.EVAL_WIN)
                 break
         }
 
@@ -376,9 +372,9 @@ class BotService(private val root: RootService) {
             val player = gameState.players[playerIndex]
 
             if (!player.alive) // Player died. Gain a penalty.
-                lossEval
+                BotConstants.EVAL_LOSS
             else if (gameEnded) // Player won. Earn a reward.
-                winEval
+                BotConstants.EVAL_WIN
             else // Game still going. Associate more movement options with a better evaluation.
                 helper.getPossibleUniquePathsForPlayer(player.color, game).size.toDouble()
         }
