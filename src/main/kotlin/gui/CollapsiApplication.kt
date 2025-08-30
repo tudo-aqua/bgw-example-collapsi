@@ -12,7 +12,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     private val root = RootService()
 
-    val mainMenuScene: MainMenuScene = MainMenuScene(this)
+    val mainMenuScene: MainMenuScene = MainMenuScene(this, root)
 
     val lobbyScene = LobbyScene(this, root)
 

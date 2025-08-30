@@ -92,8 +92,8 @@ class LobbyScene(
     }
 
     private val startButton = Button(
-        posX = 1100 - 80 - 20,
-        posY = 760 - 80 - 20,
+        posX = paneWidth - 80 - 20,
+        posY = paneHeight - 80 - 20,
         width = 80,
         height = 80,
         visual = ImageVisual("LobbyScene/Exports/Button_Confirm.png")

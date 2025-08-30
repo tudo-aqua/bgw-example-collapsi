@@ -30,8 +30,8 @@
      inkscape:deskcolor="#505050"
      inkscape:document-units="px"
      inkscape:zoom="1.026783"
-     inkscape:cx="112.97421"
-     inkscape:cy="107.61768"
+     inkscape:cx="206.47011"
+     inkscape:cy="130.99165"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
      inkscape:window-x="1912"
@@ -183,7 +183,7 @@
        transform="matrix(0.28464655,0,0,0.29335556,8.2418838,251.66124)"
        inkscape:label="Icon"><text
          xml:space="preserve"
-         style="font-size:332.216px;font-family:'Russo One';-inkscape-font-specification:'Russo One';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:none;stroke:none;stroke-width:45.8583;-inkscape-stroke:none;filter:url(#filter4-4)"
+         style="font-size:332.216px;font-family:'Russo One';-inkscape-font-specification:'Russo One';text-align:start;writing-mode:lr-tb;direction:ltr;text-anchor:start;display:inline;fill:none;stroke:none;stroke-width:45.8583;-inkscape-stroke:none"
          x="272.44547"
          y="-139.85045"
          id="text21-4"
@@ -258,7 +258,7 @@
        transform="matrix(0.28464655,0,0,0.29335556,8.2418838,251.66124)"
        inkscape:label="Icon"><text
          xml:space="preserve"
-         style="font-size:332.216px;font-family:'Russo One';-inkscape-font-specification:'Russo One';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:none;stroke:none;stroke-width:45.8583;-inkscape-stroke:none;filter:url(#filter4-4)"
+         style="font-size:332.216px;font-family:'Russo One';-inkscape-font-specification:'Russo One';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:none;stroke:none;stroke-width:45.8583;-inkscape-stroke:none"
          x="574.76227"
          y="-139.85045"
          id="text49"
@@ -333,7 +333,7 @@
        transform="matrix(0.28464655,0,0,0.29335556,8.2418838,251.66124)"
        inkscape:label="Icon"><text
          xml:space="preserve"
-         style="font-size:332.216px;font-family:'Russo One';-inkscape-font-specification:'Russo One';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:none;stroke:none;stroke-width:45.8583;-inkscape-stroke:none;filter:url(#filter4-4)"
+         style="font-size:332.216px;font-family:'Russo One';-inkscape-font-specification:'Russo One';text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;display:inline;fill:none;stroke:none;stroke-width:45.8583;-inkscape-stroke:none"
          x="574.76227"
          y="-139.85045"
          id="text55"
@@ -341,6 +341,6 @@
          inkscape:label="Text"><tspan
            sodipodi:role="line"
            id="tspan55"
-           x="574.76227"
-           y="-139.85045"
+           x="0"
+           y="0"
            style="font-size:332.216px;text-align:center;text-anchor:middle;fill:#ffffff;fill-opacity:1;stroke-width:45.8583">6x6</tspan></text></g></g></svg>
