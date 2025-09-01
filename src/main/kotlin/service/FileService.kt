@@ -46,7 +46,7 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      */
     fun loadGame() {
         check(root.currentGame == null) { "Tried to load save file while a game was running." }
-        check(File(saveFilePath).exists()) { "Save File doesn't exist." }
+        check(saveFileExists()) { "Save File doesn't exist." }
 
         val json = Json {
             allowStructuredMapKeys = true
@@ -54,6 +54,13 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
         val jsonString = File(saveFilePath).readText()
         root.currentGame = json.decodeFromString(jsonString)
     }
+
+    /**
+     * Checks if there is a saved game that can be loaded.
+     *
+     * @return True if a saved game exists.
+     */
+    fun saveFileExists(): Boolean = File(saveFilePath).exists()
 
     /**
      * Deletes the [CollapsiGame] from the file at [saveFilePath].

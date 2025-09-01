@@ -118,5 +118,17 @@ class MainMenuScene(
             hostGameButton,
             joinGameButton
         )
+
+        updateButtons()
+    }
+
+    fun updateButtons() {
+        if (root.fileService.saveFileExists()) {
+            loadGameButton.isDisabled = false
+            loadGameButton.visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Load.png")
+        } else {
+            loadGameButton.isDisabled = true
+            loadGameButton.visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Load_Disabled.png")
+        }
     }
 }
