@@ -48,6 +48,14 @@ class HostOnlineLobbyScene(
         text = "Host"
     )
 
+    private val headingLine = Label(
+        posX = paneWidth / 2 - 250 / 2,
+        posY = 140,
+        width = 250,
+        height = 5,
+        visual = ImageVisual("MenuScenes/Exports/HeadingLine.png")
+    )
+
     private val lobbyCodeHeading = Label(
         posX = paneWidth / 2 - 200 / 2,
         posY = 140,
@@ -134,6 +142,7 @@ class HostOnlineLobbyScene(
         contentPane.addAll(
             backButton,
             heading,
+            headingLine,
             lobbyCodeHeading,
             lobbyCodeInput,
             serverHeading,

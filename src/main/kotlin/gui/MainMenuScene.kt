@@ -34,20 +34,36 @@ class MainMenuScene(
 
     private val localLabel = Label(
         posX = paneWidth * 0.3 - 200 / 2,
-        posY = 300,
+        posY = 290,
         width = 200,
         height = 100,
         font = Constants.font_heading,
         text = "Local"
     )
 
+    private val localLabelHeadingLine = Label(
+        posX = paneWidth * 0.3 - 250 / 2,
+        posY = 380,
+        width = 250,
+        height = 5,
+        visual = ImageVisual("MenuScenes/Exports/HeadingLine.png")
+    )
+
     private val onlineLabel = Label(
         posX = paneWidth * 0.7 - 200 / 2,
-        posY = 300,
+        posY = 290,
         width = 200,
         height = 100,
         font = Constants.font_heading,
         text = "Online"
+    )
+
+    private val onlineLabelHeadingLine = Label(
+        posX = paneWidth * 0.7 - 250 / 2,
+        posY = 380,
+        width = 250,
+        height = 5,
+        visual = ImageVisual("MenuScenes/Exports/HeadingLine.png")
     )
 
     val newGameButton = Button(
@@ -112,7 +128,9 @@ class MainMenuScene(
         contentPane.addAll(
             logo,
             localLabel,
+            localLabelHeadingLine,
             onlineLabel,
+            onlineLabelHeadingLine,
             newGameButton,
             loadGameButton,
             hostGameButton,
