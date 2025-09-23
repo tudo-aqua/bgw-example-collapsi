@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class CollapsiGame(
-    var currentGame: GameState
+    var currentGame: GameState // Todo: Rename to "currentState" to match asta.
 ) {
     /**
      * "Past" [GameState]s for undo. Filled during redo or when the player performs an action.
