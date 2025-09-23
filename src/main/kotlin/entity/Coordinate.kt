@@ -15,7 +15,13 @@ data class Coordinate(
     val y: Int,
     val boardSize: Int
 ) {
-    // Note: Modulo (.mod) and Remainder (%) are different for negative values.
+    /*
+    Note:
+    Modulo (.mod) and Remainder (%) are different for negative values. When in doubt, use modulo.
+    Example:
+    -1 mod 3 = 2
+    -1 % 3 = 1
+     */
 
     /** The coordinate to the left of this one, wrapped to stay within bounds. */
     val leftNeighbour get() = Coordinate((x - 1).mod(boardSize), y, boardSize)
@@ -32,6 +38,13 @@ data class Coordinate(
     /** A list of coordinates on each side of this one, wrapped to stay within bounds. */
     val neighbours get() = listOf(leftNeighbour, rightNeighbour, upNeighbour, downNeighbour)
 
+    /**
+     * Checks if the given [Coordinate] is orthogonally (not diagonally) adjacent to this one.
+     *
+     * @return True if [other] is adjacent to this coordinate.
+     *
+     * @throws IllegalArgumentException if the [boardSize] of the two coordinates doesn't match.
+     */
     fun isAdjacentTo(other: Coordinate): Boolean {
         require(boardSize == other.boardSize) { "Can't compare two coordinates with different board sizes." }
 

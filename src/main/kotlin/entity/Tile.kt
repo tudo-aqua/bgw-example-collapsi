@@ -7,7 +7,8 @@ import kotlinx.serialization.Serializable
  *
  * @property position The position of the tile on the board represented by a [Coordinate].
  * @property movesToMake The number of moves required to make when starting the turn on this tile.
- * @property startTileColor Connects the tile to the [Player], if it's a starting tile. Else null.
+ * @property startTileColor An indirect reference to the [Player] that starts on this tile.
+ * Null if this is not a starting tile.
  */
 @Serializable
 data class Tile(

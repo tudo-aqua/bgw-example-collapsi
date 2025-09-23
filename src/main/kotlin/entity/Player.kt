@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 /**
  * Entity class that represents a player in the Collapsi game.
  *
- * @property color The color (or playing pieces) of the player, represented by a [PlayerColor].
- * @property type The type of the player, represented by a [PlayerType].
- * @property position The current position of the player on the board, represented by a [Coordinate].
+ * @property color The color/shape of the pawn.
+ * @property position The current position of the player on the board.
+ * @property type The type of the player (local / bot / remote).
  * @property botDifficulty The difficulty of the player if [type] is set to [PlayerType.BOT]. (Range 1-4).
  * 1 means random moves. 4 means always make the best move the bot can find.
  */
