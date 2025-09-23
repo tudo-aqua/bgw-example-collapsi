@@ -197,7 +197,7 @@ class GameScene(
         width = 200,
         height = 200,
         posX = 1920,
-        posY = 120,
+        posY = 100,
         visual = ImageVisual("GameScene/PlayerRanking_1.png")
     )
 
@@ -205,7 +205,7 @@ class GameScene(
         width = 200,
         height = 200,
         posX = 1920,
-        posY = 320,
+        posY = 270,
         visual = ImageVisual("GameScene/PlayerRanking_2.png")
     )
 
@@ -213,7 +213,7 @@ class GameScene(
         width = 200,
         height = 200,
         posX = 1920,
-        posY = 520,
+        posY = 440,
         visual = ImageVisual("GameScene/PlayerRanking_3.png")
     )
 
@@ -221,11 +221,31 @@ class GameScene(
         width = 200,
         height = 200,
         posX = 1920,
-        posY = 720,
+        posY = 610,
         visual = ImageVisual("GameScene/PlayerRanking_4.png")
     )
 
     //--------------------^ Play Ranking ^--------------------
+
+    private val backToMenuButtonPane = Pane<Button>(
+        width = 300,
+        height = 300,
+        posX = 1920,
+        posY = 780,
+        visual = ImageVisual("GameScene/Exports/BackToMenuButtonBackground.png")
+    )
+
+    private val backToMenuButton = Button(
+        width = 160,
+        height = 90,
+        posX = 65,
+        posY = 65,
+        visual = ImageVisual("GameScene/Exports/BackToMenuButton.png")
+    ).apply {
+        onMouseClicked = {
+            app.showMenuScene(app.mainMenuScene)
+        }
+    }
 
     private val playContainer = Pane<ComponentView>(
         width = 784,
@@ -239,6 +259,7 @@ class GameScene(
         background = ImageVisual("gameScene/Background.png")
 
         infoPane.addAll(activePlayer, playerLine, stepTokenLine)
+        backToMenuButtonPane.add(backToMenuButton)
 
         addComponents(
             playContainer,
@@ -248,7 +269,13 @@ class GameScene(
             playerRankOne,
             playerRankTwo,
             playerRankThree,
-            playerRankFour
+            playerRankFour,
+            backToMenuButtonPane
+        )
+
+        addComponents(
+            greenPlayer, orangePlayer, yellowPlayer, redPlayer,
+            greenPlayerCopy, orangePlayerCopy, yellowPlayerCopy, redPlayerCopy
         )
     }
 
@@ -260,6 +287,7 @@ class GameScene(
         val currentState = game.currentGame
 
         playTiles.clear()
+        playContainer.clear()
 
         val playArea = GridPane<ComponentView>(
             posX = playContainer.width / 2,
@@ -309,10 +337,6 @@ class GameScene(
             redPlayerCopy.apply { scale = tokenScale }
         }
         playContainer.add(playArea)
-        addComponents(
-            greenPlayer, orangePlayer, yellowPlayer, redPlayer,
-            greenPlayerCopy, orangePlayerCopy, yellowPlayerCopy, redPlayerCopy
-        )
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
             val startingColor: ImageVisual = when (tile.startTileColor) {
@@ -631,6 +655,19 @@ class GameScene(
         }
     }
 
+    override fun refreshAfterGameEnd(winner: Player) {
+        playAnimation(
+            MovementAnimation(
+                backToMenuButtonPane,
+                backToMenuButtonPane.posX,
+                1550,
+                backToMenuButtonPane.posY,
+                backToMenuButtonPane.posY,
+                animationSpeed
+            )
+        )
+    }
+
     //--------------------^ Refreshes ^--------------------
 
     //--------------------v Helper Functions v--------------------
@@ -660,6 +697,8 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentGame
 
+        playerLine.clear()
+
         for (player in currentState.players) {
             val playerVisualToAdd = activePlayerLabel[player.color]
             checkNotNull(playerVisualToAdd)
@@ -675,6 +714,9 @@ class GameScene(
             playerLine.apply { spacing = 48.0 }
         }
 
+        stepTokenList.clear()
+        stepTokenLine.clear()
+
         repeat(4) {
             val stepToken = TokenView(
                 width = 64,
@@ -688,6 +730,12 @@ class GameScene(
         stepTokenLine.add(stepTokenList[0].apply { isVisible = true })
 
         addButtons()
+
+        playerRankOne.posX = 1920.0
+        playerRankTwo.posX = 1920.0
+        playerRankThree.posX = 1920.0
+        playerRankFour.posX = 1920.0
+        backToMenuButtonPane.posX = 1920.0
     }
 
     private fun addButtons() {
