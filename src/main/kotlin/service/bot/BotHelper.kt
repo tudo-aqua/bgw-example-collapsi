@@ -7,6 +7,8 @@ import service.RootService
  * Helper class for the [BotService].
  *
  * This class contains deterministic methods that are only relevant for the bot.
+ *
+ * @param root The [RootService] that provides access to the overall game state and the other services.
  */
 class BotHelper(private val root: RootService) {
     /**

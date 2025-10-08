@@ -35,7 +35,7 @@ typealias Evaluation = List<Double>
  * Service class for the bot functionality in the Collapsi game.
  * This class is responsible for managing bot players and their actions.
  *
- * @param root The root service that provides access to the overall game state.
+ * @param root The [RootService] that provides access to the overall game state and the other services.
  */
 class BotService(private val root: RootService) {
     /**

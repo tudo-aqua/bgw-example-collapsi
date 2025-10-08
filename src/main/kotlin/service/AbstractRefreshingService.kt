@@ -8,11 +8,18 @@ import gui.Refreshable
  * of changes to refresh via the [onAllRefreshables] method.
  */
 abstract class AbstractRefreshingService {
+    /**
+     * A list of [Refreshable]s that are notified when certain things happen in the game.
+     */
     private val refreshables = mutableListOf<Refreshable>()
 
     /**
      * Adds a [Refreshable] to the list that gets called
      * whenever [onAllRefreshables] is used.
+     *
+     * @param newRefreshable The [Refreshable] that should be added.
+     *
+     * @see onAllRefreshables
      */
     fun addRefreshable(newRefreshable: Refreshable) {
         refreshables += newRefreshable
@@ -33,6 +40,10 @@ abstract class AbstractRefreshingService {
      * }
      * ```
      *
+     * @param method The lambda that should be executed on all refreshables that have previously been
+     * added using [addRefreshable].
+     *
+     * @see addRefreshable
      */
     fun onAllRefreshables(method: Refreshable.() -> Unit) =
         refreshables.forEach { it.method() }

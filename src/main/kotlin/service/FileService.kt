@@ -10,7 +10,10 @@ import java.util.Properties
 /**
  * Service class that manages al io-related operations for the Collapsi game.
  *
- * @param root The root service that provides access to the overall game state.
+ * @param root The [RootService] that provides access to the overall game state and the other services.
+ *
+ * @see RootService
+ * @see AbstractRefreshingService
  */
 class FileService(private val root: RootService) : AbstractRefreshingService() {
     /**
@@ -22,6 +25,11 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      * The path that the secret for the network will be saved in / loaded from.
      */
     val propertiesFilePath = "app.properties"
+
+    /*
+    Note:
+    The above two variables are both constants and are thus allowed to be in this stateless class.
+     */
 
     /**
      * Saves the [CollapsiGame] from [RootService.currentGame] into the file at [saveFilePath].

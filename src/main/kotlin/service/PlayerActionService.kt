@@ -5,13 +5,15 @@ import entity.*
 /**
  * Service class that manages all player actions in the Collapsi game.
  *
- * @param root The root service that provides access to the overall game state.
+ * @param root The [RootService] that provides access to the overall game state and the other services.
+ *
+ * @see RootService
+ * @see AbstractRefreshingService
  */
 class PlayerActionService(private val root: RootService) : AbstractRefreshingService() {
     /**
-     * Moves the current player to the given [Coordinate].
-     *
-     * Ends the turn if the player had no more steps left.
+     * Moves the current player to the given [Coordinate]. The given coordinate must be exactly one step
+     * away from the current position.
      *
      * @param destination The [Coordinate] that the current player should move to.
      * @param game The [CollapsiGame] this function will be applied on. Defaults to the game in [RootService].
@@ -28,7 +30,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         val player = gameState.currentPlayer
 
         require(destination.boardSize == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
-        check(canMoveTo(destination, game)) { "Tried to perform an illegal move to $destination." }
+        require(canMoveTo(destination, game)) { "Tried to perform an illegal move to $destination." }
 
         val previousTile = gameState.getTileAt(player.position)
 
@@ -41,12 +43,15 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
             previousTile.collapsed = true
         }
 
+        // Mark the tile as visited.
         previousTile.visited = true
         player.visitedTiles.add(player.position)
 
+        // Move the player.
         player.position = destination
         player.remainingMoves--
 
+        // Update the refreshables if this move was performed on the current game (instead of in a bot simulation).
         if (game == root.currentGame)
             onAllRefreshables { refreshAfterMoveTo(previousTile.position, destination) }
     }
@@ -90,6 +95,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         // Check if the given position is adjacent to the player's position.
         val isAdjacent = player.position.isAdjacentTo(destination)
 
+        // Check if the player has any more valid paths starting from the given position.
         val extendedVisitedTiles = player.visitedTiles.toMutableList()
         extendedVisitedTiles.add(player.position)
         val hasValidMovesOnDestination = hasValidMove(
@@ -141,8 +147,10 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         val gameState = game.currentGame
         val tile = gameState.getTileAt(position)
 
+        val endsOnOccupiedTile = remainingMoves <= 0 && gameState.isTileOccupied(position) && visitedTiles.isNotEmpty()
+
         // Not a valid position if the tile is collapsed, or it ends on an occupied tile.
-        if (tile.collapsed || (remainingMoves <= 0 && gameState.isTileOccupied(position) && visitedTiles.isNotEmpty()))
+        if (tile.collapsed || (endsOnOccupiedTile))
             return false
 
         // Valid position if the path ends on a non-collapsed, non-occupied tile.
@@ -162,6 +170,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
             }
         }
 
+        // Make sure that visitedTiles doesn't change.
         visitedTiles.removeLast()
 
         return false

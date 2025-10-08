@@ -18,9 +18,7 @@ data class GameState(
     /** The index of the [Player] whose turn it currently is. */
     var currentPlayerIndex = 0
 
-    /**
-     * The [Player] whose turn it currently is.
-     */
+    /** The [Player] whose turn it currently is. */
     val currentPlayer get() = players[currentPlayerIndex]
 
     /*

@@ -3,9 +3,12 @@ package service
 import entity.*
 
 /**
- * Service class that manages al game-related operations in the Collapsi game.
+ * Service class that manages all game-related operations in the Collapsi game.
  *
- * @param root The root service that provides access to the overall game state.
+ * @param root The [RootService] that provides access to the overall game state and the other services.
+ *
+ * @see RootService
+ * @see AbstractRefreshingService
  */
 class GameService(private val root: RootService) : AbstractRefreshingService() {
     /**
@@ -116,6 +119,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         check(player.remainingMoves <= 0 || !root.playerActionService.hasValidMove(game))
         { "A player ended their turn with ${player.remainingMoves} steps left and some possible valid move." }
 
+        // Reset visited tiles.
         player.visitedTiles.forEach { gameState.getTileAt(it).visited = false }
         player.visitedTiles.clear()
         player.remainingMoves = currentTile.movesToMake
@@ -130,6 +134,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         gameState.nextPlayer()
         player = gameState.currentPlayer
 
+        // Update the refreshables if this method was performed on the current game (instead of in a bot simulation).
         if (game == root.currentGame)
             onAllRefreshables { refreshAfterEndTurn() }
 
@@ -138,6 +143,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
 
+            // Update the refreshables if this method was performed on the current game (instead of in a bot simulation).
             if (game == root.currentGame)
                 onAllRefreshables { refreshAfterPlayerDied(player) }
 
@@ -159,6 +165,8 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
 
         val winner = game.currentGame.players.first { it.alive }
 
+        // Update the refreshables and end the game if this method was performed on the current game
+        // (instead of in a bot simulation).
         if (game == root.currentGame) {
             onAllRefreshables { refreshAfterGameEnd(winner) }
 
