@@ -5,3 +5,4 @@
 *.asta.lock
 app.properties
 saveFile.json
+/.kotlin/

@@ -19,6 +19,7 @@ import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
+import tools.aqua.bgw.util.BidirectionalMap
 import tools.aqua.bgw.visual.*
 import kotlin.math.roundToInt
 
@@ -26,18 +27,17 @@ class GameScene(
     private val app: CollapsiApplication,
     private val rootService: RootService
 ) : BoardGameScene(1920, 1080), Refreshable {
+    /** A map with all tile positions mapped to the CardViews representing tiles. */
+    private val tileViews = BidirectionalMap<Coordinate, CardView>()
 
-    private val playTiles = mutableMapOf<Tile, CardView>()
-
-    private val players = mutableMapOf<PlayerColor, TokenView>()
+    /** A map which saves the TokenView for every player. */
+    private val playerTokens = BidirectionalMap<PlayerColor, TokenView>()
 
     private val pseudoPlayerCopy = mutableMapOf<PlayerColor, TokenView>()
 
     private val stepTokenList = mutableListOf<TokenView>()
 
     private val activePlayerLabel = mutableMapOf<PlayerColor, TokenView>()
-
-    private var tokenScale = 1.0
 
     private var animationSpeed = 500
 
@@ -286,7 +286,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        playTiles.clear()
+        tileViews.clear()
         playContainer.clear()
 
         val playArea = GridPane<ComponentView>(
@@ -295,7 +295,6 @@ class GameScene(
             rows = currentState.boardSize,
             columns = currentState.boardSize,
             spacing = 20,
-            //visual = ColorVisual.LIGHT_GRAY
         ).apply {
             if (currentState.boardSize == 5) {
                 spacing = 15.0
@@ -304,38 +303,35 @@ class GameScene(
             }
         }
 
-        players.clear()
+        var tokenScale = 1.0
+
+        playerTokens.clear()
         pseudoPlayerCopy.clear()
 
-        players[currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.color] = greenPlayer
-        pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.color] = greenPlayerCopy
-        players[currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.color] = orangePlayer
-        pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.color] = orangePlayerCopy
+        playerTokens[PlayerColor.GREEN_SQUARE] = greenPlayer
+        pseudoPlayerCopy[PlayerColor.GREEN_SQUARE] = greenPlayerCopy
+        playerTokens[PlayerColor.ORANGE_HEXAGON] = orangePlayer
+        pseudoPlayerCopy[PlayerColor.ORANGE_HEXAGON] = orangePlayerCopy
         if (currentState.players.size >= 3) {
-            players[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] = yellowPlayer
-            pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.color] =
-                yellowPlayerCopy
+            playerTokens[PlayerColor.YELLOW_CIRCLE] = yellowPlayer
+            pseudoPlayerCopy[PlayerColor.YELLOW_CIRCLE] = yellowPlayerCopy
             tokenScale = 0.8
-            greenPlayer.apply { scale = tokenScale }
-            greenPlayerCopy.apply { scale = tokenScale }
-            orangePlayer.apply { scale = tokenScale }
-            orangePlayerCopy.apply { scale = tokenScale }
-            yellowPlayer.apply { scale = tokenScale }
-            yellowPlayerCopy.apply { scale = tokenScale }
         }
         if (currentState.players.size == 4) {
-            players[currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.color] = redPlayer
-            pseudoPlayerCopy[currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.color] = redPlayerCopy
+            playerTokens[PlayerColor.RED_TRIANGLE] = redPlayer
+            pseudoPlayerCopy[PlayerColor.RED_TRIANGLE] = redPlayerCopy
             tokenScale = 0.677
-            greenPlayer.apply { scale = tokenScale }
-            greenPlayerCopy.apply { scale = tokenScale }
-            orangePlayer.apply { scale = tokenScale }
-            orangePlayerCopy.apply { scale = tokenScale }
-            yellowPlayer.apply { scale = tokenScale }
-            yellowPlayerCopy.apply { scale = tokenScale }
-            redPlayer.apply { scale = tokenScale }
-            redPlayerCopy.apply { scale = tokenScale }
         }
+
+        greenPlayer.apply { scale = tokenScale }
+        greenPlayerCopy.apply { scale = tokenScale }
+        orangePlayer.apply { scale = tokenScale }
+        orangePlayerCopy.apply { scale = tokenScale }
+        yellowPlayer.apply { scale = tokenScale }
+        yellowPlayerCopy.apply { scale = tokenScale }
+        redPlayer.apply { scale = tokenScale }
+        redPlayerCopy.apply { scale = tokenScale }
+
         playContainer.add(playArea)
 
         currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
@@ -384,7 +380,7 @@ class GameScene(
                 }
             }
 
-            playTiles[tile] = cardView
+            tileViews.add(tile.position, cardView)
             playArea[coordinate.x, coordinate.y] = cardView
         }
 
@@ -409,7 +405,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        val playerTokenToMove = players[currentState.currentPlayer.color]
+        val playerTokenToMove = playerTokens[currentState.currentPlayer.color]
         checkNotNull(playerTokenToMove)
 
         playAnimation(
@@ -430,7 +426,7 @@ class GameScene(
             })
 
         if (currentState.currentPlayer.visitedTiles.size == 1) {
-            val collapsedTileView = playTiles[currentState.getTileAt(from)]
+            val collapsedTileView = tileViews.forward(from)
             checkNotNull(collapsedTileView)
             collapsedTileView.apply {
                 playAnimation(
@@ -466,14 +462,14 @@ class GameScene(
             })
 
         currentState.getTileAt(from).position.neighbours.forEach { neighbour: Coordinate ->
-            val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
+            val neighbourTileView = tileViews.forward(neighbour)
             checkNotNull(neighbourTileView)
 
             neighbourTileView.apply { isDisabled = true }
         }
         if (currentState.currentPlayer.remainingMoves > 0) {
             currentState.getTileAt(to).position.neighbours.forEach { neighbour: Coordinate ->
-                val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
+                val neighbourTileView = tileViews.forward(neighbour)
                 checkNotNull(neighbourTileView)
 
                 neighbourTileView.apply { isDisabled = false }
@@ -495,7 +491,7 @@ class GameScene(
         val currentState = game.currentState
 
         currentState.currentPlayer.position.neighbours.forEach { neighbour: Coordinate ->
-            val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
+            val neighbourTileView = tileViews.forward(neighbour)
             checkNotNull(neighbourTileView)
 
             neighbourTileView.apply { isDisabled = false }
@@ -536,7 +532,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        val playerTokenToRemove = players[player.color]
+        val playerTokenToRemove = playerTokens[player.color]
         checkNotNull(playerTokenToRemove)
         playerTokenToRemove.apply { isVisible = false }
 
@@ -815,34 +811,33 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        // Todo: Create getPlayerByColor function somewhere. Or maybe a player to color bi-map?
         greenPlayer.posX = getPlayerPosX(
-            currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.position
+            currentState.getPlayerByColor(PlayerColor.GREEN_SQUARE).position
         )
         greenPlayer.posY = getPlayerPosY(
-            currentState.players.first { it.color == PlayerColor.GREEN_SQUARE }.position
+            currentState.getPlayerByColor(PlayerColor.GREEN_SQUARE).position
         )
         orangePlayer.posX = getPlayerPosX(
-            currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.position
+            currentState.getPlayerByColor(PlayerColor.ORANGE_HEXAGON).position
         )
         orangePlayer.posY = getPlayerPosY(
-            currentState.players.first { it.color == PlayerColor.ORANGE_HEXAGON }.position
+            currentState.getPlayerByColor(PlayerColor.ORANGE_HEXAGON).position
         )
 
         if (currentState.players.size >= 3) {
             yellowPlayer.posX = getPlayerPosX(
-                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position
+                currentState.getPlayerByColor(PlayerColor.YELLOW_CIRCLE).position
             )
             yellowPlayer.posY = getPlayerPosY(
-                currentState.players.first { it.color == PlayerColor.YELLOW_CIRCLE }.position
+                currentState.getPlayerByColor(PlayerColor.YELLOW_CIRCLE).position
             )
         }
         if (currentState.players.size == 4) {
             redPlayer.posX = getPlayerPosX(
-                currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.position
+                currentState.getPlayerByColor(PlayerColor.RED_TRIANGLE).position
             )
             redPlayer.posY = getPlayerPosY(
-                currentState.players.first { it.color == PlayerColor.RED_TRIANGLE }.position
+                currentState.getPlayerByColor(PlayerColor.RED_TRIANGLE).position
             )
         }
     }
@@ -862,7 +857,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        val currentTile = playTiles[currentState.getTileAt(position)]
+        val currentTile = tileViews.forward(position)
         checkNotNull(currentTile)
 
         return currentTile.actualPosX + (currentTile.width - 64) / 2
@@ -873,7 +868,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        val currentTile = playTiles[currentState.getTileAt(position)]
+        val currentTile = tileViews.forward(position)
         checkNotNull(currentTile)
 
         return currentTile.actualPosY + (currentTile.height - 64) / 2
