@@ -1,14 +1,11 @@
 package gui
 
-import entity.Coordinate
-import entity.Player
-import entity.PlayerColor
-import entity.PlayerType
-import entity.Tile
-import service.RootService
-import tools.aqua.bgw.animation.DelayAnimation
-import tools.aqua.bgw.animation.FlipAnimation
-import tools.aqua.bgw.animation.MovementAnimation
+import entity.*
+import service.*
+import tools.aqua.bgw.animation.*
+import tools.aqua.bgw.core.Alignment
+import tools.aqua.bgw.core.BoardGameScene
+import tools.aqua.bgw.util.BidirectionalMap
 import tools.aqua.bgw.components.ComponentView
 import tools.aqua.bgw.components.container.LinearLayout
 import tools.aqua.bgw.components.gamecomponentviews.CardView
@@ -17,9 +14,6 @@ import tools.aqua.bgw.components.layoutviews.GridPane
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
-import tools.aqua.bgw.core.Alignment
-import tools.aqua.bgw.core.BoardGameScene
-import tools.aqua.bgw.util.BidirectionalMap
 import tools.aqua.bgw.visual.*
 import kotlin.collections.component1
 import kotlin.collections.component2
@@ -30,6 +24,7 @@ class GameScene(
     private val app: CollapsiApplication,
     private val root: RootService
 ) : BoardGameScene(1920, 1080), Refreshable {
+    //region Components
     //region Board
 
     /**
@@ -216,17 +211,65 @@ class GameScene(
 
     //endregion
 
-    //region Button Pane
+    //region Buttons
 
-    private val buttonPane = Pane<Button>(
+    private val buttonLayout = LinearLayout<TokenView>(
         width = 640,
         height = 90,
         posX = 800,
         posY = 990,
-        //visual = ColorVisual.GRAY
+        spacing = 40
     )
 
-    private val activeSpeed = Label(
+    private val undoButton = TokenView(
+        width = 26.67 * 1.5,
+        height = 25 * 1.5,
+        visual = ImageVisual("GameScene/Button_Undo.png")
+    ).apply {
+        onMouseClicked = {
+            val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+            if (game.undoStack.isNotEmpty())
+                root.playerActionService.undo()
+        }
+    }
+
+    private val redoButton = TokenView(
+        width = 26.67 * 1.5,
+        height = 25 * 1.5,
+        visual = ImageVisual("GameScene/Button_Redo.png")
+    ).apply {
+        onMouseClicked = {
+            val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+            if (game.redoStack.isNotEmpty())
+                root.playerActionService.redo()
+        }
+    }
+
+    private val speedButtons = List(3) { index ->
+        TokenView(
+            width = 19.64 * 1.5 * (index + 1),
+            height = 25 * 1.5,
+            visual = ImageVisual("GameScene/Button_Speed_${index + 1}.png")
+        ).apply {
+            // Todo: Too long. Extract function.
+            onMouseClicked = {
+                val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+                activeSpeedArrow.posX = this.actualPosX + this.width / 2 - activeSpeedArrow.width / 2
+                game.simulationSpeed = index.toDouble()
+                animationSpeed = when (index) {
+                    0 -> 1000
+                    1 -> 500
+                    2 -> 200
+                    else -> throw IndexOutOfBoundsException()
+                }
+            }
+        }
+    }
+
+    private val activeSpeedArrow = Label(
         width = 6,
         height = 20,
         posX = 1032.75,
@@ -238,28 +281,40 @@ class GameScene(
     }
 
     //endregion
+    //endregion
 
+    // Todo: Remove
     private var animationSpeed = 500
+
+    //region Functions
 
     init {
         background = ImageVisual("gameScene/Background.png")
 
-        infoPane.addAll(activePlayerArrow, playerOrderLayout, stepTokenLayout)
-        backToMenuButtonPane.add(backToMenuButton)
-
         addComponents(
             boardGrid,
             infoPane,
-            activeSpeed,
-            buttonPane,
+            activeSpeedArrow,
+            buttonLayout,
             backToMenuButtonPane
         )
 
         addComponents(*playerMainTokens.values.toTypedArray())
         addComponents(*playerRankPanes.toTypedArray())
+
+        infoPane.addAll(activePlayerArrow, playerOrderLayout, stepTokenLayout)
+        backToMenuButtonPane.add(backToMenuButton)
+
+        buttonLayout.addAll(
+            undoButton,
+            redoButton,
+            speedButtons[0],
+            speedButtons[1],
+            speedButtons[2]
+        )
     }
 
-    //--------------------v Refreshes v--------------------
+    //region Refreshes
 
     override fun refreshAfterStartNewGame() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
@@ -269,7 +324,6 @@ class GameScene(
         initializePlayers()
         initializeLeftInfoPane()
         initializePlayerRanking()
-        initializeButtons()
 
         // Start the bot.
         if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
@@ -281,6 +335,7 @@ class GameScene(
         }
     }
 
+    // Todo: Improve
     override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
@@ -358,6 +413,7 @@ class GameScene(
         checkNotNull(currentLabel)
         activePlayerArrow.posX = currentLabel.actualPosX - 10
 
+        // Todo: This looks weird.
         stepTokenViews.forEach {
             it.isVisible = false
             it.posX = 0.0
@@ -372,6 +428,7 @@ class GameScene(
             stepTokenLayout.add(stepTokenViews[i])
         }
 
+        // Todo: Exctract and improve.
         if (currentState.currentPlayer.type == PlayerType.BOT
             && game.simulationSpeed >= 0
             && root.playerActionService.hasValidMove()
@@ -408,68 +465,9 @@ class GameScene(
         showPlayerRank(winner, 1)
     }
 
-    /**
-     * Plays the animation when a player gets placed in the ranking on death or victory.
-     *
-     * @param player The player that is being ranked.
-     * @param rank The rank of the player (1-4th).
-     */
-    private fun showPlayerRank(player: Player, rank: Int) {
-        val mainToken = playerMainTokens[player.color]
-        checkNotNull(mainToken)
-        mainToken.apply { isVisible = false }
+    //endregion
 
-        val rankToken = playerRankTokens[player.color]
-        checkNotNull(rankToken)
-
-        val pane = playerRankPanes[rank - 1]
-        pane.add(rankToken)
-
-        rankToken.apply {
-            isVisible = true
-            scale = 0.8
-        }
-        rankToken.posX = 44.0
-        rankToken.posY = 57.0
-
-        playAnimation(
-            MovementAnimation(
-                pane,
-                pane.posX,
-                pane.posX - 300,
-                pane.posY,
-                pane.posY,
-                animationSpeed
-            ).apply {
-                onFinished = {
-                    pane.apply {
-                        posX -= 300
-                    }
-                }
-            }
-        )
-    }
-
-    //--------------------^ Refreshes ^--------------------
-
-    //--------------------v Helper Functions v--------------------
-
-    fun makeNextBotMove() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val gameState = game.currentState
-        val originalPlayer = gameState.currentPlayer
-
-        playAnimation(DelayAnimation((0.35 * game.simulationSpeed * 1000).roundToInt()).apply {
-            onFinished = {
-                root.botService.makeMove()
-
-                // Move until the player switches.
-                if (gameState.currentPlayer == originalPlayer && originalPlayer.remainingMoves > 0) {
-                    makeNextBotMove()
-                }
-            }
-        })
-    }
+    //region Initializers
 
     private fun initializeBoard() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
@@ -494,23 +492,23 @@ class GameScene(
 
         tileViews.clear()
 
+        val tileSize = when (currentState.boardSize) {
+            4 -> 176.0
+            5 -> 140.8
+            6 -> 119.167
+            else -> throw IllegalStateException("Board size out of range.")
+        }
+
         for ((position: Coordinate, tile: Tile) in currentState.board) {
             val frontVisual: ImageVisual = if (tile.startTileColor == null) {
-                getTileVisual(tile.movesToMake)
+                ImageVisual("GameScene/Tile_${tile.movesToMake}.png")
             } else {
                 ImageVisual("GameScene/Tile_P${tile.startTileColor.ordinal + 1}.png")
             }
 
-            val size = when (currentState.boardSize) {
-                4 -> 176.0
-                5 -> 140.8
-                6 -> 119.167
-                else -> throw IllegalStateException("Board size out of range.")
-            }
-
             val cardView = CardView(
-                width = size,
-                height = size,
+                width = tileSize,
+                height = tileSize,
                 front = frontVisual,
                 back = ImageVisual("GameScene/Tile_Collapsed.png")
             ).apply {
@@ -583,107 +581,81 @@ class GameScene(
         backToMenuButtonPane.posX = 1920.0
     }
 
-    private fun initializeButtons() {
-        buttonPane.addAll(
-            Button(
-                width = 26.67 * 1.5,
-                height = 25 * 1.5,
-                posX = 20,
-                posY = 12.5,
-                visual = ImageVisual("GameScene/undo.png")
+    //endregion
+
+    //region Helpers
+
+    /**
+     * Plays the animation when a player gets placed in the ranking on death or victory.
+     *
+     * @param player The player that is being ranked.
+     * @param rank The rank of the player (1-4th).
+     */
+    private fun showPlayerRank(player: Player, rank: Int) {
+        val mainToken = playerMainTokens[player.color]
+        checkNotNull(mainToken)
+        mainToken.apply { isVisible = false }
+
+        val rankToken = playerRankTokens[player.color]
+        checkNotNull(rankToken)
+
+        val pane = playerRankPanes[rank - 1]
+        pane.add(rankToken)
+
+        rankToken.apply {
+            isVisible = true
+            scale = 0.8
+        }
+        rankToken.posX = 44.0
+        rankToken.posY = 57.0
+
+        playAnimation(
+            MovementAnimation(
+                pane,
+                pane.posX,
+                pane.posX - 300,
+                pane.posY,
+                pane.posY,
+                animationSpeed
             ).apply {
-                onMouseClicked = {
-                    root.playerActionService.undo()
+                onFinished = {
+                    pane.apply {
+                        posX -= 300
+                    }
                 }
-            },
-            Button(
-                width = 26.67 * 1.5,
-                height = 25 * 1.5,
-                posX = 120,
-                posY = 12.5,
-                visual = ImageVisual("GameScene/redo.png")
-            ).apply {
-                onMouseClicked = {
-                    root.playerActionService.redo()
-                }
-            },
-            Button(
-                width = 19.64 * 1.5,
-                height = 25 * 1.5,
-                posX = 220,
-                posY = 12.5,
-                visual = ImageVisual("GameScene/speed_one.png")
-            ).apply {
-                onMouseClicked = {
-                    val game = root.currentGame
-                    checkNotNull(game)
-                    game.simulationSpeed = 0.0
-                    activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
-                    animationSpeed = 1000
-                }
-            },
-            Button(
-                width = 39.58 * 1.5,
-                height = 25 * 1.5,
-                posX = 320,
-                posY = 12.5,
-                visual = ImageVisual("GameScene/speed_two.png")
-            ).apply {
-                onMouseClicked = {
-                    val game = root.currentGame
-                    checkNotNull(game)
-                    game.simulationSpeed = 1.0
-                    activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
-                    animationSpeed = 500
-                }
-            },
-            Button(
-                width = 60.58 * 1.5,
-                height = 25 * 1.5,
-                posX = 420,
-                posY = 12.5,
-                visual = ImageVisual("GameScene/speed_three.png")
-            ).apply {
-                onMouseClicked = {
-                    val game = root.currentGame
-                    checkNotNull(game)
-                    game.simulationSpeed = 2.0
-                    activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
-                    animationSpeed = 200
-                }
-            },
+            }
         )
     }
 
-    private fun getTileVisual(movesOnTile: Int): ImageVisual {
-        return when (movesOnTile) {
-            1 -> ImageVisual("GameScene/Tile_1.png")
-            2 -> ImageVisual("GameScene/Tile_2.png")
-            3 -> ImageVisual("GameScene/Tile_3.png")
-            4 -> ImageVisual("GameScene/Tile_4.png")
-            else -> throw IllegalArgumentException("Invalid number of moves on tile: $movesOnTile")
-        }
+    fun makeNextBotMove() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val gameState = game.currentState
+        val originalPlayer = gameState.currentPlayer
+
+        playAnimation(DelayAnimation((0.35 * game.simulationSpeed * 1000).roundToInt()).apply {
+            onFinished = {
+                root.botService.makeMove()
+
+                // Move until the player switches.
+                if (gameState.currentPlayer == originalPlayer && originalPlayer.remainingMoves > 0) {
+                    makeNextBotMove()
+                }
+            }
+        })
     }
 
     private fun getPlayerPosX(position: Coordinate): Double {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val currentState = game.currentState
-
         val currentTile = tileViews.forward(position)
-        checkNotNull(currentTile)
 
         return currentTile.actualPosX + (currentTile.width - 64) / 2
     }
 
     private fun getPlayerPosY(position: Coordinate): Double {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val currentState = game.currentState
-
         val currentTile = tileViews.forward(position)
-        checkNotNull(currentTile)
 
         return currentTile.actualPosY + (currentTile.height - 64) / 2
     }
 
-    //--------------------^ Helper Functions ^--------------------
+    //endregion
+    //endregion
 }
