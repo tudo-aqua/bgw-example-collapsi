@@ -32,8 +32,6 @@ class GameScene(
      */
     private val tileViews = BidirectionalMap<Coordinate, CardView>()
 
-    private val stepTokenList = mutableListOf<TokenView>()
-
     private var animationSpeed = 500
 
 
@@ -75,14 +73,14 @@ class GameScene(
         )
     }
 
-    private val activePlayer = Label(
+    private val activePlayerArrow = Label(
         width = 84,
         height = 116,
         posY = 170,
         visual = ImageVisual("GameScene/CurrentPlayerArrow.png")
     )
 
-    private val stepTokenLine = LinearLayout<TokenView>(
+    private val stepTokenLayout = LinearLayout<TokenView>(
         width = 460,
         height = 128,
         posX = 40,
@@ -90,6 +88,16 @@ class GameScene(
         alignment = Alignment.CENTER,
         spacing = 40,
     )
+
+    private val stepTokenViews = List(4) {
+        TokenView(
+            width = 64,
+            height = 64,
+            visual = ImageVisual("GameScene/StepToken.png")
+        ).apply {
+            isVisible = false
+        }
+    }
 
     //--------------------^ Left Info Pane ^--------------------
 
@@ -129,7 +137,11 @@ class GameScene(
         )
     }
 
-    private val playerDeathTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+    //--------------------^ Player Tokens ^--------------------
+
+    //--------------------v Play Ranking v--------------------
+
+    private val playerRankTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
         Pair(
             PlayerColor.entries[index],
             TokenView(
@@ -140,41 +152,15 @@ class GameScene(
         )
     }
 
-    //--------------------^ Player Tokens ^--------------------
-
-    //--------------------v Play Ranking v--------------------
-
-    private val playerRankOne = Pane<TokenView>(
-        width = 200,
-        height = 200,
-        posX = 1920,
-        posY = 100,
-        visual = ImageVisual("GameScene/PlayerRanking_1.png")
-    )
-
-    private val playerRankTwo = Pane<TokenView>(
-        width = 200,
-        height = 200,
-        posX = 1920,
-        posY = 270,
-        visual = ImageVisual("GameScene/PlayerRanking_2.png")
-    )
-
-    private val playerRankThree = Pane<TokenView>(
-        width = 200,
-        height = 200,
-        posX = 1920,
-        posY = 440,
-        visual = ImageVisual("GameScene/PlayerRanking_3.png")
-    )
-
-    private val playerRankFour = Pane<TokenView>(
-        width = 200,
-        height = 200,
-        posX = 1920,
-        posY = 610,
-        visual = ImageVisual("GameScene/PlayerRanking_4.png")
-    )
+    private val playerRankPanes = List(4) { index ->
+        Pane<TokenView>(
+            width = 200,
+            height = 200,
+            posX = 1920,
+            posY = 100 + index * 170,
+            visual = ImageVisual("GameScene/PlayerRanking_${index + 1}.png")
+        )
+    }
 
     //--------------------^ Play Ranking ^--------------------
 
@@ -209,7 +195,7 @@ class GameScene(
     init {
         background = ImageVisual("gameScene/Background.png")
 
-        infoPane.addAll(activePlayer, playerOrderLayout, stepTokenLine)
+        infoPane.addAll(activePlayerArrow, playerOrderLayout, stepTokenLayout)
         backToMenuButtonPane.add(backToMenuButton)
 
         addComponents(
@@ -217,22 +203,18 @@ class GameScene(
             infoPane,
             activeSpeed,
             buttonPane,
-            playerRankOne,
-            playerRankTwo,
-            playerRankThree,
-            playerRankFour,
             backToMenuButtonPane
         )
 
         addComponents(*playerMainTokens.values.toTypedArray())
-        addComponents(*playerDeathTokens.values.toTypedArray())
+        addComponents(*playerRankTokens.values.toTypedArray())
+        addComponents(*playerRankPanes.toTypedArray())
     }
 
     //--------------------v Refreshes v--------------------
 
     override fun refreshAfterStartNewGame() {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         tileViews.clear()
@@ -255,7 +237,7 @@ class GameScene(
         playerMainTokens[PlayerColor.YELLOW_CIRCLE]!!.isVisible = currentState.players.size >= 3
         playerMainTokens[PlayerColor.RED_TRIANGLE]!!.isVisible = currentState.players.size >= 4
 
-        playerDeathTokens.values.forEach { it.isVisible = false }
+        playerRankTokens.values.forEach { it.isVisible = false }
 
         val tokenScale = when (currentState.players.size) {
             4 -> 0.677
@@ -264,7 +246,7 @@ class GameScene(
         }
 
         playerMainTokens.values.forEach { it.scale = tokenScale }
-        playerDeathTokens.values.forEach { it.scale = tokenScale }
+        playerRankTokens.values.forEach { it.scale = tokenScale }
 
         playContainer.add(playArea)
 
@@ -312,7 +294,7 @@ class GameScene(
 
         val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
         checkNotNull(currentLabel)
-        activePlayer.posX = currentLabel.actualPosX - 10
+        activePlayerArrow.posX = currentLabel.actualPosX - 10
 
         if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
             rootService.botService.calculateTurn()
@@ -324,8 +306,7 @@ class GameScene(
     }
 
     override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val playerTokenToMove = playerMainTokens[currentState.currentPlayer.color]
@@ -366,7 +347,7 @@ class GameScene(
             }
         }
 
-        val stepToken = stepTokenList[currentState.currentPlayer.remainingMoves]
+        val stepToken = stepTokenViews[currentState.currentPlayer.remainingMoves]
         playAnimation(
             MovementAnimation(
                 stepToken,
@@ -409,8 +390,7 @@ class GameScene(
     }
 
     override fun refreshAfterEndTurn() {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         currentState.currentPlayer.position.neighbours.forEach { neighbour: Coordinate ->
@@ -422,20 +402,20 @@ class GameScene(
 
         val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
         checkNotNull(currentLabel)
-        activePlayer.posX = currentLabel.actualPosX - 10
+        activePlayerArrow.posX = currentLabel.actualPosX - 10
 
-        stepTokenList.forEach {
+        stepTokenViews.forEach {
             it.isVisible = false
             it.posX = 0.0
             it.posY = 0.0
         }
-        stepTokenLine.clear()
+        stepTokenLayout.clear()
 
         for (i in 0 until currentState.currentPlayer.remainingMoves) {
-            stepTokenList[i].apply {
+            stepTokenViews[i].apply {
                 isVisible = true
             }
-            stepTokenLine.add(stepTokenList[i])
+            stepTokenLayout.add(stepTokenViews[i])
         }
 
         if (currentState.currentPlayer.type == PlayerType.BOT
@@ -451,38 +431,37 @@ class GameScene(
     }
 
     override fun refreshAfterPlayerDied(player: Player) {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val playerTokenToRemove = playerMainTokens[player.color]
         checkNotNull(playerTokenToRemove)
         playerTokenToRemove.apply { isVisible = false }
 
-        val playerCopy = playerDeathTokens[player.color]
-        checkNotNull(playerCopy)
+        val playerRankToken = playerRankTokens[player.color]
+        checkNotNull(playerRankToken)
 
         when (currentState.players.count { it.alive }) {
             3 -> {
-                this.removeComponents(playerCopy)
-                playerRankFour.add(playerCopy)
-                playerCopy.apply {
+                this.removeComponents(playerRankToken)
+                playerRankPanes[3].add(playerRankToken)
+                playerRankToken.apply {
                     isVisible = true
                     scale = 0.8
                 }
-                playerCopy.posX = 44.0
-                playerCopy.posY = 57.0
+                playerRankToken.posX = 44.0
+                playerRankToken.posY = 57.0
                 playAnimation(
                     MovementAnimation(
-                        playerRankFour,
-                        playerRankFour.posX,
-                        playerRankFour.posX - 300,
-                        playerRankFour.posY,
-                        playerRankFour.posY,
+                        playerRankPanes[3],
+                        playerRankPanes[3].posX,
+                        playerRankPanes[3].posX - 300,
+                        playerRankPanes[3].posY,
+                        playerRankPanes[3].posY,
                         animationSpeed
                     ).apply {
                         onFinished = {
-                            playerRankFour.apply {
+                            playerRankPanes[3].apply {
                                 posX -= 300
                             }
                         }
@@ -492,25 +471,25 @@ class GameScene(
             }
 
             2 -> {
-                this.removeComponents(playerCopy)
-                playerRankThree.add(playerCopy)
-                playerCopy.apply {
+                this.removeComponents(playerRankToken)
+                playerRankPanes[2].add(playerRankToken)
+                playerRankToken.apply {
                     isVisible = true
                     scale = 0.8
                 }
-                playerCopy.posX = 44.0
-                playerCopy.posY = 57.0
+                playerRankToken.posX = 44.0
+                playerRankToken.posY = 57.0
                 playAnimation(
                     MovementAnimation(
-                        playerRankThree,
-                        playerRankThree.posX,
-                        playerRankThree.posX - 300,
-                        playerRankThree.posY,
-                        playerRankThree.posY,
+                        playerRankPanes[2],
+                        playerRankPanes[2].posX,
+                        playerRankPanes[2].posX - 300,
+                        playerRankPanes[2].posY,
+                        playerRankPanes[2].posY,
                         animationSpeed
                     ).apply {
                         onFinished = {
-                            playerRankThree.apply {
+                            playerRankPanes[2].apply {
                                 posX -= 300
                             }
                         }
@@ -519,35 +498,35 @@ class GameScene(
             }
 
             1 -> {
-                val winner = playerDeathTokens[currentState.players.first { it.alive }.color]
+                val winner = playerRankTokens[currentState.players.first { it.alive }.color]
                 checkNotNull(winner)
 
-                this.removeComponents(playerCopy)
-                playerRankTwo.add(playerCopy)
-                playerCopy.apply {
+                this.removeComponents(playerRankToken)
+                playerRankPanes[1].add(playerRankToken)
+                playerRankToken.apply {
                     isVisible = true
                     scale = 0.8
                 }
-                playerCopy.posX = 44.0
-                playerCopy.posY = 57.0
+                playerRankToken.posX = 44.0
+                playerRankToken.posY = 57.0
                 playAnimation(
                     MovementAnimation(
-                        playerRankTwo,
-                        playerRankTwo.posX,
-                        playerRankTwo.posX - 300,
-                        playerRankTwo.posY,
-                        playerRankTwo.posY,
+                        playerRankPanes[1],
+                        playerRankPanes[1].posX,
+                        playerRankPanes[1].posX - 300,
+                        playerRankPanes[1].posY,
+                        playerRankPanes[1].posY,
                         animationSpeed
                     ).apply {
                         onFinished = {
-                            playerRankTwo.apply {
+                            playerRankPanes[1].apply {
                                 posX -= 300
                             }
                         }
                     }
                 )
                 this.removeComponents(winner)
-                playerRankOne.add(winner)
+                playerRankPanes[0].add(winner)
                 winner.apply {
                     isVisible = true
                     scale = 0.8
@@ -556,15 +535,15 @@ class GameScene(
                 winner.posY = 57.0
                 playAnimation(
                     MovementAnimation(
-                        playerRankOne,
-                        playerRankOne.posX,
-                        playerRankOne.posX - 300,
-                        playerRankOne.posY,
-                        playerRankOne.posY,
+                        playerRankPanes[0],
+                        playerRankPanes[0].posX,
+                        playerRankPanes[0].posX - 300,
+                        playerRankPanes[0].posY,
+                        playerRankPanes[0].posY,
                         animationSpeed
                     ).apply {
                         onFinished = {
-                            playerRankOne.apply {
+                            playerRankPanes[0].apply {
                                 posX -= 300
                             }
                         }
@@ -612,8 +591,7 @@ class GameScene(
      * Function to initialize the scene with information given after the start of the game.
      */
     private fun initializeScene() {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         playerOrderLayout.clear()
@@ -633,27 +611,10 @@ class GameScene(
             playerOrderLayout.apply { spacing = 48.0 }
         }
 
-        stepTokenList.clear()
-        stepTokenLine.clear()
-
-        repeat(4) {
-            val stepToken = TokenView(
-                width = 64,
-                height = 64,
-                visual = ImageVisual("GameScene/StepToken.png")
-            ).apply {
-                isVisible = false
-            }
-            stepTokenList.add(stepToken)
-        }
-        stepTokenLine.add(stepTokenList[0].apply { isVisible = true })
-
         addButtons()
 
-        playerRankOne.posX = 1920.0
-        playerRankTwo.posX = 1920.0
-        playerRankThree.posX = 1920.0
-        playerRankFour.posX = 1920.0
+        playerRankPanes.forEach { it.posX = 1920.0 }
+
         backToMenuButtonPane.posX = 1920.0
     }
 
@@ -730,8 +691,7 @@ class GameScene(
     }
 
     private fun positionPlayers() {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         for (player in currentState.players) {
@@ -751,8 +711,7 @@ class GameScene(
     }
 
     private fun getPlayerPosX(position: Coordinate): Double {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val currentTile = tileViews.forward(position)
@@ -762,8 +721,7 @@ class GameScene(
     }
 
     private fun getPlayerPosY(position: Coordinate): Double {
-        val game = rootService.currentGame
-        checkNotNull(game)
+        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val currentTile = tileViews.forward(position)
