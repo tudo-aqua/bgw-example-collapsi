@@ -27,17 +27,12 @@ class GameScene(
     private val app: CollapsiApplication,
     private val rootService: RootService
 ) : BoardGameScene(1920, 1080), Refreshable {
-    /** A map with all tile positions mapped to the CardViews representing tiles. */
+    /**
+     * A map with all tile positions mapped to the CardViews representing tiles.
+     */
     private val tileViews = BidirectionalMap<Coordinate, CardView>()
 
-    /** A map which saves the TokenView for every player. */
-    private val playerTokens = BidirectionalMap<PlayerColor, TokenView>()
-
-    private val pseudoPlayerCopy = mutableMapOf<PlayerColor, TokenView>()
-
     private val stepTokenList = mutableListOf<TokenView>()
-
-    private val activePlayerLabel = mutableMapOf<PlayerColor, TokenView>()
 
     private var animationSpeed = 500
 
@@ -53,7 +48,10 @@ class GameScene(
         isDisabled = true
     }
 
-    private val playerLine = LinearLayout<TokenView>(
+    /**
+     * LinearLayout for the tokens on the left side that show the player order.
+     */
+    private val playerOrderLayout = LinearLayout<TokenView>(
         width = 460,
         height = 128,
         posX = 40,
@@ -62,29 +60,20 @@ class GameScene(
         spacing = 40,
     )
 
-    private val greenPlayerVisual = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P1.png")
-    )
-
-    private val orangePlayerVisual = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P2.png")
-    )
-
-    private val yellowPlayerVisual = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P3.png")
-    )
-
-    private val redPlayerVisual = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P4.png")
-    )
+    /**
+     * The tokens on the left side of the screen that represent each player.
+     * This includes even inactive tokens.
+     */
+    private val playerOrderTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+        Pair(
+            PlayerColor.entries[index],
+            TokenView(
+                width = 64,
+                height = 64,
+                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+            )
+        )
+    }
 
     private val activePlayer = Label(
         width = 84,
@@ -129,64 +118,26 @@ class GameScene(
 
     //--------------------v Player Tokens v--------------------
 
-    private val greenPlayer = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P1.png")
-    )
-
-    private val orangePlayer = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P2.png")
-    )
-
-    private val yellowPlayer = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P3.png")
-    ).apply {
-        isVisible = false
+    private val playerMainTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+        Pair(
+            PlayerColor.entries[index],
+            TokenView(
+                width = 64,
+                height = 64,
+                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+            )
+        )
     }
 
-    private val redPlayer = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P4.png")
-    ).apply {
-        isVisible = false
-    }
-
-    private val greenPlayerCopy = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P1.png")
-    ).apply {
-        isVisible = false
-    }
-
-    private val orangePlayerCopy = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P2.png")
-    ).apply {
-        isVisible = false
-    }
-
-    private val yellowPlayerCopy = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P3.png")
-    ).apply {
-        isVisible = false
-    }
-
-    private val redPlayerCopy = TokenView(
-        width = 64,
-        height = 64,
-        visual = ImageVisual("GameScene/Pawn_P4.png")
-    ).apply {
-        isVisible = false
+    private val playerDeathTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+        Pair(
+            PlayerColor.entries[index],
+            TokenView(
+                width = 64,
+                height = 64,
+                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+            )
+        )
     }
 
     //--------------------^ Player Tokens ^--------------------
@@ -258,7 +209,7 @@ class GameScene(
     init {
         background = ImageVisual("gameScene/Background.png")
 
-        infoPane.addAll(activePlayer, playerLine, stepTokenLine)
+        infoPane.addAll(activePlayer, playerOrderLayout, stepTokenLine)
         backToMenuButtonPane.add(backToMenuButton)
 
         addComponents(
@@ -273,10 +224,8 @@ class GameScene(
             backToMenuButtonPane
         )
 
-        addComponents(
-            greenPlayer, orangePlayer, yellowPlayer, redPlayer,
-            greenPlayerCopy, orangePlayerCopy, yellowPlayerCopy, redPlayerCopy
-        )
+        addComponents(*playerMainTokens.values.toTypedArray())
+        addComponents(*playerDeathTokens.values.toTypedArray())
     }
 
     //--------------------v Refreshes v--------------------
@@ -303,34 +252,19 @@ class GameScene(
             }
         }
 
-        var tokenScale = 1.0
+        playerMainTokens[PlayerColor.YELLOW_CIRCLE]!!.isVisible = currentState.players.size >= 3
+        playerMainTokens[PlayerColor.RED_TRIANGLE]!!.isVisible = currentState.players.size >= 4
 
-        playerTokens.clear()
-        pseudoPlayerCopy.clear()
+        playerDeathTokens.values.forEach { it.isVisible = false }
 
-        playerTokens[PlayerColor.GREEN_SQUARE] = greenPlayer
-        pseudoPlayerCopy[PlayerColor.GREEN_SQUARE] = greenPlayerCopy
-        playerTokens[PlayerColor.ORANGE_HEXAGON] = orangePlayer
-        pseudoPlayerCopy[PlayerColor.ORANGE_HEXAGON] = orangePlayerCopy
-        if (currentState.players.size >= 3) {
-            playerTokens[PlayerColor.YELLOW_CIRCLE] = yellowPlayer
-            pseudoPlayerCopy[PlayerColor.YELLOW_CIRCLE] = yellowPlayerCopy
-            tokenScale = 0.8
-        }
-        if (currentState.players.size == 4) {
-            playerTokens[PlayerColor.RED_TRIANGLE] = redPlayer
-            pseudoPlayerCopy[PlayerColor.RED_TRIANGLE] = redPlayerCopy
-            tokenScale = 0.677
+        val tokenScale = when (currentState.players.size) {
+            4 -> 0.677
+            3 -> 0.8
+            else -> 1.0
         }
 
-        greenPlayer.apply { scale = tokenScale }
-        greenPlayerCopy.apply { scale = tokenScale }
-        orangePlayer.apply { scale = tokenScale }
-        orangePlayerCopy.apply { scale = tokenScale }
-        yellowPlayer.apply { scale = tokenScale }
-        yellowPlayerCopy.apply { scale = tokenScale }
-        redPlayer.apply { scale = tokenScale }
-        redPlayerCopy.apply { scale = tokenScale }
+        playerMainTokens.values.forEach { it.scale = tokenScale }
+        playerDeathTokens.values.forEach { it.scale = tokenScale }
 
         playContainer.add(playArea)
 
@@ -369,17 +303,6 @@ class GameScene(
                 }
             }
 
-            activePlayerLabel.clear()
-
-            currentState.players.forEach {
-                when (it.color) {
-                    PlayerColor.GREEN_SQUARE -> activePlayerLabel[PlayerColor.GREEN_SQUARE] = greenPlayerVisual
-                    PlayerColor.ORANGE_HEXAGON -> activePlayerLabel[PlayerColor.ORANGE_HEXAGON] = orangePlayerVisual
-                    PlayerColor.YELLOW_CIRCLE -> activePlayerLabel[PlayerColor.YELLOW_CIRCLE] = yellowPlayerVisual
-                    PlayerColor.RED_TRIANGLE -> activePlayerLabel[PlayerColor.RED_TRIANGLE] = redPlayerVisual
-                }
-            }
-
             tileViews.add(tile.position, cardView)
             playArea[coordinate.x, coordinate.y] = cardView
         }
@@ -387,7 +310,7 @@ class GameScene(
         initializeScene()
         positionPlayers()
 
-        val currentLabel = activePlayerLabel[currentState.currentPlayer.color]
+        val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
         checkNotNull(currentLabel)
         activePlayer.posX = currentLabel.actualPosX - 10
 
@@ -405,7 +328,7 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        val playerTokenToMove = playerTokens[currentState.currentPlayer.color]
+        val playerTokenToMove = playerMainTokens[currentState.currentPlayer.color]
         checkNotNull(playerTokenToMove)
 
         playAnimation(
@@ -497,7 +420,7 @@ class GameScene(
             neighbourTileView.apply { isDisabled = false }
         }
 
-        val currentLabel = activePlayerLabel[currentState.currentPlayer.color]
+        val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
         checkNotNull(currentLabel)
         activePlayer.posX = currentLabel.actualPosX - 10
 
@@ -532,11 +455,11 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        val playerTokenToRemove = playerTokens[player.color]
+        val playerTokenToRemove = playerMainTokens[player.color]
         checkNotNull(playerTokenToRemove)
         playerTokenToRemove.apply { isVisible = false }
 
-        val playerCopy = pseudoPlayerCopy[player.color]
+        val playerCopy = playerDeathTokens[player.color]
         checkNotNull(playerCopy)
 
         when (currentState.players.count { it.alive }) {
@@ -596,7 +519,7 @@ class GameScene(
             }
 
             1 -> {
-                val winner = pseudoPlayerCopy[currentState.players.first { it.alive }.color]
+                val winner = playerDeathTokens[currentState.players.first { it.alive }.color]
                 checkNotNull(winner)
 
                 this.removeComponents(playerCopy)
@@ -693,21 +616,21 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        playerLine.clear()
+        playerOrderLayout.clear()
 
         for (player in currentState.players) {
-            val playerVisualToAdd = activePlayerLabel[player.color]
+            val playerVisualToAdd = playerOrderTokens[player.color]
             checkNotNull(playerVisualToAdd)
-            playerLine.add(playerVisualToAdd)
+            playerOrderLayout.add(playerVisualToAdd)
         }
 
         if (currentState.players.size >= 3) {
-            yellowPlayer.apply { isVisible = true }
-            playerLine.apply { spacing = 56.0 }
+            playerMainTokens[PlayerColor.YELLOW_CIRCLE]!!.apply { isVisible = true }
+            playerOrderLayout.apply { spacing = 56.0 }
         }
         if (currentState.players.size == 4) {
-            redPlayer.apply { isVisible = true }
-            playerLine.apply { spacing = 48.0 }
+            playerMainTokens[PlayerColor.RED_TRIANGLE]!!.apply { isVisible = true }
+            playerOrderLayout.apply { spacing = 48.0 }
         }
 
         stepTokenList.clear()
@@ -811,34 +734,9 @@ class GameScene(
         checkNotNull(game)
         val currentState = game.currentState
 
-        greenPlayer.posX = getPlayerPosX(
-            currentState.getPlayerByColor(PlayerColor.GREEN_SQUARE).position
-        )
-        greenPlayer.posY = getPlayerPosY(
-            currentState.getPlayerByColor(PlayerColor.GREEN_SQUARE).position
-        )
-        orangePlayer.posX = getPlayerPosX(
-            currentState.getPlayerByColor(PlayerColor.ORANGE_HEXAGON).position
-        )
-        orangePlayer.posY = getPlayerPosY(
-            currentState.getPlayerByColor(PlayerColor.ORANGE_HEXAGON).position
-        )
-
-        if (currentState.players.size >= 3) {
-            yellowPlayer.posX = getPlayerPosX(
-                currentState.getPlayerByColor(PlayerColor.YELLOW_CIRCLE).position
-            )
-            yellowPlayer.posY = getPlayerPosY(
-                currentState.getPlayerByColor(PlayerColor.YELLOW_CIRCLE).position
-            )
-        }
-        if (currentState.players.size == 4) {
-            redPlayer.posX = getPlayerPosX(
-                currentState.getPlayerByColor(PlayerColor.RED_TRIANGLE).position
-            )
-            redPlayer.posY = getPlayerPosY(
-                currentState.getPlayerByColor(PlayerColor.RED_TRIANGLE).position
-            )
+        for (player in currentState.players) {
+            playerMainTokens[player.color]!!.posX = getPlayerPosX(player.position)
+            playerMainTokens[player.color]!!.posY = getPlayerPosY(player.position)
         }
     }
 
