@@ -207,7 +207,6 @@ class GameScene(
         )
 
         addComponents(*playerMainTokens.values.toTypedArray())
-        addComponents(*playerRankTokens.values.toTypedArray())
         addComponents(*playerRankPanes.toTypedArray())
     }
 
@@ -434,123 +433,9 @@ class GameScene(
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
-        val playerTokenToRemove = playerMainTokens[player.color]
-        checkNotNull(playerTokenToRemove)
-        playerTokenToRemove.apply { isVisible = false }
+        val alivePlayerCount = currentState.players.count { it.alive }
 
-        val playerRankToken = playerRankTokens[player.color]
-        checkNotNull(playerRankToken)
-
-        when (currentState.players.count { it.alive }) {
-            3 -> {
-                this.removeComponents(playerRankToken)
-                playerRankPanes[3].add(playerRankToken)
-                playerRankToken.apply {
-                    isVisible = true
-                    scale = 0.8
-                }
-                playerRankToken.posX = 44.0
-                playerRankToken.posY = 57.0
-                playAnimation(
-                    MovementAnimation(
-                        playerRankPanes[3],
-                        playerRankPanes[3].posX,
-                        playerRankPanes[3].posX - 300,
-                        playerRankPanes[3].posY,
-                        playerRankPanes[3].posY,
-                        animationSpeed
-                    ).apply {
-                        onFinished = {
-                            playerRankPanes[3].apply {
-                                posX -= 300
-                            }
-                        }
-                    }
-
-                )
-            }
-
-            2 -> {
-                this.removeComponents(playerRankToken)
-                playerRankPanes[2].add(playerRankToken)
-                playerRankToken.apply {
-                    isVisible = true
-                    scale = 0.8
-                }
-                playerRankToken.posX = 44.0
-                playerRankToken.posY = 57.0
-                playAnimation(
-                    MovementAnimation(
-                        playerRankPanes[2],
-                        playerRankPanes[2].posX,
-                        playerRankPanes[2].posX - 300,
-                        playerRankPanes[2].posY,
-                        playerRankPanes[2].posY,
-                        animationSpeed
-                    ).apply {
-                        onFinished = {
-                            playerRankPanes[2].apply {
-                                posX -= 300
-                            }
-                        }
-                    }
-                )
-            }
-
-            1 -> {
-                val winner = playerRankTokens[currentState.players.first { it.alive }.color]
-                checkNotNull(winner)
-
-                this.removeComponents(playerRankToken)
-                playerRankPanes[1].add(playerRankToken)
-                playerRankToken.apply {
-                    isVisible = true
-                    scale = 0.8
-                }
-                playerRankToken.posX = 44.0
-                playerRankToken.posY = 57.0
-                playAnimation(
-                    MovementAnimation(
-                        playerRankPanes[1],
-                        playerRankPanes[1].posX,
-                        playerRankPanes[1].posX - 300,
-                        playerRankPanes[1].posY,
-                        playerRankPanes[1].posY,
-                        animationSpeed
-                    ).apply {
-                        onFinished = {
-                            playerRankPanes[1].apply {
-                                posX -= 300
-                            }
-                        }
-                    }
-                )
-                this.removeComponents(winner)
-                playerRankPanes[0].add(winner)
-                winner.apply {
-                    isVisible = true
-                    scale = 0.8
-                }
-                winner.posX = 44.0
-                winner.posY = 57.0
-                playAnimation(
-                    MovementAnimation(
-                        playerRankPanes[0],
-                        playerRankPanes[0].posX,
-                        playerRankPanes[0].posX - 300,
-                        playerRankPanes[0].posY,
-                        playerRankPanes[0].posY,
-                        animationSpeed
-                    ).apply {
-                        onFinished = {
-                            playerRankPanes[0].apply {
-                                posX -= 300
-                            }
-                        }
-                    }
-                )
-            }
-        }
+        showPlayerRank(player, alivePlayerCount + 1)
     }
 
     override fun refreshAfterGameEnd(winner: Player) {
@@ -563,6 +448,50 @@ class GameScene(
                 backToMenuButtonPane.posY,
                 animationSpeed
             )
+        )
+
+        showPlayerRank(winner, 1)
+    }
+
+    /**
+     * Plays the animation when a player gets placed in the ranking on death or victory.
+     *
+     * @param player The player that is being ranked.
+     * @param rank The rank of the player (1-4th).
+     */
+    private fun showPlayerRank(player: Player, rank: Int) {
+        val mainToken = playerMainTokens[player.color]
+        checkNotNull(mainToken)
+        mainToken.apply { isVisible = false }
+
+        val rankToken = playerRankTokens[player.color]
+        checkNotNull(rankToken)
+
+        val pane = playerRankPanes[rank - 1]
+        pane.add(rankToken)
+
+        rankToken.apply {
+            isVisible = true
+            scale = 0.8
+        }
+        rankToken.posX = 44.0
+        rankToken.posY = 57.0
+
+        playAnimation(
+            MovementAnimation(
+                pane,
+                pane.posX,
+                pane.posX - 300,
+                pane.posY,
+                pane.posY,
+                animationSpeed
+            ).apply {
+                onFinished = {
+                    pane.apply {
+                        posX -= 300
+                    }
+                }
+            }
         )
     }
 
