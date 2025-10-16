@@ -27,16 +27,40 @@ class GameScene(
     private val app: CollapsiApplication,
     private val rootService: RootService
 ) : BoardGameScene(1920, 1080), Refreshable {
+    //region Board
+
+    private val playContainer = Pane<ComponentView>(
+        width = 784,
+        height = 784,
+        posX = 660,
+        posY = 148
+    )
+
     /**
-     * A map with all tile positions mapped to the CardViews representing tiles.
+     * A map with all tile positions mapped to their CardViews.
      */
     private val tileViews = BidirectionalMap<Coordinate, CardView>()
 
-    private var animationSpeed = 500
+    private val playerMainTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+        Pair(
+            PlayerColor.entries[index],
+            TokenView(
+                width = 64,
+                height = 64,
+                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+            )
+        )
+    }
+
+    //endregion
 
 
-    //--------------------v Left Info Pane v--------------------
+    //region Left Info Pane
 
+    /**
+     * The info pane on the left side of the screen.
+     * It displays the current player, player order, and step counter.
+     */
     private val infoPane = Pane<ComponentView>(
         width = 540,
         height = 1080,
@@ -47,7 +71,7 @@ class GameScene(
     }
 
     /**
-     * LinearLayout for the tokens on the left side that show the player order.
+     * The LinearLayout for the tokens on the left side that show the player order.
      */
     private val playerOrderLayout = LinearLayout<TokenView>(
         width = 460,
@@ -60,7 +84,9 @@ class GameScene(
 
     /**
      * The tokens on the left side of the screen that represent each player.
-     * This includes even inactive tokens.
+     * This includes inactive player tokens.
+     *
+     * This map is not reinitialized between games.
      */
     private val playerOrderTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
         Pair(
@@ -73,6 +99,9 @@ class GameScene(
         )
     }
 
+    /**
+     * The arrow that displays the current player.
+     */
     private val activePlayerArrow = Label(
         width = 84,
         height = 116,
@@ -80,6 +109,9 @@ class GameScene(
         visual = ImageVisual("GameScene/CurrentPlayerArrow.png")
     )
 
+    /**
+     * The LinearLayout for the step tokens on the left side that show the remaining moves.
+     */
     private val stepTokenLayout = LinearLayout<TokenView>(
         width = 460,
         height = 128,
@@ -89,6 +121,12 @@ class GameScene(
         spacing = 40,
     )
 
+    /**
+     * The step tokens on the left side of the screen that represent the remaining moves.
+     * This includes inactive step tokens.
+     *
+     * This map is not reinitialized between games.
+     */
     private val stepTokenViews = List(4) {
         TokenView(
             width = 64,
@@ -99,9 +137,77 @@ class GameScene(
         }
     }
 
-    //--------------------^ Left Info Pane ^--------------------
+    //endregion
 
-    //--------------------v Button Pane v--------------------
+    //region Player Ranking
+
+    /**
+     * The ranking panes on the right side of the screen that represent the ranks of dead/victorious players.
+     * This map includes a pane for all four possible ranks, even if there are fewer players.
+     *
+     * This map is not reinitialized between games.
+     */
+    private val playerRankPanes = List(4) { index ->
+        Pane<TokenView>(
+            width = 200,
+            height = 200,
+            posX = 1920,
+            posY = 100 + index * 170,
+            visual = ImageVisual("GameScene/PlayerRanking_${index + 1}.png")
+        )
+    }
+
+    /**
+     * The player tokens on the right side of the screen that represent the dead/victorious players.
+     * This map includes a token for all four possible players, even those that are not in-game.
+     * Tokens are added to the panes in [showPlayerRank] when their rank is decided.
+     *
+     * This map is not reinitialized between games.
+     */
+    private val playerRankTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+        Pair(
+            PlayerColor.entries[index],
+            TokenView(
+                width = 64,
+                height = 64,
+                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+            )
+        )
+    }
+
+    //endregion
+
+    //region Menu Button
+
+    /**
+     * The pane for the button below the player ranking to return to the main menu.
+     */
+    private val backToMenuButtonPane = Pane<Button>(
+        width = 300,
+        height = 300,
+        posX = 1920,
+        posY = 780,
+        visual = ImageVisual("GameScene/Exports/BackToMenuButtonBackground.png")
+    )
+
+    /**
+     * The button below the player ranking to return to the main menu.
+     */
+    private val backToMenuButton = Button(
+        width = 160,
+        height = 90,
+        posX = 65,
+        posY = 65,
+        visual = ImageVisual("GameScene/Exports/BackToMenuButton.png")
+    ).apply {
+        onMouseClicked = {
+            app.showMenuScene(app.mainMenuScene)
+        }
+    }
+
+    //endregion
+
+    //region Button Pane
 
     private val buttonPane = Pane<Button>(
         width = 640,
@@ -122,75 +228,9 @@ class GameScene(
         isDisabled = true
     }
 
-    //--------------------^ Button Pane ^--------------------
+    //endregion
 
-    //--------------------v Player Tokens v--------------------
-
-    private val playerMainTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
-        Pair(
-            PlayerColor.entries[index],
-            TokenView(
-                width = 64,
-                height = 64,
-                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
-            )
-        )
-    }
-
-    //--------------------^ Player Tokens ^--------------------
-
-    //--------------------v Play Ranking v--------------------
-
-    private val playerRankTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
-        Pair(
-            PlayerColor.entries[index],
-            TokenView(
-                width = 64,
-                height = 64,
-                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
-            )
-        )
-    }
-
-    private val playerRankPanes = List(4) { index ->
-        Pane<TokenView>(
-            width = 200,
-            height = 200,
-            posX = 1920,
-            posY = 100 + index * 170,
-            visual = ImageVisual("GameScene/PlayerRanking_${index + 1}.png")
-        )
-    }
-
-    //--------------------^ Play Ranking ^--------------------
-
-    private val backToMenuButtonPane = Pane<Button>(
-        width = 300,
-        height = 300,
-        posX = 1920,
-        posY = 780,
-        visual = ImageVisual("GameScene/Exports/BackToMenuButtonBackground.png")
-    )
-
-    private val backToMenuButton = Button(
-        width = 160,
-        height = 90,
-        posX = 65,
-        posY = 65,
-        visual = ImageVisual("GameScene/Exports/BackToMenuButton.png")
-    ).apply {
-        onMouseClicked = {
-            app.showMenuScene(app.mainMenuScene)
-        }
-    }
-
-    private val playContainer = Pane<ComponentView>(
-        width = 784,
-        height = 784,
-        posX = 660,
-        posY = 148,
-        //visual = ColorVisual.BLACK
-    )
+    private var animationSpeed = 500
 
     init {
         background = ImageVisual("gameScene/Background.png")
@@ -233,8 +273,8 @@ class GameScene(
             }
         }
 
-        playerMainTokens[PlayerColor.YELLOW_CIRCLE]!!.isVisible = currentState.players.size >= 3
-        playerMainTokens[PlayerColor.RED_TRIANGLE]!!.isVisible = currentState.players.size >= 4
+        playerMainTokens.getValue(PlayerColor.YELLOW_CIRCLE).isVisible = currentState.players.size >= 3
+        playerMainTokens.getValue(PlayerColor.RED_TRIANGLE).isVisible = currentState.players.size >= 4
 
         playerRankTokens.values.forEach { it.isVisible = false }
 
@@ -532,11 +572,11 @@ class GameScene(
         }
 
         if (currentState.players.size >= 3) {
-            playerMainTokens[PlayerColor.YELLOW_CIRCLE]!!.apply { isVisible = true }
+            playerMainTokens.getValue(PlayerColor.YELLOW_CIRCLE).apply { isVisible = true }
             playerOrderLayout.apply { spacing = 56.0 }
         }
         if (currentState.players.size == 4) {
-            playerMainTokens[PlayerColor.RED_TRIANGLE]!!.apply { isVisible = true }
+            playerMainTokens.getValue(PlayerColor.RED_TRIANGLE).apply { isVisible = true }
             playerOrderLayout.apply { spacing = 48.0 }
         }
 
@@ -624,8 +664,8 @@ class GameScene(
         val currentState = game.currentState
 
         for (player in currentState.players) {
-            playerMainTokens[player.color]!!.posX = getPlayerPosX(player.position)
-            playerMainTokens[player.color]!!.posY = getPlayerPosY(player.position)
+            playerMainTokens.getValue(player.color).posX = getPlayerPosX(player.position)
+            playerMainTokens.getValue(player.color).posY = getPlayerPosY(player.position)
         }
     }
 
