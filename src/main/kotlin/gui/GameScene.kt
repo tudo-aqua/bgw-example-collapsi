@@ -21,19 +21,26 @@ import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
 import tools.aqua.bgw.util.BidirectionalMap
 import tools.aqua.bgw.visual.*
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
 import kotlin.math.roundToInt
 
 class GameScene(
     private val app: CollapsiApplication,
-    private val rootService: RootService
+    private val root: RootService
 ) : BoardGameScene(1920, 1080), Refreshable {
     //region Board
 
-    private val playContainer = Pane<ComponentView>(
-        width = 784,
-        height = 784,
-        posX = 660,
-        posY = 148
+    /**
+     * The GridPane containing all tiles on the board.
+     */
+    private val boardGrid = GridPane<ComponentView>(
+        posX = 1052,
+        posY = 540,
+        rows = 0,
+        columns = 0,
+        spacing = 20,
     )
 
     /**
@@ -48,7 +55,9 @@ class GameScene(
                 width = 64,
                 height = 64,
                 visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
-            )
+            ).apply {
+                isDisabled = true
+            }
         )
     }
 
@@ -239,7 +248,7 @@ class GameScene(
         backToMenuButtonPane.add(backToMenuButton)
 
         addComponents(
-            playContainer,
+            boardGrid,
             infoPane,
             activeSpeed,
             buttonPane,
@@ -253,90 +262,18 @@ class GameScene(
     //--------------------v Refreshes v--------------------
 
     override fun refreshAfterStartNewGame() {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
-        tileViews.clear()
-        playContainer.clear()
+        initializeBoard()
+        initializePlayers()
+        initializeLeftInfoPane()
+        initializePlayerRanking()
+        initializeButtons()
 
-        val playArea = GridPane<ComponentView>(
-            posX = playContainer.width / 2,
-            posY = playContainer.height / 2,
-            rows = currentState.boardSize,
-            columns = currentState.boardSize,
-            spacing = 20,
-        ).apply {
-            if (currentState.boardSize == 5) {
-                spacing = 15.0
-            } else if (currentState.boardSize == 6) {
-                spacing = 10.0
-            }
-        }
-
-        playerMainTokens.getValue(PlayerColor.YELLOW_CIRCLE).isVisible = currentState.players.size >= 3
-        playerMainTokens.getValue(PlayerColor.RED_TRIANGLE).isVisible = currentState.players.size >= 4
-
-        playerRankTokens.values.forEach { it.isVisible = false }
-
-        val tokenScale = when (currentState.players.size) {
-            4 -> 0.677
-            3 -> 0.8
-            else -> 1.0
-        }
-
-        playerMainTokens.values.forEach { it.scale = tokenScale }
-        playerRankTokens.values.forEach { it.scale = tokenScale }
-
-        playContainer.add(playArea)
-
-        currentState.board.forEach { (coordinate: Coordinate, tile: Tile) ->
-            val startingColor: ImageVisual = when (tile.startTileColor) {
-                PlayerColor.GREEN_SQUARE -> ImageVisual("GameScene/Tile_P1.png")
-                PlayerColor.ORANGE_HEXAGON -> ImageVisual("GameScene/Tile_P2.png")
-                PlayerColor.YELLOW_CIRCLE -> ImageVisual("GameScene/Tile_P3.png")
-                PlayerColor.RED_TRIANGLE -> ImageVisual("GameScene/Tile_P4.png")
-                else -> getTileVisual(tile.movesToMake)
-            }
-
-            val cardView = CardView(
-                width = 176, //192, //160,
-                height = 176, //192, //160,
-                posX = 0,
-                posY = 0,
-                front = startingColor,
-                back = ImageVisual("GameScene/Tile_Collapsed.png")
-            ).apply {
-                if (currentState.boardSize == 5) {
-                    width = 140.8 //153.6 //128.0
-                    height = 140.8 //153.6 //128.0
-                } else if (currentState.boardSize == 6) {
-                    width = 119.167 //130.0 //108.33
-                    height = 119.167 //130.0 //108.33
-                }
-                if (!tile.collapsed) showFront()
-                if (!currentState.currentPlayer.position.neighbours.contains(coordinate)) {
-                    isDisabled = true
-                }
-                onMouseClicked = {
-                    rootService.playerActionService.moveTo(
-                        coordinate
-                    )
-                }
-            }
-
-            tileViews.add(tile.position, cardView)
-            playArea[coordinate.x, coordinate.y] = cardView
-        }
-
-        initializeScene()
-        positionPlayers()
-
-        val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
-        checkNotNull(currentLabel)
-        activePlayerArrow.posX = currentLabel.actualPosX - 10
-
+        // Start the bot.
         if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
-            rootService.botService.calculateTurn()
+            root.botService.calculateTurn()
 
             playAnimation(DelayAnimation(((game.simulationSpeed + 1) * 1000).roundToInt()).apply {
                 onFinished = { makeNextBotMove() }
@@ -345,7 +282,7 @@ class GameScene(
     }
 
     override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val playerTokenToMove = playerMainTokens[currentState.currentPlayer.color]
@@ -404,40 +341,18 @@ class GameScene(
                 }
             })
 
-        currentState.getTileAt(from).position.neighbours.forEach { neighbour: Coordinate ->
-            val neighbourTileView = tileViews.forward(neighbour)
-            checkNotNull(neighbourTileView)
-
-            neighbourTileView.apply { isDisabled = true }
-        }
-        if (currentState.currentPlayer.remainingMoves > 0) {
-            currentState.getTileAt(to).position.neighbours.forEach { neighbour: Coordinate ->
-                val neighbourTileView = tileViews.forward(neighbour)
-                checkNotNull(neighbourTileView)
-
-                neighbourTileView.apply { isDisabled = false }
-            }
-        }
-
         if (currentState.currentPlayer.remainingMoves <= 0) {
             playAnimation(DelayAnimation(animationSpeed * 2).apply {
                 onFinished = {
-                    rootService.gameService.endTurn()
+                    root.gameService.endTurn()
                 }
             })
         }
     }
 
     override fun refreshAfterEndTurn() {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
-
-        currentState.currentPlayer.position.neighbours.forEach { neighbour: Coordinate ->
-            val neighbourTileView = tileViews.forward(neighbour)
-            checkNotNull(neighbourTileView)
-
-            neighbourTileView.apply { isDisabled = false }
-        }
 
         val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
         checkNotNull(currentLabel)
@@ -459,9 +374,9 @@ class GameScene(
 
         if (currentState.currentPlayer.type == PlayerType.BOT
             && game.simulationSpeed >= 0
-            && rootService.playerActionService.hasValidMove()
+            && root.playerActionService.hasValidMove()
         ) {
-            rootService.botService.calculateTurn()
+            root.botService.calculateTurn()
 
             playAnimation(DelayAnimation((game.simulationSpeed * 1000).roundToInt()).apply {
                 onFinished = { makeNextBotMove() }
@@ -470,7 +385,7 @@ class GameScene(
     }
 
     override fun refreshAfterPlayerDied(player: Player) {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val alivePlayerCount = currentState.players.count { it.alive }
@@ -540,13 +455,13 @@ class GameScene(
     //--------------------v Helper Functions v--------------------
 
     fun makeNextBotMove() {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentState
         val originalPlayer = gameState.currentPlayer
 
         playAnimation(DelayAnimation((0.35 * game.simulationSpeed * 1000).roundToInt()).apply {
             onFinished = {
-                rootService.botService.makeMove()
+                root.botService.makeMove()
 
                 // Move until the player switches.
                 if (gameState.currentPlayer == originalPlayer && originalPlayer.remainingMoves > 0) {
@@ -556,11 +471,90 @@ class GameScene(
         })
     }
 
-    /**
-     * Function to initialize the scene with information given after the start of the game.
-     */
-    private fun initializeScene() {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+    private fun initializeBoard() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val currentState = game.currentState
+
+        // Init Grid.
+
+        repeat(boardGrid.rows) { boardGrid.removeRow(0) }
+        repeat(boardGrid.columns) { boardGrid.removeColumn(0) }
+
+        boardGrid.addRows(0, currentState.boardSize)
+        boardGrid.addColumns(0, currentState.boardSize)
+
+        boardGrid.spacing = when (currentState.boardSize) {
+            4 -> 20.0
+            5 -> 15.0
+            6 -> 10.0
+            else -> throw IllegalStateException("Board size out of range.")
+        }
+
+        // Init Tiles.
+
+        tileViews.clear()
+
+        for ((position: Coordinate, tile: Tile) in currentState.board) {
+            val frontVisual: ImageVisual = if (tile.startTileColor == null) {
+                getTileVisual(tile.movesToMake)
+            } else {
+                ImageVisual("GameScene/Tile_P${tile.startTileColor.ordinal + 1}.png")
+            }
+
+            val size = when (currentState.boardSize) {
+                4 -> 176.0
+                5 -> 140.8
+                6 -> 119.167
+                else -> throw IllegalStateException("Board size out of range.")
+            }
+
+            val cardView = CardView(
+                width = size,
+                height = size,
+                front = frontVisual,
+                back = ImageVisual("GameScene/Tile_Collapsed.png")
+            ).apply {
+                if (!tile.collapsed)
+                    showFront()
+
+                onMouseClicked = {
+                    if (root.playerActionService.canMoveTo(position))
+                        root.playerActionService.moveTo(position)
+                }
+            }
+
+            tileViews.add(tile.position, cardView)
+            boardGrid[position.x, position.y] = cardView
+        }
+    }
+
+    private fun initializePlayers() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val currentState = game.currentState
+
+        playerMainTokens.getValue(PlayerColor.YELLOW_CIRCLE).isVisible = currentState.players.size >= 3
+        playerMainTokens.getValue(PlayerColor.RED_TRIANGLE).isVisible = currentState.players.size >= 4
+
+        playerRankTokens.values.forEach { it.isVisible = false }
+
+        val tokenScale = when (currentState.boardSize) {
+            4 -> 1.0
+            5 -> 0.8
+            6 -> 0.677
+            else -> throw IllegalStateException("Board size out of range.")
+        }
+
+        playerMainTokens.values.forEach { it.scale = tokenScale }
+        playerRankTokens.values.forEach { it.scale = tokenScale }
+
+        for (player in currentState.players) {
+            playerMainTokens.getValue(player.color).posX = getPlayerPosX(player.position)
+            playerMainTokens.getValue(player.color).posY = getPlayerPosY(player.position)
+        }
+    }
+
+    private fun initializeLeftInfoPane() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         playerOrderLayout.clear()
@@ -580,14 +574,16 @@ class GameScene(
             playerOrderLayout.apply { spacing = 48.0 }
         }
 
-        addButtons()
+        val currentPlayerOrderToken = playerOrderTokens.getValue(currentState.currentPlayer.color)
+        activePlayerArrow.posX = currentPlayerOrderToken.actualPosX - 10
+    }
 
+    private fun initializePlayerRanking() {
         playerRankPanes.forEach { it.posX = 1920.0 }
-
         backToMenuButtonPane.posX = 1920.0
     }
 
-    private fun addButtons() {
+    private fun initializeButtons() {
         buttonPane.addAll(
             Button(
                 width = 26.67 * 1.5,
@@ -597,7 +593,7 @@ class GameScene(
                 visual = ImageVisual("GameScene/undo.png")
             ).apply {
                 onMouseClicked = {
-                    rootService.playerActionService.undo()
+                    root.playerActionService.undo()
                 }
             },
             Button(
@@ -608,7 +604,7 @@ class GameScene(
                 visual = ImageVisual("GameScene/redo.png")
             ).apply {
                 onMouseClicked = {
-                    rootService.playerActionService.redo()
+                    root.playerActionService.redo()
                 }
             },
             Button(
@@ -619,7 +615,7 @@ class GameScene(
                 visual = ImageVisual("GameScene/speed_one.png")
             ).apply {
                 onMouseClicked = {
-                    val game = rootService.currentGame
+                    val game = root.currentGame
                     checkNotNull(game)
                     game.simulationSpeed = 0.0
                     activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
@@ -634,7 +630,7 @@ class GameScene(
                 visual = ImageVisual("GameScene/speed_two.png")
             ).apply {
                 onMouseClicked = {
-                    val game = rootService.currentGame
+                    val game = root.currentGame
                     checkNotNull(game)
                     game.simulationSpeed = 1.0
                     activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
@@ -649,7 +645,7 @@ class GameScene(
                 visual = ImageVisual("GameScene/speed_three.png")
             ).apply {
                 onMouseClicked = {
-                    val game = rootService.currentGame
+                    val game = root.currentGame
                     checkNotNull(game)
                     game.simulationSpeed = 2.0
                     activeSpeed.posX = this.actualPosX + this.width / 2 - activeSpeed.width / 2
@@ -657,16 +653,6 @@ class GameScene(
                 }
             },
         )
-    }
-
-    private fun positionPlayers() {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val currentState = game.currentState
-
-        for (player in currentState.players) {
-            playerMainTokens.getValue(player.color).posX = getPlayerPosX(player.position)
-            playerMainTokens.getValue(player.color).posY = getPlayerPosY(player.position)
-        }
     }
 
     private fun getTileVisual(movesOnTile: Int): ImageVisual {
@@ -680,7 +666,7 @@ class GameScene(
     }
 
     private fun getPlayerPosX(position: Coordinate): Double {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val currentTile = tileViews.forward(position)
@@ -690,7 +676,7 @@ class GameScene(
     }
 
     private fun getPlayerPosY(position: Coordinate): Double {
-        val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
         val currentTile = tileViews.forward(position)
