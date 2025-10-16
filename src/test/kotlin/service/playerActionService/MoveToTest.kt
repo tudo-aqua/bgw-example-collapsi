@@ -41,7 +41,7 @@ class MoveToTest {
     @Test
     fun testMoveToAsLastStep() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Move the player to a new position.
@@ -64,7 +64,7 @@ class MoveToTest {
     @Test
     fun testMoveToWithRemainingMoves() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Set the player to have remaining moves.
@@ -96,7 +96,7 @@ class MoveToTest {
     @Test
     fun testMoveToWithWrongWrapping() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Try to move the player to a new position with wrong wrapping.
@@ -117,7 +117,7 @@ class MoveToTest {
     @Test
     fun testMoveToNotAdjacent() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Try to move the player to a position that is not adjacent.

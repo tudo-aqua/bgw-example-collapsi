@@ -45,7 +45,7 @@ class BotHelper(private val root: RootService) {
      * @see Path
      */
     fun getPossibleUniquePathsForPlayer(color: PlayerColor, game: CollapsiGame): List<Path> {
-        val gameState = game.currentGame
+        val gameState = game.currentState
 
         val paths = mutableListOf<Path>()
 
@@ -69,7 +69,7 @@ class BotHelper(private val root: RootService) {
      * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      */
     private fun completePath(allPaths: MutableList<Path>, game: CollapsiGame) {
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val player = gameState.currentPlayer
 
         if (player.remainingMoves <= 1) {
@@ -103,7 +103,7 @@ class BotHelper(private val root: RootService) {
      * @return A list of valid [Coordinate]s for [service.PlayerActionService.moveTo].
      */
     private fun getPossibleMoves(game: CollapsiGame): List<Coordinate> {
-        val player = game.currentGame.currentPlayer
+        val player = game.currentState.currentPlayer
 
         return player.position.neighbours.filter { root.playerActionService.canMoveTo(it, game) }
     }
@@ -117,7 +117,7 @@ class BotHelper(private val root: RootService) {
      */
     fun runGame() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
 
         check(gameState.players.all { it.type == PlayerType.BOT }) { "Tried to run a game with a non-bot player." }
 

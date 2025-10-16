@@ -41,7 +41,7 @@ class EndTurnTest {
     @Test
     fun testEndTurn() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Check initial state.
@@ -70,7 +70,7 @@ class EndTurnTest {
     @Test
     fun testEndTurnWithRemainingMoves() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Check initial state.
@@ -87,7 +87,7 @@ class EndTurnTest {
     @Test
     fun testEndTurnWithNoValidMoves() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Check initial state.
@@ -104,7 +104,7 @@ class EndTurnTest {
     @Test
     fun testEndTurnEndingGame() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Set the player to be no longer part of the game.

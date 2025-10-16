@@ -284,7 +284,7 @@ class GameScene(
     override fun refreshAfterStartNewGame() {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         playTiles.clear()
         playContainer.clear()
@@ -407,7 +407,7 @@ class GameScene(
     override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         val playerTokenToMove = players[currentState.currentPlayer.color]
         checkNotNull(playerTokenToMove)
@@ -492,7 +492,7 @@ class GameScene(
     override fun refreshAfterEndTurn() {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         currentState.currentPlayer.position.neighbours.forEach { neighbour: Coordinate ->
             val neighbourTileView = playTiles[currentState.getTileAt(neighbour)]
@@ -534,7 +534,7 @@ class GameScene(
     override fun refreshAfterPlayerDied(player: Player) {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         val playerTokenToRemove = players[player.color]
         checkNotNull(playerTokenToRemove)
@@ -674,7 +674,7 @@ class GameScene(
 
     fun makeNextBotMove() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val originalPlayer = gameState.currentPlayer
 
         playAnimation(DelayAnimation((0.35 * game.simulationSpeed * 1000).roundToInt()).apply {
@@ -695,7 +695,7 @@ class GameScene(
     private fun initializeScene() {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         playerLine.clear()
 
@@ -813,7 +813,7 @@ class GameScene(
     private fun positionPlayers() {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         // Todo: Create getPlayerByColor function somewhere. Or maybe a player to color bi-map?
         greenPlayer.posX = getPlayerPosX(
@@ -860,7 +860,7 @@ class GameScene(
     private fun getPlayerPosX(position: Coordinate): Double {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         val currentTile = playTiles[currentState.getTileAt(position)]
         checkNotNull(currentTile)
@@ -871,7 +871,7 @@ class GameScene(
     private fun getPlayerPosY(position: Coordinate): Double {
         val game = rootService.currentGame
         checkNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
 
         val currentTile = playTiles[currentState.getTileAt(position)]
         checkNotNull(currentTile)

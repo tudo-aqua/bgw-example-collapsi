@@ -50,14 +50,14 @@ class SaveLoadGameTest {
         assertEquals(savedGame, loadedGame)
         assertNotSame(savedGame, loadedGame)
 
-        assertEquals(1, loadedGame.currentGame.players[0].botDifficulty)
-        assertEquals(4, loadedGame.currentGame.boardSize)
+        assertEquals(1, loadedGame.currentState.players[0].botDifficulty)
+        assertEquals(4, loadedGame.currentState.boardSize)
 
         // Check if all tiles have been loaded.
-        for (position in savedGame.currentGame.board.map { it.key }) {
+        for (position in savedGame.currentState.board.map { it.key }) {
             assertEquals(
-                savedGame.currentGame.getTileAt(position).movesToMake,
-                loadedGame.currentGame.getTileAt(position).movesToMake
+                savedGame.currentState.getTileAt(position).movesToMake,
+                loadedGame.currentState.getTileAt(position).movesToMake
             )
         }
 

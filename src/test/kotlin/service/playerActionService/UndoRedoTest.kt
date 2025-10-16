@@ -37,7 +37,7 @@ class UndoRedoTest {
     @Test
     fun testUndoAfterMove() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
         val oldPosition = currentPlayer.position
         var newPosition = currentPlayer.position.rightNeighbour
@@ -67,7 +67,7 @@ class UndoRedoTest {
     @Test
     fun testRedoAfterUndo() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
         val oldPosition = currentPlayer.position
         var newPosition = currentPlayer.position.rightNeighbour

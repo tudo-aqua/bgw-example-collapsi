@@ -26,7 +26,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      */
     fun moveTo(destination: Coordinate, game: CollapsiGame? = root.currentGame) {
         checkNotNull(game) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val player = gameState.currentPlayer
 
         require(destination.boardSize == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
@@ -36,7 +36,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
 
         // Save the current game state, so undo will return to just before this move was made.
         game.redoStack.clear()
-        game.undoStack.add(game.currentGame.clone())
+        game.undoStack.add(game.currentState.clone())
 
         // Collapse the previous tile if this was the player's first step.
         if (player.visitedTiles.isEmpty()) {
@@ -81,7 +81,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      */
     fun canMoveTo(destination: Coordinate, game: CollapsiGame? = root.currentGame): Boolean {
         checkNotNull(game) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val player = gameState.currentPlayer
 
         require(destination.boardSize == gameState.boardSize) { "Input coordinate did not have correct wrapping." }
@@ -118,7 +118,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
      */
     fun hasValidMove(game: CollapsiGame? = root.currentGame): Boolean {
         checkNotNull(game) { "No game is currently running." }
-        val player = game.currentGame.currentPlayer
+        val player = game.currentState.currentPlayer
         return hasValidMove(player.position, player.remainingMoves, player.visitedTiles, game)
     }
 
@@ -144,7 +144,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         game: CollapsiGame? = root.currentGame
     ): Boolean {
         checkNotNull(game) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val tile = gameState.getTileAt(position)
 
         val endsOnOccupiedTile = remainingMoves <= 0 && gameState.isTileOccupied(position) && visitedTiles.isNotEmpty()
@@ -190,8 +190,8 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         checkNotNull(game) { "No game is currently running." }
         check(game.undoStack.isNotEmpty()) { "Can't undo, because there are no past states." }
 
-        game.redoStack.add(game.currentGame)
-        game.currentGame = game.undoStack.removeLast()
+        game.redoStack.add(game.currentState)
+        game.currentState = game.undoStack.removeLast()
     }
 
     /**
@@ -208,7 +208,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         checkNotNull(game) { "No game is currently running." }
         check(game.redoStack.isNotEmpty()) { "Can't redo, because there are no future states." }
 
-        game.undoStack.add(game.currentGame)
-        game.currentGame = game.redoStack.removeLast()
+        game.undoStack.add(game.currentState)
+        game.currentState = game.redoStack.removeLast()
     }
 }

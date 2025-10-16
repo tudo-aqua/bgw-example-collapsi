@@ -75,8 +75,8 @@ class BotService(private val root: RootService) {
         // Clone the GameState, so we can work on a separate instance without disturbing the original.
         // Tip: If the bot should not have access to certain information (such as the draw stack in other games),
         // then you could remove that data here.
-        val game = CollapsiGame(oldGame.currentGame.clone())
-        val currentPlayer = oldGame.currentGame.currentPlayer
+        val game = CollapsiGame(oldGame.currentState.clone())
+        val currentPlayer = oldGame.currentState.currentPlayer
 
         check(currentPlayer.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
         check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
@@ -282,7 +282,7 @@ class BotService(private val root: RootService) {
         if (Date().time > maxTime)
             return MinimaxResult(listOf(), listOf(), estimatedEvaluation = false, aborted = true)
 
-        val currentPlayerIndex = game.currentGame.currentPlayerIndex
+        val currentPlayerIndex = game.currentState.currentPlayerIndex
 
         // Get all paths the player could take right now.
         val possiblePaths = helper.getPossibleUniquePaths(game)
@@ -299,7 +299,7 @@ class BotService(private val root: RootService) {
             currentPath.forEach { root.playerActionService.moveTo(it, game) }
             root.gameService.endTurn(game)
 
-            val gameEnded = game.currentGame.players.count { it.alive } == 1
+            val gameEnded = game.currentState.players.count { it.alive } == 1
 
             // Evaluate the current position depending on depth.
             // If the maxDepth or maxTime was reached or the game ended, we stop here.
@@ -364,7 +364,7 @@ class BotService(private val root: RootService) {
      * @see minimax
      */
     private fun evaluate(game: CollapsiGame): Evaluation {
-        val gameState = game.currentGame
+        val gameState = game.currentState
 
         val gameEnded = gameState.players.count { it.alive } == 1
 

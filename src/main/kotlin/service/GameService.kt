@@ -112,7 +112,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
      */
     fun endTurn(game: CollapsiGame? = root.currentGame) {
         checkNotNull(game) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         var player = gameState.currentPlayer
         val currentTile = gameState.getTileAt(player.position)
 
@@ -161,9 +161,9 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
      */
     private fun endGame(game: CollapsiGame? = root.currentGame) {
         checkNotNull(game) { "No game is currently running." }
-        check(game.currentGame.players.count { it.alive } == 1) { "Game should end with exactly 1 alive player." }
+        check(game.currentState.players.count { it.alive } == 1) { "Game should end with exactly 1 alive player." }
 
-        val winner = game.currentGame.players.first { it.alive }
+        val winner = game.currentState.players.first { it.alive }
 
         // Update the refreshables and end the game if this method was performed on the current game
         // (instead of in a bot simulation).

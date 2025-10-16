@@ -42,7 +42,7 @@ class PlayerActionServiceTest {
     @Test
     fun testCanMoveTo() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Check that the player can move to an adjacent tile.
@@ -63,7 +63,7 @@ class PlayerActionServiceTest {
     @Test
     fun testCanMoveToWithWrongWrapping() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
         var newPosition = currentPlayer.position.rightNeighbour
         if (newPosition == gameState.players[1].position) {
@@ -83,7 +83,7 @@ class PlayerActionServiceTest {
     @Test
     fun testCanMoveToWithDeadPlayer() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
+        val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
 
         // Set the player to not be alive.
@@ -107,8 +107,8 @@ class PlayerActionServiceTest {
     @Test
     fun testHasValidMove() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentGame
-        val currentPlayer = game.currentGame.currentPlayer
+        val gameState = game.currentState
+        val currentPlayer = game.currentState.currentPlayer
 
         // Check that there are valid tiles around the player.
         assertTrue(currentPlayer.position.neighbours.any {

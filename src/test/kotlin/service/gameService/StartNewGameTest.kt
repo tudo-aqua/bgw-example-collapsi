@@ -42,7 +42,7 @@ class StartNewGameTest {
 
         val game = rootService.currentGame
         assertNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
         assertNotNull(currentState)
 
         assertEquals(2, currentState.players.size)
@@ -76,7 +76,7 @@ class StartNewGameTest {
 
         val game = rootService.currentGame
         assertNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
         assertNotNull(currentState)
 
         assertEquals(3, currentState.players.size)
@@ -110,7 +110,7 @@ class StartNewGameTest {
 
         val game = rootService.currentGame
         assertNotNull(game)
-        val currentState = game.currentGame
+        val currentState = game.currentState
         assertNotNull(currentState)
 
         assertEquals(4, currentState.players.size)

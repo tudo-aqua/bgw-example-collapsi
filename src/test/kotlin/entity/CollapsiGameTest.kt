@@ -24,7 +24,7 @@ class CollapsiGameTest {
         val gameState = GameState(players, board, 4)
         val collapsiGame = CollapsiGame(gameState)
 
-        assertEquals(gameState, collapsiGame.currentGame)
+        assertEquals(gameState, collapsiGame.currentState)
         assertTrue(collapsiGame.undoStack.isEmpty())
         assertTrue(collapsiGame.redoStack.isEmpty())
         assertEquals(0.0, collapsiGame.simulationSpeed)

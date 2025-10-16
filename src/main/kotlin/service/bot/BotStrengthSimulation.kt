@@ -151,7 +151,7 @@ class BotStrengthSimulation {
             helper.runGame()
 
             // Award a point to the winner.
-            val winner = game.currentGame.players.first { it.alive }
+            val winner = game.currentState.players.first { it.alive }
             wins[winner.color.ordinal]++
         }
 

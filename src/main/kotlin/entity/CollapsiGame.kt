@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
  *
  * It contains stacks of [GameState]s for undo/redo and the simulation speed.
  *
- * @property currentGame The current [GameState] of the running game.
+ * @property currentState The current [GameState] of the running game.
  */
 @Serializable
 data class CollapsiGame(
-    var currentGame: GameState // Todo: Rename to "currentState" to match asta.
+    var currentState: GameState
 ) {
     /**
      * "Past" [GameState]s for undo. Filled during redo or when the player performs an action.
