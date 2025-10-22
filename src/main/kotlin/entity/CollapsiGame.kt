@@ -30,7 +30,7 @@ data class CollapsiGame(
     /**
      * The speed that the bots play at.
      *
-     * -1 is paused. >=0 value is the delay per turn in seconds.
+     * 0 means the game is paused. 1 is normal speed.
      */
-    var simulationSpeed = 0.0
+    var simulationSpeed = 1.0
 }

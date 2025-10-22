@@ -14,10 +14,13 @@ import tools.aqua.bgw.components.layoutviews.GridPane
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
+import tools.aqua.bgw.core.HorizontalAlignment
 import tools.aqua.bgw.visual.*
+import java.io.Console
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 class GameScene(
@@ -36,6 +39,7 @@ class GameScene(
         rows = 0,
         columns = 0,
         spacing = 20,
+        layoutFromCenter = true
     )
 
     /**
@@ -43,7 +47,7 @@ class GameScene(
      */
     private val tileViews = BidirectionalMap<Coordinate, CardView>()
 
-    private val playerMainTokens: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+    private val playerMainPawns: Map<PlayerColor, TokenView> = (0..3).associate { index ->
         Pair(
             PlayerColor.entries[index],
             TokenView(
@@ -51,13 +55,35 @@ class GameScene(
                 height = 64,
                 visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
             ).apply {
-                isDisabled = true
+                isDisabled = true // To prevent pawns from blocking clicks to the tiles below.
             }
         )
     }
 
-    //endregion
+    private val playerDuplicatePawns: Map<PlayerColor, TokenView> = (0..3).associate { index ->
+        Pair(
+            PlayerColor.entries[index],
+            TokenView(
+                posX = -200, // Hide off-screen.
+                posY = -200,
+                width = 64,
+                height = 64,
+                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+            )
+        )
+    }
 
+    private val maskedBackground = Label(
+        posX = 0,
+        posY = 0,
+        width = this.width,
+        height = this.height,
+        visual = ImageVisual("GameScene/MaskedBackground.png")
+    ).apply {
+        isDisabled = true // Don't block mouse button presses.
+    }
+
+    //endregion
 
     //region Left Info Pane
 
@@ -216,9 +242,10 @@ class GameScene(
     private val buttonLayout = LinearLayout<TokenView>(
         width = 640,
         height = 90,
-        posX = 800,
+        posX = 1052,
         posY = 990,
-        spacing = 40
+        spacing = 40,
+        horizontalAlignment = HorizontalAlignment.CENTER
     )
 
     private val undoButton = TokenView(
@@ -253,18 +280,9 @@ class GameScene(
             height = 25 * 1.5,
             visual = ImageVisual("GameScene/Button_Speed_${index + 1}.png")
         ).apply {
-            // Todo: Too long. Extract function.
             onMouseClicked = {
-                val game = checkNotNull(root.currentGame) { "No game is currently running." }
-
                 activeSpeedArrow.posX = this.actualPosX + this.width / 2 - activeSpeedArrow.width / 2
-                game.simulationSpeed = index.toDouble()
-                animationSpeed = when (index) {
-                    0 -> 1000
-                    1 -> 500
-                    2 -> 200
-                    else -> throw IndexOutOfBoundsException()
-                }
+                setSimulationSpeed(index + 1)
             }
         }
     }
@@ -272,7 +290,7 @@ class GameScene(
     private val activeSpeedArrow = Label(
         width = 6,
         height = 20,
-        posX = 1032.75,
+        posX = 1052,
         posY = 1060,
         visual = ColorVisual.WHITE
     ).apply {
@@ -283,23 +301,31 @@ class GameScene(
     //endregion
     //endregion
 
-    // Todo: Remove
-    private var animationSpeed = 500
+    val delayMultiplier get() = 1 / (root.currentGame?.simulationSpeed ?: 1.0)
+
+    val moveAnimationDuration get() = (500 * delayMultiplier).roundToInt()
+
+    val endTurnDelay get() = (1000 * delayMultiplier).roundToInt()
 
     //region Functions
 
     init {
         background = ImageVisual("gameScene/Background.png")
 
+        addComponents(boardGrid)
+
+        addComponents(*playerMainPawns.values.toTypedArray())
+        addComponents(*playerDuplicatePawns.values.toTypedArray())
+
+        addComponents(maskedBackground)
+
         addComponents(
-            boardGrid,
             infoPane,
             activeSpeedArrow,
             buttonLayout,
             backToMenuButtonPane
         )
 
-        addComponents(*playerMainTokens.values.toTypedArray())
         addComponents(*playerRankPanes.toTypedArray())
 
         infoPane.addAll(activePlayerArrow, playerOrderLayout, stepTokenLayout)
@@ -312,6 +338,7 @@ class GameScene(
             speedButtons[1],
             speedButtons[2]
         )
+        buttonLayout.posX = 1052.0 - buttonLayout.width / 2
     }
 
     //region Refreshes
@@ -329,37 +356,82 @@ class GameScene(
         if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
             root.botService.calculateTurn()
 
-            playAnimation(DelayAnimation(((game.simulationSpeed + 1) * 1000).roundToInt()).apply {
-                onFinished = { makeNextBotMove() }
-            })
+            makeNextBotMove()
         }
     }
 
-    // Todo: Improve
     override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
-        val playerTokenToMove = playerMainTokens[currentState.currentPlayer.color]
-        checkNotNull(playerTokenToMove)
+        // Move player's main pawn.
+        val currentPlayerPawn = playerMainPawns.getValue(currentState.currentPlayer.color)
 
+        var mainFromX = getPlayerPosX(from)
+        var mainFromY = getPlayerPosY(from)
+
+        val distance = 200
+
+        if (abs(from.x - to.x) > 1 || abs(from.y - to.y) > 1) {
+            val currentPlayerDuplicatePawn = playerDuplicatePawns.getValue(currentState.currentPlayer.color)
+
+            var duplicateToX = getPlayerPosX(to)
+            var duplicateToY = getPlayerPosY(to)
+
+            if (from.x == 0 && to.x == currentState.boardSize - 1) {
+                mainFromX = getPlayerPosX(to) + distance
+                duplicateToX = getPlayerPosX(from) - distance
+            }
+            if (from.x == currentState.boardSize - 1 && to.x == 0) {
+                mainFromX = getPlayerPosX(to) - distance
+                duplicateToX = getPlayerPosX(from) + distance
+            }
+            if (from.y == 0 && to.y == currentState.boardSize - 1) {
+                mainFromY = getPlayerPosY(to) + distance
+                duplicateToY = getPlayerPosY(from) - distance
+            }
+            if (from.y == currentState.boardSize - 1 && to.y == 0) {
+                mainFromY = getPlayerPosY(to) - distance
+                duplicateToY = getPlayerPosY(from) + distance
+            }
+
+            currentPlayerDuplicatePawn.posX = getPlayerPosX(from)
+            currentPlayerDuplicatePawn.posY = getPlayerPosY(from)
+            playAnimation(
+                MovementAnimation(
+                    currentPlayerDuplicatePawn,
+                    getPlayerPosX(from),
+                    duplicateToX,
+                    getPlayerPosY(from),
+                    duplicateToY,
+                    moveAnimationDuration
+                ).apply {
+                    onFinished = {
+                        currentPlayerDuplicatePawn.posX = -200.0
+                        currentPlayerDuplicatePawn.posY = -200.0
+                    }
+                }
+            )
+        }
+
+        currentPlayerPawn.posX = mainFromX
+        currentPlayerPawn.posY = mainFromY
         playAnimation(
             MovementAnimation(
-                playerTokenToMove,
-                getPlayerPosX(from),
+                currentPlayerPawn,
+                mainFromX,
                 getPlayerPosX(to),
-                getPlayerPosY(from),
+                mainFromY,
                 getPlayerPosY(to),
-                animationSpeed
+                moveAnimationDuration
             ).apply {
                 onFinished = {
-                    playerTokenToMove.apply {
-                        posX = getPlayerPosX(to)
-                        posY = getPlayerPosY(to)
-                    }
+                    currentPlayerPawn.posX = getPlayerPosX(to)
+                    currentPlayerPawn.posY = getPlayerPosY(to)
                 }
             })
 
+        // Collapse tile (flip it).
         if (currentState.currentPlayer.visitedTiles.size == 1) {
             val collapsedTileView = tileViews.forward(from)
             checkNotNull(collapsedTileView)
@@ -369,7 +441,7 @@ class GameScene(
                         collapsedTileView,
                         collapsedTileView.frontVisual,
                         collapsedTileView.backVisual,
-                        animationSpeed
+                        moveAnimationDuration
                     ).apply {
                         onFinished = {
                             collapsedTileView.showBack()
@@ -378,6 +450,7 @@ class GameScene(
             }
         }
 
+        // Move step token to tile.
         val stepToken = stepTokenViews[currentState.currentPlayer.remainingMoves]
         playAnimation(
             MovementAnimation(
@@ -386,7 +459,7 @@ class GameScene(
                 getPlayerPosX(from),
                 stepToken.actualPosY,
                 getPlayerPosY(from),
-                animationSpeed
+                moveAnimationDuration
             ).apply {
                 onFinished = {
                     stepToken.offset(
@@ -396,8 +469,9 @@ class GameScene(
                 }
             })
 
+        // Wait and then end the turn.
         if (currentState.currentPlayer.remainingMoves <= 0) {
-            playAnimation(DelayAnimation(animationSpeed * 2).apply {
+            playAnimation(DelayAnimation(endTurnDelay).apply {
                 onFinished = {
                     root.gameService.endTurn()
                 }
@@ -409,21 +483,33 @@ class GameScene(
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
-        val currentLabel = playerOrderTokens[currentState.currentPlayer.color]
-        checkNotNull(currentLabel)
-        activePlayerArrow.posX = currentLabel.actualPosX - 10
+        val currentLabel = playerOrderTokens.getValue(currentState.currentPlayer.color)
 
-        // Todo: This looks weird.
-        stepTokenViews.forEach {
-            it.isVisible = false
-            it.posX = 0.0
-            it.posY = 0.0
-        }
+        // Move the current player arrow.
+        playAnimation(
+            MovementAnimation(
+                activePlayerArrow,
+                activePlayerArrow.actualPosX,
+                currentLabel.actualPosX - 10,
+                activePlayerArrow.actualPosY,
+                activePlayerArrow.actualPosY,
+                200
+            ).apply {
+                onFinished = {
+                    activePlayerArrow.posX = currentLabel.actualPosX - 10
+                }
+            }
+        )
+
+        // Hide all step tokens.
+        stepTokenViews.forEach { it.isVisible = false }
         stepTokenLayout.clear()
 
         for (i in 0 until currentState.currentPlayer.remainingMoves) {
             stepTokenViews[i].apply {
                 isVisible = true
+                posX = 0.0 // Reset position within layout.
+                posY = 0.0
             }
             stepTokenLayout.add(stepTokenViews[i])
         }
@@ -435,9 +521,7 @@ class GameScene(
         ) {
             root.botService.calculateTurn()
 
-            playAnimation(DelayAnimation((game.simulationSpeed * 1000).roundToInt()).apply {
-                onFinished = { makeNextBotMove() }
-            })
+            makeNextBotMove()
         }
     }
 
@@ -451,6 +535,7 @@ class GameScene(
     }
 
     override fun refreshAfterGameEnd(winner: Player) {
+        // How "Menu" Button.
         playAnimation(
             MovementAnimation(
                 backToMenuButtonPane,
@@ -458,7 +543,7 @@ class GameScene(
                 1550,
                 backToMenuButtonPane.posY,
                 backToMenuButtonPane.posY,
-                animationSpeed
+                500
             )
         )
 
@@ -530,8 +615,8 @@ class GameScene(
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
-        playerMainTokens.getValue(PlayerColor.YELLOW_CIRCLE).isVisible = currentState.players.size >= 3
-        playerMainTokens.getValue(PlayerColor.RED_TRIANGLE).isVisible = currentState.players.size >= 4
+        playerMainPawns.getValue(PlayerColor.YELLOW_CIRCLE).isVisible = currentState.players.size >= 3
+        playerMainPawns.getValue(PlayerColor.RED_TRIANGLE).isVisible = currentState.players.size >= 4
 
         playerRankTokens.values.forEach { it.isVisible = false }
 
@@ -542,12 +627,13 @@ class GameScene(
             else -> throw IllegalStateException("Board size out of range.")
         }
 
-        playerMainTokens.values.forEach { it.scale = tokenScale }
+        playerMainPawns.values.forEach { it.scale = tokenScale }
+        playerDuplicatePawns.values.forEach { it.scale = tokenScale }
         playerRankTokens.values.forEach { it.scale = tokenScale }
 
         for (player in currentState.players) {
-            playerMainTokens.getValue(player.color).posX = getPlayerPosX(player.position)
-            playerMainTokens.getValue(player.color).posY = getPlayerPosY(player.position)
+            playerMainPawns.getValue(player.color).posX = getPlayerPosX(player.position)
+            playerMainPawns.getValue(player.color).posY = getPlayerPosY(player.position)
         }
     }
 
@@ -564,16 +650,23 @@ class GameScene(
         }
 
         if (currentState.players.size >= 3) {
-            playerMainTokens.getValue(PlayerColor.YELLOW_CIRCLE).apply { isVisible = true }
+            playerMainPawns.getValue(PlayerColor.YELLOW_CIRCLE).apply { isVisible = true }
             playerOrderLayout.apply { spacing = 56.0 }
         }
         if (currentState.players.size == 4) {
-            playerMainTokens.getValue(PlayerColor.RED_TRIANGLE).apply { isVisible = true }
+            playerMainPawns.getValue(PlayerColor.RED_TRIANGLE).apply { isVisible = true }
             playerOrderLayout.apply { spacing = 48.0 }
         }
 
         val currentPlayerOrderToken = playerOrderTokens.getValue(currentState.currentPlayer.color)
         activePlayerArrow.posX = currentPlayerOrderToken.actualPosX - 10
+
+        // First player starts with 1 step token.
+        stepTokenViews.forEach { it.isVisible = false }
+        stepTokenLayout.clear()
+
+        stepTokenViews[0].isVisible = true
+        stepTokenLayout.add(stepTokenViews[0])
     }
 
     private fun initializePlayerRanking() {
@@ -585,6 +678,18 @@ class GameScene(
 
     //region Helpers
 
+    private fun setSimulationSpeed(index: Int) {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        game.simulationSpeed = when (index) {
+            0 -> 0.0
+            1 -> 1.0
+            2 -> 1.5
+            3 -> 2.5
+            else -> throw IndexOutOfBoundsException()
+        }
+    }
+
     /**
      * Plays the animation when a player gets placed in the ranking on death or victory.
      *
@@ -592,12 +697,10 @@ class GameScene(
      * @param rank The rank of the player (1-4th).
      */
     private fun showPlayerRank(player: Player, rank: Int) {
-        val mainToken = playerMainTokens[player.color]
-        checkNotNull(mainToken)
+        val mainToken = playerMainPawns.getValue(player.color)
         mainToken.apply { isVisible = false }
 
-        val rankToken = playerRankTokens[player.color]
-        checkNotNull(rankToken)
+        val rankToken = playerRankTokens.getValue(player.color)
 
         val pane = playerRankPanes[rank - 1]
         pane.add(rankToken)
@@ -616,7 +719,7 @@ class GameScene(
                 pane.posX - 300,
                 pane.posY,
                 pane.posY,
-                animationSpeed
+                500
             ).apply {
                 onFinished = {
                     pane.apply {
@@ -632,7 +735,7 @@ class GameScene(
         val gameState = game.currentState
         val originalPlayer = gameState.currentPlayer
 
-        playAnimation(DelayAnimation((0.35 * game.simulationSpeed * 1000).roundToInt()).apply {
+        playAnimation(DelayAnimation(moveAnimationDuration + 50).apply {
             onFinished = {
                 root.botService.makeMove()
 
