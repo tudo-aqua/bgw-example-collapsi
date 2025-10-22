@@ -37,28 +37,26 @@ class UndoRedoTest {
     @Test
     fun testUndoAfterMove() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentState
-        val currentPlayer = gameState.currentPlayer
-        val oldPosition = currentPlayer.position
-        var newPosition = currentPlayer.position.rightNeighbour
-        if (gameState.players[1].position == newPosition) {
-            newPosition = currentPlayer.position.leftNeighbour
+        val oldPosition = game.currentState.currentPlayer.position
+        var newPosition = game.currentState.currentPlayer.position.rightNeighbour
+        if (game.currentState.players[1].position == newPosition) {
+            newPosition = game.currentState.currentPlayer.position.leftNeighbour
         }
 
         // Simulate a move.
-        currentPlayer.remainingMoves = 2
+        game.currentState.currentPlayer.remainingMoves = 2
         rootService.playerActionService.moveTo(newPosition)
 
         // Check that the move was made.
-        assertEquals(1, currentPlayer.remainingMoves)
-        assertEquals(gameState.currentPlayer.position, newPosition)
+        assertEquals(1, game.currentState.currentPlayer.remainingMoves)
+        assertEquals(game.currentState.currentPlayer.position, newPosition)
 
         // Undo the move.
         rootService.playerActionService.undo()
 
         // Check that the move was undone.
-        assertEquals(1, currentPlayer.remainingMoves)
-        assertEquals(gameState.currentPlayer.position, oldPosition)
+        assertEquals(2, game.currentState.currentPlayer.remainingMoves)
+        assertEquals(game.currentState.currentPlayer.position, oldPosition)
     }
 
     /**
@@ -67,16 +65,13 @@ class UndoRedoTest {
     @Test
     fun testRedoAfterUndo() {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
-        val gameState = game.currentState
-        val currentPlayer = gameState.currentPlayer
-        val oldPosition = currentPlayer.position
-        var newPosition = currentPlayer.position.rightNeighbour
-        if (gameState.players[1].position == newPosition) {
-            newPosition = currentPlayer.position.leftNeighbour
+        var newPosition = game.currentState.currentPlayer.position.rightNeighbour
+        if (game.currentState.players[1].position == newPosition) {
+            newPosition = game.currentState.currentPlayer.position.leftNeighbour
         }
 
         // Simulate a move.
-        currentPlayer.remainingMoves = 2
+        game.currentState.currentPlayer.remainingMoves = 2
         rootService.playerActionService.moveTo(newPosition)
 
         // Undo the move.
@@ -86,7 +81,7 @@ class UndoRedoTest {
         rootService.playerActionService.redo()
 
         // Check that the move was redone.
-        assertEquals(2, currentPlayer.remainingMoves)
-        assertEquals(gameState.currentPlayer.position, newPosition)
+        assertEquals(1, game.currentState.currentPlayer.remainingMoves)
+        assertEquals(game.currentState.currentPlayer.position, newPosition)
     }
 }

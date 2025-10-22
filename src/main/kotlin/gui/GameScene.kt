@@ -16,12 +16,10 @@ import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.HorizontalAlignment
 import tools.aqua.bgw.visual.*
-import java.io.Console
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
-import kotlin.math.abs
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 class GameScene(
     private val app: CollapsiApplication,
@@ -35,7 +33,7 @@ class GameScene(
      */
     private val boardGrid = GridPane<ComponentView>(
         posX = 1052,
-        posY = 540,
+        posY = 500,
         rows = 0,
         columns = 0,
         spacing = 20,
@@ -237,11 +235,19 @@ class GameScene(
 
     //endregion
 
-    //region Buttons
+    //region Toolbar
 
-    private val buttonLayout = LinearLayout<TokenView>(
+    private val toolbarBackground = Label(
+        width = 650,
+        height = 135,
+        posX = 1052 - 650 / 2,
+        posY = 1080 - 135,
+        visual = ImageVisual("GameScene/Exports/ToolbarBg.png")
+    )
+
+    private val toolbarLayout = LinearLayout<TokenView>(
         width = 640,
-        height = 90,
+        height = 50,
         posX = 1052,
         posY = 990,
         spacing = 40,
@@ -249,50 +255,63 @@ class GameScene(
     )
 
     private val undoButton = TokenView(
-        width = 26.67 * 1.5,
-        height = 25 * 1.5,
+        width = 50,
+        height = 50,
         visual = ImageVisual("GameScene/Button_Undo.png")
     ).apply {
         onMouseClicked = {
-            val game = checkNotNull(root.currentGame) { "No game is currently running." }
+            val game = root.currentGame
 
-            if (game.undoStack.isNotEmpty())
+            if (game != null && game.undoStack.isNotEmpty()
+            ) {
                 root.playerActionService.undo()
+            }
         }
     }
 
     private val redoButton = TokenView(
-        width = 26.67 * 1.5,
-        height = 25 * 1.5,
+        width = 50,
+        height = 50,
         visual = ImageVisual("GameScene/Button_Redo.png")
     ).apply {
         onMouseClicked = {
-            val game = checkNotNull(root.currentGame) { "No game is currently running." }
+            val game = root.currentGame
 
-            if (game.redoStack.isNotEmpty())
+            if (game != null && game.redoStack.isNotEmpty()
+            ) {
                 root.playerActionService.redo()
+            }
+        }
+    }
+
+    private val pauseButton = TokenView(
+        width = 50,
+        height = 50,
+        visual = ImageVisual("GameScene/Button_Pause.png")
+    ).apply {
+        onMouseClicked = {
+            setSimulationSpeed(0)
         }
     }
 
     private val speedButtons = List(3) { index ->
         TokenView(
-            width = 19.64 * 1.5 * (index + 1),
-            height = 25 * 1.5,
+            width = 25 * (index + 1),
+            height = 50,
             visual = ImageVisual("GameScene/Button_Speed_${index + 1}.png")
         ).apply {
             onMouseClicked = {
-                activeSpeedArrow.posX = this.actualPosX + this.width / 2 - activeSpeedArrow.width / 2
                 setSimulationSpeed(index + 1)
             }
         }
     }
 
     private val activeSpeedArrow = Label(
-        width = 6,
-        height = 20,
+        width = 50,
+        height = 50,
         posX = 1052,
-        posY = 1060,
-        visual = ColorVisual.WHITE
+        posY = 1030,
+        visual = ImageVisual("GameScene/Exports/ToolbarArrow.png")
     ).apply {
         isFocusable = false
         isDisabled = true
@@ -301,11 +320,33 @@ class GameScene(
     //endregion
     //endregion
 
-    val delayMultiplier get() = 1 / (root.currentGame?.simulationSpeed ?: 1.0)
+    /**
+     * This multiplier is applied to every delay and animation
+     * to speed everything up depending on the simulation speed.
+     *
+     * This value will always be at most 1, to prevent animations from not playing when the game is paused.
+     *
+     * @see [CollapsiGame.simulationSpeed]
+     */
+    val delayMultiplier get() = 1 / max(root.currentGame?.simulationSpeed ?: 1.0, 1.0)
 
+    /**
+     * This is how long the animation for each move lasts.
+     */
     val moveAnimationDuration get() = (500 * delayMultiplier).roundToInt()
 
+    /**
+     * This is how long the game waits before ending a player's turn.
+     */
     val endTurnDelay get() = (1000 * delayMultiplier).roundToInt()
+
+    /**
+     * True if the bot was supposed to make a move, but couldn't, due to the game being paused.
+     * Once the simulation is unpaused, the bot will make its move.
+     *
+     * @see [CollapsiGame.simulationSpeed]
+     */
+    var performBotMoveOnUnpause = false
 
     //region Functions
 
@@ -321,8 +362,9 @@ class GameScene(
 
         addComponents(
             infoPane,
+            toolbarBackground,
+            toolbarLayout,
             activeSpeedArrow,
-            buttonLayout,
             backToMenuButtonPane
         )
 
@@ -331,14 +373,15 @@ class GameScene(
         infoPane.addAll(activePlayerArrow, playerOrderLayout, stepTokenLayout)
         backToMenuButtonPane.add(backToMenuButton)
 
-        buttonLayout.addAll(
+        toolbarLayout.addAll(
             undoButton,
             redoButton,
+            pauseButton,
             speedButtons[0],
             speedButtons[1],
             speedButtons[2]
         )
-        buttonLayout.posX = 1052.0 - buttonLayout.width / 2
+        toolbarLayout.posX = 1052.0 - toolbarLayout.width / 2
     }
 
     //region Refreshes
@@ -352,11 +395,11 @@ class GameScene(
         initializeLeftInfoPane()
         initializePlayerRanking()
 
-        // Start the bot.
-        if (currentState.currentPlayer.type == PlayerType.BOT && game.simulationSpeed >= 0) {
+        if (currentState.currentPlayer.type == PlayerType.BOT) {
             root.botService.calculateTurn()
 
-            makeNextBotMove()
+            setSimulationSpeed(0)
+            performBotMoveOnUnpause = true
         }
     }
 
@@ -493,7 +536,7 @@ class GameScene(
                 currentLabel.actualPosX - 10,
                 activePlayerArrow.actualPosY,
                 activePlayerArrow.actualPosY,
-                200
+                (250 * delayMultiplier).roundToInt()
             ).apply {
                 onFinished = {
                     activePlayerArrow.posX = currentLabel.actualPosX - 10
@@ -514,14 +557,12 @@ class GameScene(
             stepTokenLayout.add(stepTokenViews[i])
         }
 
-        // Todo: Exctract and improve.
         if (currentState.currentPlayer.type == PlayerType.BOT
-            && game.simulationSpeed >= 0
             && root.playerActionService.hasValidMove()
         ) {
             root.botService.calculateTurn()
 
-            makeNextBotMove()
+            performNextBotMove()
         }
     }
 
@@ -543,7 +584,7 @@ class GameScene(
                 1550,
                 backToMenuButtonPane.posY,
                 backToMenuButtonPane.posY,
-                500
+                (500 * delayMultiplier).roundToInt()
             )
         )
 
@@ -601,8 +642,14 @@ class GameScene(
                     showFront()
 
                 onMouseClicked = {
-                    if (root.playerActionService.canMoveTo(position))
+                    val game = root.currentGame
+
+                    if (game != null
+                        && root.playerActionService.canMoveTo(position)
+                        && game.currentState.currentPlayer.type == PlayerType.LOCAL
+                    ) {
                         root.playerActionService.moveTo(position)
+                    }
                 }
             }
 
@@ -679,14 +726,43 @@ class GameScene(
     //region Helpers
 
     private fun setSimulationSpeed(index: Int) {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val game = root.currentGame
 
+        // Ignore button presses after game end.
+        if (game == null)
+            return
+
+        require(index >= 0 && index <= 3) { "Index out of bounds." }
+
+        // Set arrow position.
+        val button = if (index == 0) pauseButton else speedButtons[index - 1]
+        val toX = button.actualPosX + button.width / 2 - activeSpeedArrow.width / 2
+        playAnimation(
+            MovementAnimation(
+                activeSpeedArrow,
+                activeSpeedArrow.posX,
+                toX,
+                activePlayerArrow.posY,
+                activePlayerArrow.posY,
+                100
+            ).apply {
+                onFinished = {
+                    activeSpeedArrow.posX = toX
+                }
+            }
+        )
+
+        // Adjust simulation speed.
         game.simulationSpeed = when (index) {
             0 -> 0.0
             1 -> 1.0
             2 -> 1.5
             3 -> 2.5
-            else -> throw IndexOutOfBoundsException()
+            else -> throw IndexOutOfBoundsException("Index out of bounds.")
+        }
+
+        if (game.simulationSpeed > 0 && performBotMoveOnUnpause) {
+            performNextBotMove()
         }
     }
 
@@ -719,7 +795,7 @@ class GameScene(
                 pane.posX - 300,
                 pane.posY,
                 pane.posY,
-                500
+                (500 * delayMultiplier).roundToInt()
             ).apply {
                 onFinished = {
                     pane.apply {
@@ -730,10 +806,18 @@ class GameScene(
         )
     }
 
-    fun makeNextBotMove() {
+    private fun performNextBotMove() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val gameState = game.currentState
         val originalPlayer = gameState.currentPlayer
+
+        if (game.simulationSpeed == 0.0) {
+            performBotMoveOnUnpause = true
+
+            return
+        }
+
+        performBotMoveOnUnpause = false
 
         playAnimation(DelayAnimation(moveAnimationDuration + 50).apply {
             onFinished = {
@@ -741,7 +825,7 @@ class GameScene(
 
                 // Move until the player switches.
                 if (gameState.currentPlayer == originalPlayer && originalPlayer.remainingMoves > 0) {
-                    makeNextBotMove()
+                    performNextBotMove()
                 }
             }
         })

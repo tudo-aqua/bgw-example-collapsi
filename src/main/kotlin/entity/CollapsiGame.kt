@@ -30,7 +30,7 @@ data class CollapsiGame(
     /**
      * The speed that the bots play at.
      *
-     * 0 means the game is paused. 1 is normal speed.
+     * 0 means the game is paused, 1 is normal speed, 2 is double speed, etc.
      */
     var simulationSpeed = 1.0
 }

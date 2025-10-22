@@ -124,7 +124,7 @@ class MoveToTest {
         val newPosition = Coordinate(currentPlayer.position.x + 2, currentPlayer.position.y, boardSize = 4)
 
         // Check that an exception is thrown.
-        assertFailsWith<IllegalStateException> {
+        assertFailsWith<IllegalArgumentException> {
             rootService.playerActionService.moveTo(newPosition)
         }
     }

@@ -143,7 +143,8 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
             player.alive = false
             gameState.getTileAt(player.position).collapsed = true
 
-            // Update the refreshables if this method was performed on the current game (instead of in a bot simulation).
+            // Update the refreshables if this method was performed on the
+            // current game (instead of in a bot simulation).
             if (game == root.currentGame)
                 onAllRefreshables { refreshAfterPlayerDied(player) }
 
