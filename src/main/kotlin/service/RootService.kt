@@ -1,8 +1,7 @@
 package service
 
 import entity.CollapsiGame
-import gui.Refreshable
-import service.bot.BotService
+import service.bot.*
 
 /**
  * Main class of the service layer for the Collapsi game. Provides access

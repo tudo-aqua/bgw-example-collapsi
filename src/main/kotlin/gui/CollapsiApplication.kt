@@ -1,7 +1,7 @@
 package gui
 
-import entity.Player
-import service.RootService
+import entity.*
+import service.*
 import tools.aqua.bgw.core.BoardGameApplication
 import tools.aqua.bgw.util.Font
 

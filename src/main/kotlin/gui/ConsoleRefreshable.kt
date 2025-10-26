@@ -1,9 +1,7 @@
 package gui
 
-import entity.Coordinate
-import entity.Player
-import entity.PlayerType
-import service.RootService
+import entity.*
+import service.*
 
 /**
  * Refreshable that listens to all refreshes and logs them to the console.

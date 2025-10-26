@@ -1,9 +1,7 @@
 package service
 
-import gui.Refreshable
-
 /**
- * Abstract service class that handles multiple [gui.Refreshable]s (usually UI elements, such as
+ * Abstract service class that handles multiple [Refreshable]s (usually UI elements, such as
  * specialized [tools.aqua.bgw.core.BoardGameScene] classes/instances) which are notified
  * of changes to refresh via the [onAllRefreshables] method.
  */

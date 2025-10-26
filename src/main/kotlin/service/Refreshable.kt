@@ -1,7 +1,6 @@
-package gui
+package service
 
 import entity.*
-import service.*
 
 /**
  * This interface provides a mechanism for the service layer classes to communicate
@@ -36,7 +35,7 @@ interface Refreshable {
     /**
      * Perform refreshes that are necessary after a player died because of a collapsing tile.
      *
-     * @param player The [Player] that died.
+     * @param player The [entity.Player] that died.
      */
     fun refreshAfterPlayerDied(player: Player) {}
 

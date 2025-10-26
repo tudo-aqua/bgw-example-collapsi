@@ -2,10 +2,10 @@ package service
 
 import entity.Coordinate
 import entity.Player
-import gui.Refreshable
+import service.Refreshable
 
 /**
- * [gui.Refreshable] implementation that refreshes nothing, but remembers
+ * [Refreshable] implementation that refreshes nothing, but remembers
  * if a refresh method has been called (since last [reset])
  *
  * @param rootService The root service to which this service belongs
