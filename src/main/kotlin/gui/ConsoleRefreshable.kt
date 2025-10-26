@@ -66,4 +66,29 @@ class ConsoleRefreshable(private val root: RootService) : Refreshable {
         println("- ${winner.color} has won")
         println()
     }
+
+    override fun refreshAfterUndo() {
+        println("[Refresh] Undo:")
+        println("- Last move has been undone.")
+        println()
+    }
+
+    override fun refreshAfterRedo() {
+        println("[Refresh] Redo:")
+        println("- Last undone move has been redone.")
+        println()
+    }
+
+    override fun refreshAfterLoad() {
+        println("[Refresh] Load Game:")
+
+        val game = checkNotNull(root.currentGame) { "No game is currently loaded." }
+        val gameState = game.currentState
+
+        println(
+            "- Loaded game with ${gameState.players.size} players " +
+                    "on a ${gameState.boardSize}x${gameState.boardSize} board."
+        )
+        println()
+    }
 }

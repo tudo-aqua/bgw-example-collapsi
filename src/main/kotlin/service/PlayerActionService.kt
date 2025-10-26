@@ -190,8 +190,14 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         checkNotNull(game) { "No game is currently running." }
         check(game.undoStack.isNotEmpty()) { "Can't undo, because there are no past states." }
 
+        val doRefresh = game == root.currentGame
+
         game.redoStack.add(game.currentState)
         game.currentState = game.undoStack.removeLast()
+
+        // Update the refreshables if this was performed on the current game (instead of in a bot simulation).
+        if (doRefresh)
+            onAllRefreshables { refreshAfterUndo() }
     }
 
     /**
@@ -208,7 +214,13 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         checkNotNull(game) { "No game is currently running." }
         check(game.redoStack.isNotEmpty()) { "Can't redo, because there are no future states." }
 
+        val doRefresh = game == root.currentGame
+
         game.undoStack.add(game.currentState)
         game.currentState = game.redoStack.removeLast()
+
+        // Update the refreshables if this was performed on the current game (instead of in a bot simulation).
+        if (doRefresh)
+            onAllRefreshables { refreshAfterRedo() }
     }
 }

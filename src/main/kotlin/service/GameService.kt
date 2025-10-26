@@ -141,6 +141,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         // Collapse the tile if the player has nowhere to move at the start of their turn.
         if (!root.playerActionService.hasValidMove(game)) {
             player.alive = false
+            player.rank = gameState.players.count { it.alive }
             gameState.getTileAt(player.position).collapsed = true
 
             // Update the refreshables if this method was performed on the

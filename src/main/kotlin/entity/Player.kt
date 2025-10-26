@@ -27,6 +27,9 @@ data class Player(
     /** Indicates whether the player is still part of the game. */
     var alive = true
 
+    /** The winner-rank of the player after death. Winner is 0, 4th place is 3. */
+    var rank: Int? = null
+
     /**
      * Creates a deep copy of this [Player] and returns it.
      *
@@ -40,6 +43,7 @@ data class Player(
         clone.remainingMoves = remainingMoves
         clone.visitedTiles.addAll(visitedTiles)
         clone.alive = alive
+        clone.rank = rank
 
         return clone
     }

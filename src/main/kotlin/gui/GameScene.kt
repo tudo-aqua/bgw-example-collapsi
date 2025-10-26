@@ -263,7 +263,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (game != null && game.undoStack.isNotEmpty()
+            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty()
             ) {
                 root.playerActionService.undo()
             }
@@ -278,7 +278,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (game != null && game.redoStack.isNotEmpty()
+            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty()
             ) {
                 root.playerActionService.redo()
             }
@@ -321,6 +321,8 @@ class GameScene(
     //endregion
     //endregion
 
+    //region Animations
+
     /**
      * This multiplier is applied to every delay and animation
      * to speed everything up depending on the simulation speed.
@@ -348,6 +350,13 @@ class GameScene(
      * @see [CollapsiGame.simulationSpeed]
      */
     var performBotMoveOnUnpause = false
+
+    /**
+     * True if an animation is playing which should prevent a local player from making moves.
+     */
+    var blockMovementInput = false
+
+    //endregion
 
     //region Functions
 
@@ -388,20 +397,7 @@ class GameScene(
     //region Refreshes
 
     override fun refreshAfterStartNewGame() {
-        val game = checkNotNull(root.currentGame) { "No game is currently running." }
-        val currentState = game.currentState
-
-        initializeBoard()
-        initializePlayers()
-        initializeLeftInfoPane()
-        initializePlayerRanking()
-
-        if (currentState.currentPlayer.type == PlayerType.BOT) {
-            root.botService.calculateTurn()
-
-            setSimulationSpeed(0)
-            performBotMoveOnUnpause = true
-        }
+        loadScene()
     }
 
     override fun refreshAfterMoveTo(from: Coordinate, to: Coordinate) {
@@ -486,10 +482,16 @@ class GameScene(
                         collapsedTileView.frontVisual,
                         collapsedTileView.backVisual,
                         moveAnimationDuration
-                    )
+                    ).apply {
+                        onFinished = {
+                            collapsedTileView.showBack()
+                        }
+                    }
                 )
             }
         }
+
+        blockMovementInput = true
 
         // Move step token to tile.
         val stepToken = stepTokenViews[currentState.currentPlayer.remainingMoves]
@@ -507,6 +509,8 @@ class GameScene(
                         getPlayerPosX(from) - stepToken.actualPosX,
                         getPlayerPosY(from) - stepToken.actualPosY
                     )
+
+                    blockMovementInput = false
                 }
             })
 
@@ -583,15 +587,54 @@ class GameScene(
                 backToMenuButtonPane.posY,
                 backToMenuButtonPane.posY,
                 (500 * delayMultiplier).roundToInt()
-            )
+            ).apply {
+                onFinished = {
+                    backToMenuButtonPane.posX = 1550.0
+                }
+            }
         )
 
         showPlayerRank(winner, 1)
     }
 
+    override fun refreshAfterUndo() {
+        setSimulationSpeed(0)
+        updateAllInstant()
+    }
+
+    override fun refreshAfterRedo() {
+        setSimulationSpeed(0)
+        updateAllInstant()
+    }
+
+    override fun refreshAfterLoad() {
+        loadScene()
+
+        updateAllInstant()
+    }
+
     //endregion
 
     //region Initializers
+
+    private fun loadScene() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val currentState = game.currentState
+
+        initializeBoard()
+        initializePlayers()
+        initializeLeftInfoPane()
+        initializePlayerRanking()
+
+        if (currentState.currentPlayer.type == PlayerType.BOT) {
+            root.botService.calculateTurn()
+
+            setSimulationSpeed(0)
+            performBotMoveOnUnpause = true
+        } else {
+            setSimulationSpeed(1)
+        }
+    }
 
     private fun initializeBoard() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
@@ -641,7 +684,8 @@ class GameScene(
                 onMouseClicked = {
                     val game = root.currentGame
 
-                    if (game != null
+                    if (!blockMovementInput
+                        && game != null
                         && root.playerActionService.canMoveTo(position)
                         && game.currentState.currentPlayer.type == PlayerType.LOCAL
                     ) {
@@ -668,10 +712,11 @@ class GameScene(
             ).apply {
                 onFinished = {
                     card.second.showFront()
-                    println(card.first)
                 }
             }
         }
+
+        blockMovementInput = true
 
         // Using a sequential or parallel animation here doesn't work because for some reason they
         // have an undocumented limit of 10 animations.
@@ -684,6 +729,8 @@ class GameScene(
 
                 Thread.sleep(100)
             }
+
+            blockMovementInput = false
         }
     }
 
@@ -750,12 +797,121 @@ class GameScene(
     private fun initializePlayerRanking() {
         playerRankPanes.forEach { it.posX = 1920.0 }
         playerRankPanes.forEach { it.clear() }
+
         backToMenuButtonPane.posX = 1920.0
     }
 
     //endregion
 
     //region Helpers
+
+    /**
+     * Updates all tiles, players, and other visuals in the current game.
+     * This is only used for undo/redo and load.
+     */
+    private fun updateAllInstant() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val currentState = game.currentState
+        val currentPlayer = currentState.currentPlayer
+
+        for (player in currentState.players) {
+            val pawn = playerMainPawns.getValue(player.color)
+
+            pawn.apply {
+                posX = getPlayerPosX(player.position)
+                posY = getPlayerPosY(player.position)
+                isVisible = player.alive
+            }
+        }
+
+        for ((position, tile) in currentState.board) {
+            val view = tileViews.forward(position)
+
+            if (tile.collapsed && view.visual != view.backVisual)
+                playAnimation(
+                    FlipAnimation(
+                        view,
+                        view.frontVisual,
+                        view.backVisual,
+                        0
+                    ).apply {
+                        onFinished = { view.showBack() }
+                    }
+                )
+
+            if (!tile.collapsed && view.visual != view.frontVisual)
+                playAnimation(
+                    FlipAnimation(
+                        view,
+                        view.backVisual,
+                        view.frontVisual,
+                        0
+                    ).apply {
+                        onFinished = { view.showFront() }
+                    }
+                )
+        }
+
+        activePlayerArrow.posX = playerOrderTokens.getValue(currentPlayer.color).actualPosX - 10
+
+        stepTokenLayout.clear()
+        for (i in stepTokenViews.indices) {
+            val stepTokenView = stepTokenViews[i]
+            val isVisible = i < currentPlayer.remainingMoves + currentPlayer.visitedTiles.size
+
+            stepTokenView.isVisible = isVisible
+
+            if (!isVisible)
+                continue
+
+            stepTokenLayout.add(stepTokenView)
+
+            stepTokenView.apply {
+                posX = 0.0
+                posY = 0.0
+            }
+        }
+
+        for (i in 0 until currentPlayer.remainingMoves + currentPlayer.visitedTiles.size) {
+            val stepTokenView = stepTokenViews[i]
+
+            if (i < currentPlayer.remainingMoves)
+                continue
+
+            stepTokenView.apply {
+                posX = getPlayerPosX(
+                    currentPlayer.visitedTiles[i - currentPlayer.remainingMoves]
+                ) - stepTokenView.actualPosX
+                posY = getPlayerPosY(
+                    currentPlayer.visitedTiles[i - currentPlayer.remainingMoves]
+                ) - stepTokenView.actualPosY
+            }
+        }
+
+        playerRankPanes.forEach { it.posX = 1920.0 }
+        playerRankPanes.forEach { it.clear() }
+
+        backToMenuButtonPane.posX = 1920.0
+
+        for (rank in 0 until 4) {
+            val player = currentState.players.find { it.rank == rank }
+            val rankPane = playerRankPanes[rank]
+
+            rankPane.clear()
+
+            if (player == null) {
+                rankPane.posX = 1920.0
+            } else {
+                rankPane.posX = 1920.0 - 300.0
+
+                val rankToken = playerRankTokens.getValue(player.color)
+                rankPane.add(rankToken)
+
+                rankToken.posX = 44.0
+                rankToken.posY = 57.0
+            }
+        }
+    }
 
     private fun setSimulationSpeed(index: Int) {
         val game = root.currentGame
@@ -810,8 +966,8 @@ class GameScene(
 
         val rankToken = playerRankTokens.getValue(player.color)
 
-        val pane = playerRankPanes[rank - 1]
-        pane.add(rankToken)
+        val rankPane = playerRankPanes[rank - 1]
+        rankPane.add(rankToken)
 
         rankToken.apply {
             isVisible = true
@@ -822,15 +978,15 @@ class GameScene(
 
         playAnimation(
             MovementAnimation(
-                pane,
-                pane.posX,
-                pane.posX - 300,
-                pane.posY,
-                pane.posY,
+                rankPane,
+                rankPane.posX,
+                rankPane.posX - 300,
+                rankPane.posY,
+                rankPane.posY,
                 (500 * delayMultiplier).roundToInt()
             ).apply {
                 onFinished = {
-                    pane.apply {
+                    rankPane.apply {
                         posX -= 300
                     }
                 }

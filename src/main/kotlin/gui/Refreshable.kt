@@ -48,4 +48,19 @@ interface Refreshable {
      * @param winner The [Player] that won the game.
      */
     fun refreshAfterGameEnd(winner: Player) {}
+
+    /**
+     * Performs refreshes that are necessary after a move was undone.
+     */
+    fun refreshAfterUndo() {}
+
+    /**
+     * Performs refreshes that are necessary after a move was redone.
+     */
+    fun refreshAfterRedo() {}
+
+    /**
+     * Performs refreshes that are necessary after a past game was loaded from a file.
+     */
+    fun refreshAfterLoad() {}
 }

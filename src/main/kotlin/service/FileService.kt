@@ -61,6 +61,8 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
         }
         val jsonString = File(saveFilePath).readText()
         root.currentGame = json.decodeFromString(jsonString)
+
+        onAllRefreshables { refreshAfterLoad() }
     }
 
     /**
