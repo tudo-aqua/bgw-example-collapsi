@@ -19,7 +19,6 @@ import tools.aqua.bgw.visual.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
-import kotlin.concurrent.thread
 import kotlin.math.*
 
 class GameScene(
@@ -678,8 +677,9 @@ class GameScene(
                 front = frontVisual,
                 back = ImageVisual("GameScene/Tile_Collapsed.png")
             ).apply {
-                showBack()
-
+                if (!tile.collapsed)
+                    showFront()
+                
                 onMouseClicked = {
                     val game = root.currentGame
 
@@ -695,41 +695,6 @@ class GameScene(
 
             tileViews.add(tile.position, cardView)
             boardGrid[position.x, position.y] = cardView
-        }
-
-        // Do starting flip animation.
-
-        // Note: This is *required* due to a bug in BGW, otherwise starting a second game will not work.
-        // If you are working with animations in BGW, I have one piece of advice for you: God help you.
-
-        val flipAnimations = tileViews.entries.map { card ->
-            FlipAnimation(
-                card.second,
-                card.second.backVisual,
-                card.second.frontVisual,
-                30
-            ).apply {
-                onFinished = {
-                    card.second.showFront()
-                }
-            }
-        }
-
-        blockMovementInput = true
-
-        // Using a sequential or parallel animation here doesn't work because for some reason they
-        // have an undocumented limit of 10 animations.
-        // If you are having similar trouble, refer to my advice above.
-        thread {
-            Thread.sleep(200)
-
-            for (animation in flipAnimations.shuffled()) {
-                playAnimation(animation)
-
-                Thread.sleep(100)
-            }
-
-            blockMovementInput = false
         }
     }
 
