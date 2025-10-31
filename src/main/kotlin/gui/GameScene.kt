@@ -474,7 +474,6 @@ class GameScene(
         // Collapse tile (flip it).
         if (currentState.currentPlayer.visitedTiles.size == 1) {
             val collapsedTileView = tileViews.forward(from)
-            checkNotNull(collapsedTileView)
             collapsedTileView.apply {
                 playAnimation(
                     FlipAnimation(
@@ -914,13 +913,11 @@ class GameScene(
     }
 
     private fun setSimulationSpeed(index: Int) {
-        val game = root.currentGame
+        val game = root.currentGame ?: return
 
         // Ignore button presses after game end.
-        if (game == null)
-            return
 
-        require(index >= 0 && index <= 3) { "Index out of bounds." }
+        require(index in 0..3) { "Index out of bounds." }
 
         // Set arrow position.
         val button = if (index == 0) pauseButton else speedButtons[index - 1]

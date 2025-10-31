@@ -66,13 +66,6 @@ data class GameState(
     }
 
     /**
-     * Returns the player in this game with the specified color.
-     *
-     * @param playerColor The player color we're looking for.
-     */
-    fun getPlayerByColor(playerColor: PlayerColor) = players.first { it.color == playerColor }
-
-    /**
      * Creates a deep copy of this [GameState] and returns it.
      *
      * Changes to the returned [GameState] will never impact this instance.

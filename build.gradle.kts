@@ -1,5 +1,4 @@
 import edu.udo.cs.sopra.util.addFileToDistribution
-import edu.udo.cs.sopra.util.ignoreClassesInCoverageReport
 import edu.udo.cs.sopra.util.sonatypeSnapshots
 import edu.udo.cs.sopra.util.sopraPackageRegistry
 import org.gradle.kotlin.dsl.application

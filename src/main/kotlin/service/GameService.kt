@@ -28,10 +28,10 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
      */
     fun startNewGame(playerTypes: List<PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
         check(root.currentGame == null) { "Tried to start a game, while one was already in progress." }
-        require(playerTypes.size >= 2 && playerTypes.size <= 4) { "The number of players must be between 2 and 4." }
+        require(playerTypes.size in 2..4) { "The number of players must be between 2 and 4." }
         require(botDifficulties.size == playerTypes.size)
         { "Difficulty needs to be defined for all players (even non-bot players)." }
-        require(boardSize >= 4 && boardSize <= 6) { "The board size must be between 4 and 6." }
+        require(boardSize in 4..6) { "The board size must be between 4 and 6." }
         require(boardSize >= playerTypes.size + 2)
         { "Player amount of ${playerTypes.size} requires a minimal board size of ${playerTypes.size + 2}." }
 
@@ -46,10 +46,10 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         // Initialize player starting tiles.
         val playerTiles = mutableListOf<Tile>()
         val expectedPlayerTiles = boardSize - 2
-        for (i in 0..expectedPlayerTiles - 1) {
+        for (i in 0..<expectedPlayerTiles) {
             val position = unassignedPositions.removeFirst()
             val tile = Tile(position, 1, PlayerColor.entries[i])
-            board.put(position, tile)
+            board[position] = tile
 
             if (i < playerTypes.size) {
                 playerTiles.add(tile)
@@ -74,7 +74,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         for (stepValue in unassignedStepValues) {
             val position = unassignedPositions.removeFirst()
             val tile = Tile(position, stepValue, null)
-            board.put(position, tile)
+            board[position] = tile
 
             if (unassignedPositions.isEmpty())
                 break

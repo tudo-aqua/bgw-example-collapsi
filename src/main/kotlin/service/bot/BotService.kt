@@ -213,7 +213,7 @@ class BotService(private val root: RootService) {
         var currentDepth = 1
         val maxTime = Date().time + maxDuration
 
-        var bestResult: MinimaxResult? = null;
+        var bestResult: MinimaxResult? = null
 
         while (currentDepth <= maxDepth) {
             if (log) println("Searching at depth $currentDepth.")

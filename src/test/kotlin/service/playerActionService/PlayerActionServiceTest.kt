@@ -58,7 +58,7 @@ class PlayerActionServiceTest {
     }
 
     /**
-     * Test to check the canMoveTo(...) function with non matching wrapping of the destination parameter.
+     * Test to check the canMoveTo(...) function with non-matching wrapping of the destination parameter.
      */
     @Test
     fun testCanMoveToWithWrongWrapping() {

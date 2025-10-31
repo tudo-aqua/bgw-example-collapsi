@@ -2,7 +2,6 @@ package service
 
 import entity.Coordinate
 import entity.Player
-import service.Refreshable
 
 /**
  * [Refreshable] implementation that refreshes nothing, but remembers

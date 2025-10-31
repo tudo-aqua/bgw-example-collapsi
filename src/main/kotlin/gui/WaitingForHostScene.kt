@@ -4,7 +4,6 @@ import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.components.uicomponents.Label
-import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.core.MenuScene
 import tools.aqua.bgw.visual.*

@@ -8,8 +8,6 @@ object Constants {
 
     val font_input = Font(28, Color.WHITE, "RussoOne")
 
-    val font_label = Font(28, Color.WHITE, "RussoOne")
-
     val font_heading = Font(50, Color(0xc9c9c9), "RussoOne")
 
     val font_inputLabel = Font(23, Color(0x808080), "RussoOne")
