@@ -41,6 +41,7 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
 
         val json = Json {
             allowStructuredMapKeys = true
+            prettyPrint = true
         }
         val jsonString = json.encodeToString(game)
         File(saveFilePath).writeText(jsonString)

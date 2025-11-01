@@ -43,5 +43,9 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     override fun refreshAfterStartNewGame() {
         hideMenuScene(500)
     }
+
+    override fun refreshAfterLoad() {
+        hideMenuScene(500)
+    }
 }
 

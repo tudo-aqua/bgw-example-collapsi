@@ -266,9 +266,9 @@ class GameScene(
      * The background for the toolbar at the bottom of the screen.
      */
     private val toolbarBackground = Label(
-        width = 650,
+        width = 756,
         height = 135,
-        posX = boardGrid.posX - 650 / 2,
+        posX = boardGrid.posX - 756 / 2,
         posY = 1080 - 135,
         visual = ImageVisual("GameScene/Exports/ToolbarBg.png")
     )
@@ -277,13 +277,30 @@ class GameScene(
      * The layout for the toolbar at the bottom of the screen that contains all toolbar buttons (speed, undo, redo).
      */
     private val toolbarLayout = LinearLayout<TokenView>(
-        width = 640,
+        width = 756,
         height = 50,
         posX = boardGrid.posX,
         posY = 990,
         spacing = 40,
         horizontalAlignment = HorizontalAlignment.CENTER
     )
+
+    /**
+     * The undo button in the toolbar at the bottom.
+     */
+    private val saveButton = TokenView(
+        width = 50,
+        height = 50,
+        visual = ImageVisual("GameScene/Button_Save.png")
+    ).apply {
+        onMouseClicked = {
+            val game = root.currentGame
+
+            if (game != null) {
+                root.fileService.saveGame()
+            }
+        }
+    }
 
     /**
      * The undo button in the toolbar at the bottom.
@@ -296,8 +313,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty()
-            ) {
+            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty()) {
                 root.playerActionService.undo()
             }
         }
@@ -314,8 +330,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty()
-            ) {
+            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty()) {
                 root.playerActionService.redo()
             }
         }
@@ -367,7 +382,7 @@ class GameScene(
     //endregion
     //endregion
 
-    //region Animations
+    //region Animation Variables
 
     /**
      * This multiplier is applied to every delay and animation
@@ -431,6 +446,7 @@ class GameScene(
         backToMenuButtonPane.add(backToMenuButton)
 
         toolbarLayout.addAll(
+            saveButton,
             undoButton,
             redoButton,
             pauseButton
@@ -581,12 +597,22 @@ class GameScene(
     }
 
     override fun refreshAfterUndo() {
-        setSimulationSpeed(0)
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        if (game.currentState.players.any { it.type == PlayerType.BOT }) {
+            setSimulationSpeed(0)
+        }
+
         updateAllInstant()
     }
 
     override fun refreshAfterRedo() {
-        setSimulationSpeed(0)
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+
+        if (game.currentState.players.any { it.type == PlayerType.BOT }) {
+            setSimulationSpeed(0)
+        }
+
         updateAllInstant()
     }
 
@@ -744,7 +770,7 @@ class GameScene(
         // Hide pause button if no bots are in the game. Show it otherwise.
         if (currentState.players.any { it.type == PlayerType.BOT }) {
             if (!toolbarLayout.contains(pauseButton))
-                toolbarLayout.add(pauseButton, 2)
+                toolbarLayout.add(pauseButton, 3)
         } else {
             if (toolbarLayout.contains(pauseButton))
                 toolbarLayout.remove(pauseButton)
@@ -775,7 +801,7 @@ class GameScene(
 
     //endregion
 
-    //region Helpers
+    //region Instant Updates
 
     /**
      * Updates all tiles, players, and other visuals in the current game without any animations.
@@ -815,6 +841,7 @@ class GameScene(
         for ((position, tile) in currentState.board) {
             val view = tileViews.forward(position)
 
+            // Simply "view.showBack()" would be better, but a bug in BGW is preventing this.
             if (tile.collapsed && view.visual != view.backVisual)
                 playAnimation(
                     FlipAnimation(
@@ -919,6 +946,10 @@ class GameScene(
             }
         }
     }
+
+    //endregion
+
+    //region Helpers
 
     /**
      * Sets the simulation speed of the current game.

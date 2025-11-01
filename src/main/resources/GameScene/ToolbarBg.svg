@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="1200"
+   width="1400"
    height="250"
-   viewBox="0 0 1200 250"
+   viewBox="0 0 1400 250"
    version="1.1"
    id="svg1"
    inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
@@ -26,11 +26,11 @@
      inkscape:pagecheckerboard="1"
      inkscape:deskcolor="#505050"
      inkscape:document-units="px"
-     inkscape:zoom="0.72604515"
-     inkscape:cx="296.8135"
-     inkscape:cy="62.668279"
+     inkscape:zoom="0.51339145"
+     inkscape:cx="472.34912"
+     inkscape:cy="57.461027"
      inkscape:window-width="1920"
-     inkscape:window-height="1017"
+     inkscape:window-height="1009"
      inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -41,7 +41,7 @@
        id="filter2"
        x="0"
        y="0"
-       width="1.0600000000000001"
+       width="1.0599999"
        height="1.05"
        inkscape:auto-region="false"><feFlood
          result="flood"
@@ -73,15 +73,15 @@
      inkscape:label="Drop Shadow"
      style="filter:url(#filter2)"><path
        id="rect40"
-       style="display:inline;fill:#252525;stroke-width:2.7182"
+       style="display:inline;fill:#252525;stroke-width:2.92391"
        inkscape:label="Box"
-       d="M 35.810442,45.451717 H 1164.1895 l -36.6692,127.546483 0.3708,21.74577 -22.2613,15.26951 -3.4199,51.0219 H 97.790059 Z"
+       d="M 35.810442,45.451717 H 1341.4422 l -42.4295,127.546483 0.4291,21.74577 -25.7583,15.26951 -3.9571,51.0219 H 107.5262 Z"
        sodipodi:nodetypes="cccccccc" /><path
        style="opacity:1;fill:#252525;fill-opacity:1;stroke-width:0.812598"
-       d="m 1118.1544,90.625352 42.697,15.839238 19.9713,-71.620893 -55.4374,-7.919618 z"
+       d="m 1291.6973,90.625352 42.697,15.839238 19.9713,-71.620893 -55.4374,-7.919618 z"
        id="path15" /><path
        style="opacity:1;fill:#252525;fill-opacity:1;stroke-width:0.812598"
-       d="m 1157.2972,171.47694 -15.4949,29.95681 26.5135,11.36293 13.0846,-34.08879 z"
+       d="m 1330.8401,171.47694 -15.4949,29.95681 26.5135,11.36293 13.0846,-34.08879 z"
        id="path16" /><path
        style="opacity:1;fill:#252525;fill-opacity:1;stroke-width:0.812598"
        d="M 43.730063,47.173375 27.890827,78.507514 59.569298,98.134393 71.62089,58.536304 Z"
