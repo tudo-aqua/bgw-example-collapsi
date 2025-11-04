@@ -99,7 +99,7 @@ class GameScene(
         posY = 0,
         width = this.width,
         height = this.height,
-        visual = ImageVisual("GameScene/MaskedBackground.png")
+        visual = ImageVisual("gameScene/MaskedBackground.png")
     ).apply {
         isDisabled = true // Don't block mouse button presses.
     }
@@ -115,7 +115,7 @@ class GameScene(
     private val infoPane = Pane<ComponentView>(
         width = 540,
         height = 1080,
-        visual = ImageVisual("GameScene/GameHudBackground.png"),
+        visual = ImageVisual("gameScene/GameHudBackground.png"),
     ).apply {
         isFocusable = false
         isDisabled = true
@@ -156,7 +156,7 @@ class GameScene(
         width = 84,
         height = 116,
         posY = 170,
-        visual = ImageVisual("GameScene/CurrentPlayerArrow.png")
+        visual = ImageVisual("gameScene/CurrentPlayerArrow.png")
     )
 
     /**
@@ -184,7 +184,7 @@ class GameScene(
         TokenView(
             width = 64,
             height = 64,
-            visual = ImageVisual("GameScene/StepToken.png")
+            visual = ImageVisual("gameScene/StepToken.png")
         ).apply {
             isVisible = false
         }
@@ -240,7 +240,7 @@ class GameScene(
         height = 300,
         posX = 1920,
         posY = 780,
-        visual = ImageVisual("GameScene/Exports/BackToMenuButtonBackground.png")
+        visual = ImageVisual("gameScene/BackToMenuButtonBackground.png")
     )
 
     /**
@@ -251,7 +251,7 @@ class GameScene(
         height = 90,
         posX = 65,
         posY = 65,
-        visual = ImageVisual("GameScene/Exports/BackToMenuButton.png")
+        visual = ImageVisual("gameScene/BackToMenuButton.png")
     ).apply {
         onMouseClicked = {
             app.mainMenuScene.updateButtons()
@@ -271,7 +271,7 @@ class GameScene(
         height = 135,
         posX = boardGrid.posX - 756 / 2,
         posY = 1080 - 135,
-        visual = ImageVisual("GameScene/Exports/ToolbarBg.png")
+        visual = ImageVisual("gameScene/ToolbarBg.png")
     )
 
     /**
@@ -292,7 +292,7 @@ class GameScene(
     private val saveButton = TokenView(
         width = 50,
         height = 50,
-        visual = ImageVisual("GameScene/Button_Save.png")
+        visual = ImageVisual("gameScene/Button_Save.png")
     ).apply {
         onMouseClicked = {
             val game = root.currentGame
@@ -309,7 +309,7 @@ class GameScene(
     private val undoButton = TokenView(
         width = 50,
         height = 50,
-        visual = ImageVisual("GameScene/Button_Undo.png")
+        visual = ImageVisual("gameScene/Button_Undo.png")
     ).apply {
         onMouseClicked = {
             val game = root.currentGame
@@ -326,7 +326,7 @@ class GameScene(
     private val redoButton = TokenView(
         width = 50,
         height = 50,
-        visual = ImageVisual("GameScene/Button_Redo.png")
+        visual = ImageVisual("gameScene/Button_Redo.png")
     ).apply {
         onMouseClicked = {
             val game = root.currentGame
@@ -343,7 +343,7 @@ class GameScene(
     private val pauseButton = TokenView(
         width = 50,
         height = 50,
-        visual = ImageVisual("GameScene/Button_Pause.png")
+        visual = ImageVisual("gameScene/Button_Pause.png")
     ).apply {
         onMouseClicked = {
             setSimulationSpeed(0)
@@ -374,7 +374,7 @@ class GameScene(
         height = 50,
         posX = toolbarLayout.posX,
         posY = 1030,
-        visual = ImageVisual("GameScene/Exports/ToolbarArrow.png")
+        visual = ImageVisual("gameScene/ToolbarArrow.png")
     ).apply {
         isFocusable = false
         isDisabled = true
@@ -683,7 +683,7 @@ class GameScene(
                 width = tileSize,
                 height = tileSize,
                 front = frontVisual,
-                back = ImageVisual("GameScene/Tile_Collapsed.png")
+                back = ImageVisual("gameScene/Tile_Collapsed.png")
             ).apply {
                 if (!tile.collapsed)
                     showFront()

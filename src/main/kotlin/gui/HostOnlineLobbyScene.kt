@@ -38,7 +38,7 @@ class HostOnlineLobbyScene(
         posY = 20,
         width = 80,
         height = 56,
-        visual = ImageVisual("LobbyScene/Exports/Button_Back.png")
+        visual = ImageVisual("lobbyScene/Button_Back.png")
     ).apply {
         onMouseClicked = {
             app.showMenuScene(app.mainMenuScene)
@@ -59,7 +59,7 @@ class HostOnlineLobbyScene(
         posY = 140,
         width = 250,
         height = 5,
-        visual = ImageVisual("MenuScenes/Exports/HeadingLine.png")
+        visual = ImageVisual("menuScenes/HeadingLine.png")
     )
 
     private val lobbyCodeHeading = Label(
@@ -129,7 +129,7 @@ class HostOnlineLobbyScene(
         posY = paneHeight - 80 - 20,
         width = 80,
         height = 80,
-        visual = ImageVisual("LobbyScene/Exports/Button_Confirm.png")
+        visual = ImageVisual("lobbyScene/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
             saveCredentials()

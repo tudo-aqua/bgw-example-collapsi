@@ -51,7 +51,7 @@ class PlayerSetupView(
         posY = 5,
         width = removeButtonSize,
         height = removeButtonSize,
-        visual = ImageVisual("LobbyScene/Exports/Button_RemovePlayer.png")
+        visual = ImageVisual("lobbyScene/Button_RemovePlayer.png")
     ).apply {
         isVisible = false
     }
@@ -61,7 +61,7 @@ class PlayerSetupView(
         posY = 200,
         width = 100,
         height = 56,
-        visual = ImageVisual("LobbyScene/Exports/Button_AddPlayer.png")
+        visual = ImageVisual("lobbyScene/Button_AddPlayer.png")
     ).apply {
         isVisible = false
     }
@@ -75,8 +75,8 @@ class PlayerSetupView(
         buttonSize = 80,
         spacing = 10,
         imagePaths = listOf(
-            "LobbyScene/Exports/Button_PlayerTypes_Local",
-            "LobbyScene/Exports/Button_PlayerTypes_Bot"
+            "lobbyScene/Exports/Button_PlayerTypes_Local",
+            "lobbyScene/Exports/Button_PlayerTypes_Bot"
         ),
         initialSelectedIndex = 0
     ).apply {
@@ -92,11 +92,11 @@ class PlayerSetupView(
         buttonSize = 35,
         spacing = 3,
         imagePaths = listOf(
-            "LobbyScene/Exports/Button_BotDifficulty_Icon",
-            "LobbyScene/Exports/Button_BotDifficulty_1",
-            "LobbyScene/Exports/Button_BotDifficulty_2",
-            "LobbyScene/Exports/Button_BotDifficulty_3",
-            "LobbyScene/Exports/Button_BotDifficulty_4"
+            "lobbyScene/Exports/Button_BotDifficulty_Icon",
+            "lobbyScene/Exports/Button_BotDifficulty_1",
+            "lobbyScene/Exports/Button_BotDifficulty_2",
+            "lobbyScene/Exports/Button_BotDifficulty_3",
+            "lobbyScene/Exports/Button_BotDifficulty_4"
         ),
         initialSelectedIndex = 3
     ).apply {

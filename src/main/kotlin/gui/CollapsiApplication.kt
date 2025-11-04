@@ -1,6 +1,5 @@
 package gui
 
-import entity.*
 import service.*
 import tools.aqua.bgw.core.BoardGameApplication
 import tools.aqua.bgw.util.Font
@@ -27,7 +26,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     private val consoleRefreshable = ConsoleRefreshable(root)
 
     init {
-        loadFont("Fonts/RussoOne-Regular.ttf", "RussoOne", Font.FontWeight.NORMAL)
+        loadFont("fonts/RussoOne-Regular.ttf", "RussoOne", Font.FontWeight.NORMAL)
 
         root.addRefreshables(
             this,

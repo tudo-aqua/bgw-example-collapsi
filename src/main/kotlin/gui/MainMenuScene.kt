@@ -35,7 +35,7 @@ class MainMenuScene(
         posY = 60,
         width = 750,
         height = 210,
-        visual = ImageVisual("MenuScenes/Exports/Logo.png")
+        visual = ImageVisual("menuScenes/Logo.png")
     )
 
     private val localLabel = Label(
@@ -52,7 +52,7 @@ class MainMenuScene(
         posY = 380,
         width = 250,
         height = 5,
-        visual = ImageVisual("MenuScenes/Exports/HeadingLine.png")
+        visual = ImageVisual("menuScenes/HeadingLine.png")
     )
 
     private val onlineLabel = Label(
@@ -69,7 +69,7 @@ class MainMenuScene(
         posY = 380,
         width = 250,
         height = 5,
-        visual = ImageVisual("MenuScenes/Exports/HeadingLine.png")
+        visual = ImageVisual("menuScenes/HeadingLine.png")
     )
 
     val newGameButton = Button(
@@ -77,7 +77,7 @@ class MainMenuScene(
         posY = 430,
         width = 200,
         height = 100,
-        visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_New.png")
+        visual = ImageVisual("menuScenes/Button_MainMenu_New.png")
     ).apply {
         onMouseClicked = {
             app.lobbyScene.previousScene = app.mainMenuScene
@@ -90,7 +90,7 @@ class MainMenuScene(
         posY = 550,
         width = 200,
         height = 100,
-        visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Load.png")
+        visual = ImageVisual("menuScenes/Button_MainMenu_Load.png")
     ).apply {
         onMouseClicked = {
             root.fileService.loadGame()
@@ -102,7 +102,7 @@ class MainMenuScene(
         posY = 430,
         width = 200,
         height = 100,
-        visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Host.png")
+        visual = ImageVisual("menuScenes/Button_MainMenu_Host.png")
     ).apply {
         onMouseClicked = {
             app.hostOnlineLobbyScene.generateNewCode()
@@ -116,7 +116,7 @@ class MainMenuScene(
         posY = 550,
         width = 200,
         height = 100,
-        visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Join.png")
+        visual = ImageVisual("menuScenes/Button_MainMenu_Join.png")
     ).apply {
         onMouseClicked = {
             app.joinOnlineLobbyScene.loadCredentials()
@@ -152,10 +152,10 @@ class MainMenuScene(
     fun updateButtons() {
         if (root.fileService.saveFileExists()) {
             loadGameButton.isDisabled = false
-            loadGameButton.visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Load.png")
+            loadGameButton.visual = ImageVisual("menuScenes/Button_MainMenu_Load.png")
         } else {
             loadGameButton.isDisabled = true
-            loadGameButton.visual = ImageVisual("MenuScenes/Exports/Button_MainMenu_Load_Disabled.png")
+            loadGameButton.visual = ImageVisual("menuScenes/Button_MainMenu_Load_Disabled.png")
         }
     }
 }

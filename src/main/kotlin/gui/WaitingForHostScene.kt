@@ -1,6 +1,5 @@
 package gui
 
-import service.RootService
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -34,7 +33,7 @@ class WaitingForHostScene(
         posY = 20,
         width = 80,
         height = 56,
-        visual = ImageVisual("LobbyScene/Exports/Button_Back.png")
+        visual = ImageVisual("lobbyScene/Button_Back.png")
     ).apply {
         onMouseClicked = {
             app.showMenuScene(app.joinOnlineLobbyScene)

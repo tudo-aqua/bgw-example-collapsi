@@ -69,9 +69,9 @@ class LobbyScene(
         buttonSize = 150,
         spacing = 5,
         imagePaths = listOf(
-            "LobbyScene/Exports/Button_BoardSize_4x4",
-            "LobbyScene/Exports/Button_BoardSize_5x5",
-            "LobbyScene/Exports/Button_BoardSize_6x6"
+            "lobbyScene/Exports/Button_BoardSize_4x4",
+            "lobbyScene/Exports/Button_BoardSize_5x5",
+            "lobbyScene/Exports/Button_BoardSize_6x6"
         ),
         initialSelectedIndex = 0
     ).apply {
@@ -85,7 +85,7 @@ class LobbyScene(
         posY = 20,
         width = 80,
         height = 56,
-        visual = ImageVisual("LobbyScene/Exports/Button_Back.png")
+        visual = ImageVisual("lobbyScene/Button_Back.png")
     ).apply {
         onMouseClicked = {
             app.showMenuScene(previousScene)
@@ -97,7 +97,7 @@ class LobbyScene(
         posY = paneHeight - 80 - 20,
         width = 80,
         height = 80,
-        visual = ImageVisual("LobbyScene/Exports/Button_Confirm.png")
+        visual = ImageVisual("lobbyScene/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
             root.gameService.startNewGame(
