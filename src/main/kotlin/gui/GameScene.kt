@@ -254,6 +254,7 @@ class GameScene(
         visual = ImageVisual("GameScene/Exports/BackToMenuButton.png")
     ).apply {
         onMouseClicked = {
+            app.mainMenuScene.updateButtons()
             app.showMenuScene(app.mainMenuScene)
         }
     }
@@ -647,7 +648,7 @@ class GameScene(
 
         // Init GridPane.
 
-        // Reset GriPane.
+        // Reset GridPane.
         repeat(boardGrid.rows) { boardGrid.removeRow(0) }
         repeat(boardGrid.columns) { boardGrid.removeColumn(0) }
         boardGrid.addRows(0, currentState.boardSize)

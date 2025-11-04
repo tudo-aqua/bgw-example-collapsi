@@ -1,6 +1,6 @@
 package gui
 
-import service.RootService
+import service.*
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -11,6 +11,12 @@ import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.core.MenuScene
 import tools.aqua.bgw.visual.*
 
+/**
+ * The scene for inputting the code, secret, and server for starting a new online game.
+ *
+ * @param app The main [CollapsiApplication] containing all other scenes.
+ * @param root The main [RootService] containing all other services.
+ */
 class HostOnlineLobbyScene(
     private val app: CollapsiApplication,
     private val root: RootService
@@ -153,16 +159,27 @@ class HostOnlineLobbyScene(
         )
     }
 
+    /**
+     * Generates a new 4-character lobby code, avoiding ambiguous characters,
+     * and sets it to the lobbyCodeInput field in uppercase.
+     */
     fun generateNewCode() {
         val chars = ('0'..'9') + ('a'..'z').filter { it != 'i' && it != 'l' && it != '0' && it != 'o' }
         val code = (1..4).map { chars.random() }.joinToString("")
         lobbyCodeInput.text = code.uppercase()
     }
 
+    /**
+     * Saves the server URL and secret from the input fields using the [FileService].
+     */
     fun saveCredentials() {
         root.fileService.saveCredentials(serverInput.text, secretInput.text)
     }
 
+    /**
+     * Loads the secret and server URL from the [FileService] and sets them to the input fields to save the user
+     * from having to input them multiple times.
+     */
     fun loadCredentials() {
         secretInput.text = root.fileService.loadSecret()
         serverInput.text = root.fileService.loadServer()

@@ -1,5 +1,6 @@
 package gui
 
+import service.RootService
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -8,6 +9,11 @@ import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.core.MenuScene
 import tools.aqua.bgw.visual.*
 
+/**
+ * The scene after joining a game. Active while waiting for the host to start the game.
+ *
+ * @param app The main [CollapsiApplication] containing all other scenes.
+ */
 class WaitingForHostScene(
     private val app: CollapsiApplication
 ) : MenuScene(1920, 1080) {

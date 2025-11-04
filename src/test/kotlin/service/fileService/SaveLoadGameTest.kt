@@ -3,16 +3,20 @@ package service.fileService
 import entity.*
 import service.*
 import kotlin.test.*
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
+import java.io.File
 
+/**
+ * Tests the save/load/delete functionality for saved games of the [FileService].
+ */
 class SaveLoadGameTest {
     private var root = RootService()
 
     private var testRefreshable = TestRefreshable(root)
 
     /**
-     * Setup function to attach a [TestRefreshable] to a new [RootService] before each test.
+     * Setup function to attach a [TestRefreshable] to a new [RootService] before each test and clear the saved game.
      */
     @BeforeTest
     fun setup() {
@@ -21,12 +25,23 @@ class SaveLoadGameTest {
         root.addRefreshable(testRefreshable)
 
         // Delete saved game if it exists.
-        try {
+        if (File(root.fileService.saveFilePath).exists())
             root.fileService.deleteSavedGame()
-        } catch (_: IllegalStateException) {
-        }
     }
 
+    /**
+     * Cleans up by deleting the saved game.
+     */
+    @AfterTest
+    fun cleanup() {
+        // Delete saved game if it exists.
+        if (File(root.fileService.saveFilePath).exists())
+            root.fileService.deleteSavedGame()
+    }
+
+    /**
+     * Tests that a game can be saved and loaded afterwards.
+     */
     @Test
     fun testLoadSavedGame() {
         root.gameService.startNewGame(
@@ -47,6 +62,7 @@ class SaveLoadGameTest {
 
         val loadedGame = assertNotNull(root.currentGame)
 
+        // Both need to have equal values but reference two separate objects.
         assertEquals(savedGame, loadedGame)
         assertNotSame(savedGame, loadedGame)
 
@@ -64,15 +80,18 @@ class SaveLoadGameTest {
         assertDoesNotThrow { root.fileService.deleteSavedGame() }
     }
 
+    /**
+     * Tests various states where calling a method will return an exception.
+     */
     @Test
     fun testExceptions() {
         // No game running.
-        assertThrows(IllegalStateException::class.java) { root.fileService.saveGame() }
+        assertThrows<IllegalStateException> { root.fileService.saveGame() }
 
         // No file found.
-        assertThrows(IllegalStateException::class.java) { root.fileService.loadGame() }
+        assertThrows<IllegalStateException> { root.fileService.loadGame() }
 
         // No file found.
-        assertThrows(IllegalStateException::class.java) { root.fileService.deleteSavedGame() }
+        assertThrows<IllegalStateException> { root.fileService.deleteSavedGame() }
     }
 }

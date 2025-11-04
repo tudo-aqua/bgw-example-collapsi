@@ -15,7 +15,8 @@ import gui.components.PlayerSetupView
  *
  * Also works for online games.
  *
- * @param root The root service of the game.
+ * @param app The main [CollapsiApplication] containing all other scenes.
+ * @param root The main [RootService] containing all other services.
  */
 class LobbyScene(
     private val app: CollapsiApplication,

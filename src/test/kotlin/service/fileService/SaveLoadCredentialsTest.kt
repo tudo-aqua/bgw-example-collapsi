@@ -1,22 +1,27 @@
 package service.fileService
 
-import entity.PlayerType
+import entity.*
+import service.*
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.assertDoesNotThrow
-import service.RootService
-import service.TestRefreshable
+import java.io.File
+import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+/**
+ * Tests the save/load/delete functionality for server/secret (credentials) of the [FileService].
+ */
 class SaveLoadCredentialsTest {
     private var root = RootService()
 
     private var testRefreshable = TestRefreshable(root)
 
     /**
-     * Setup function to attach a [TestRefreshable] to a new [RootService] before each test.
+     * Setup function to attach a [TestRefreshable] to a new [RootService] before each test and clear
+     * the saved credentials.
      */
     @BeforeTest
     fun setup() {
@@ -25,14 +30,27 @@ class SaveLoadCredentialsTest {
         root.addRefreshable(testRefreshable)
 
         // Delete property file if it exists.
-        try {
+        if (File(root.fileService.propertiesFilePath).exists())
             root.fileService.deleteCredentials()
-        } catch (_: IllegalStateException) {
-        }
     }
 
+    /**
+     * Cleans up by deleting the saved credentials.
+     */
+    @AfterTest
+    fun cleanup() {
+        // Delete property file if it exists.
+        if (File(root.fileService.propertiesFilePath).exists())
+            root.fileService.deleteCredentials()
+    }
+
+    /**
+     * Tests saving and loading a secret and server.
+     *
+     * Note that this test will override and then delete the current secret.
+     */
     @Test
-    fun testLoadSavedSecret() {
+    fun testSavingAndLoadingCredentials() {
         root.gameService.startNewGame(
             playerTypes = listOf(PlayerType.LOCAL, PlayerType.LOCAL),
             botDifficulties = listOf(1, 1),
@@ -57,18 +75,23 @@ class SaveLoadCredentialsTest {
         assertNotNull(loadedServer)
         assertEquals(savedServer, loadedServer)
 
-
         assertDoesNotThrow { root.fileService.deleteCredentials() }
     }
 
+    /**
+     * Tests that deleting a non-existent file throws and exception.
+     */
     @Test
     fun testExceptions() {
         // No file found.
         assertThrows(IllegalStateException::class.java) { root.fileService.deleteCredentials() }
     }
 
+    /**
+     * Tests that loading credentials without saving first will return empty strings.
+     */
     @Test
-    fun testLoadNoSecret() {
+    fun testLoadNoCredentials() {
         assertEquals("", root.fileService.loadSecret())
         assertEquals("", root.fileService.loadServer())
     }

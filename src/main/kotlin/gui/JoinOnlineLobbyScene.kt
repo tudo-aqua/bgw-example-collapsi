@@ -1,5 +1,6 @@
 package gui
 
+import service.FileService
 import service.RootService
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
@@ -11,6 +12,12 @@ import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.core.MenuScene
 import tools.aqua.bgw.visual.*
 
+/**
+ * The scene for inputting the code, secret, and server for joining an online game.
+ *
+ * @param app The main [CollapsiApplication] containing all other scenes.
+ * @param root The main [RootService] containing all other services.
+ */
 class JoinOnlineLobbyScene(
     private val app: CollapsiApplication,
     private val root: RootService
@@ -152,10 +159,17 @@ class JoinOnlineLobbyScene(
         )
     }
 
+    /**
+     * Saves the server URL and secret from the input fields using the [FileService].
+     */
     fun saveCredentials() {
         root.fileService.saveCredentials(serverInput.text, secretInput.text)
     }
 
+    /**
+     * Loads the secret and server URL from the [FileService] and sets them to the input fields to save the user
+     * from having to input them multiple times.
+     */
     fun loadCredentials() {
         secretInput.text = root.fileService.loadSecret()
         serverInput.text = root.fileService.loadServer()

@@ -8,6 +8,12 @@ import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
 
+/**
+ * The main menu scene. Contains buttons to move to the other scenes.
+ *
+ * @param app The main [CollapsiApplication] containing all other scenes.
+ * @param root The main [RootService] containing all other services.
+ */
 class MainMenuScene(
     private val app: CollapsiApplication,
     private val root: RootService
@@ -140,6 +146,9 @@ class MainMenuScene(
         updateButtons()
     }
 
+    /**
+     * Enables or disables the load game button depending on whether a saved game is present.
+     */
     fun updateButtons() {
         if (root.fileService.saveFileExists()) {
             loadGameButton.isDisabled = false

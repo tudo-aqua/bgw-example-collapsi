@@ -3,6 +3,9 @@ package gui
 import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.util.Font
 
+/**
+ * Holds GUI-related constants.
+ */
 object Constants {
     val color_background = Color(0x252525)
 
