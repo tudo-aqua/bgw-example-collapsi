@@ -69,9 +69,9 @@ class LobbyScene(
         buttonSize = 150,
         spacing = 5,
         imagePaths = listOf(
-            "lobbyScene/Exports/Button_BoardSize_4x4",
-            "lobbyScene/Exports/Button_BoardSize_5x5",
-            "lobbyScene/Exports/Button_BoardSize_6x6"
+            "lobbyScene/Button_BoardSize_4x4",
+            "lobbyScene/Button_BoardSize_5x5",
+            "lobbyScene/Button_BoardSize_6x6"
         ),
         initialSelectedIndex = 0
     ).apply {
@@ -105,7 +105,6 @@ class LobbyScene(
                 botDifficulties,
                 boardSize
             )
-            root.currentGame?.simulationSpeed = 1.0
         }
     }
 

@@ -75,8 +75,8 @@ class PlayerSetupView(
         buttonSize = 80,
         spacing = 10,
         imagePaths = listOf(
-            "lobbyScene/Exports/Button_PlayerTypes_Local",
-            "lobbyScene/Exports/Button_PlayerTypes_Bot"
+            "lobbyScene/Button_PlayerTypes_Local",
+            "lobbyScene/Button_PlayerTypes_Bot"
         ),
         initialSelectedIndex = 0
     ).apply {
@@ -92,11 +92,11 @@ class PlayerSetupView(
         buttonSize = 35,
         spacing = 3,
         imagePaths = listOf(
-            "lobbyScene/Exports/Button_BotDifficulty_Icon",
-            "lobbyScene/Exports/Button_BotDifficulty_1",
-            "lobbyScene/Exports/Button_BotDifficulty_2",
-            "lobbyScene/Exports/Button_BotDifficulty_3",
-            "lobbyScene/Exports/Button_BotDifficulty_4"
+            "lobbyScene/Button_BotDifficulty_Icon",
+            "lobbyScene/Button_BotDifficulty_1",
+            "lobbyScene/Button_BotDifficulty_2",
+            "lobbyScene/Button_BotDifficulty_3",
+            "lobbyScene/Button_BotDifficulty_4"
         ),
         initialSelectedIndex = 3
     ).apply {
@@ -125,7 +125,7 @@ class PlayerSetupView(
         this.isIncluded = isIncluded
 
         visual = if (isIncluded) {
-            ImageVisual("LobbyScene/Exports/PlayerGradient_P${playerId + 1}.png")
+            ImageVisual("LobbyScene/PlayerGradient_P${playerId + 1}.png")
         } else {
             Visual.EMPTY
         }

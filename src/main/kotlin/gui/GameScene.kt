@@ -386,14 +386,21 @@ class GameScene(
     //region Animation Variables
 
     /**
+     * The speed multiplier for the bot and animations.
+     *
+     * 0 means the game is paused, 1 is normal speed, 2 is double speed, etc.
+     *
+     * Mind that a value below 1.0 will only affect the bot. Animation speed is always at least 1.0.
+     */
+    var simulationSpeed = 1.0
+
+    /**
      * This multiplier is applied to every delay and animation
      * to speed everything up depending on the simulation speed.
      *
      * This value will always be at most 1, to prevent animations from not playing when the game is paused.
-     *
-     * @see [CollapsiGame.simulationSpeed]
      */
-    private val delayMultiplier get() = 1 / max(root.currentGame?.simulationSpeed ?: 1.0, 1.0)
+    private val delayMultiplier get() = 1 / max(simulationSpeed, 1.0)
 
     /**
      * This is how long the animation for each move lasts.
@@ -408,8 +415,6 @@ class GameScene(
     /**
      * True if the bot was supposed to make a move, but couldn't, due to the game being paused.
      * Once the simulation is unpaused, the bot will make its move.
-     *
-     * @see [CollapsiGame.simulationSpeed]
      */
     private var performBotMoveOnUnpause = false
 
@@ -960,7 +965,7 @@ class GameScene(
      * @param index The index of the speed to set, where 0 = paused, 1-3 = increasing speeds.
      */
     private fun setSimulationSpeed(index: Int) {
-        val game = root.currentGame ?: return // Ignore button presses after game end.
+        root.currentGame ?: return // Ignore button presses after game end.
 
         require(index in 0..3) { "Index out of bounds." }
 
@@ -983,7 +988,7 @@ class GameScene(
         )
 
         // Adjust simulation speed.
-        game.simulationSpeed = when (index) {
+        simulationSpeed = when (index) {
             0 -> 0.0
             1 -> 1.0
             2 -> 1.5
@@ -991,7 +996,7 @@ class GameScene(
             else -> throw IndexOutOfBoundsException("Index out of bounds.")
         }
 
-        if (game.simulationSpeed > 0 && performBotMoveOnUnpause) {
+        if (simulationSpeed > 0 && performBotMoveOnUnpause) {
             performNextBotMove()
         }
     }
@@ -1169,7 +1174,7 @@ class GameScene(
         val gameState = game.currentState
         val originalPlayer = gameState.currentPlayer
 
-        if (game.simulationSpeed == 0.0) {
+        if (simulationSpeed == 0.0) {
             performBotMoveOnUnpause = true
 
             return

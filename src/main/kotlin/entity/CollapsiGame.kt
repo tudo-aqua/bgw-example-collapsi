@@ -26,11 +26,4 @@ data class CollapsiGame(
      * This is a LIFO stack with the top element at the last index.
      */
     val redoStack = mutableListOf<GameState>()
-
-    /**
-     * The speed that the bots play at.
-     *
-     * 0 means the game is paused, 1 is normal speed, 2 is double speed, etc.
-     */
-    var simulationSpeed = 1.0
 }

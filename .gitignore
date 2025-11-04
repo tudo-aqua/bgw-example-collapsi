@@ -6,3 +6,4 @@
 app.properties
 saveFile.json
 /.kotlin/
+*.bak
