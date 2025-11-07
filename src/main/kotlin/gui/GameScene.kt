@@ -392,7 +392,7 @@ class GameScene(
      *
      * Mind that a value below 1.0 will only affect the bot. Animation speed is always at least 1.0.
      */
-    var simulationSpeed = 1.0
+    private var simulationSpeed = 1.0
 
     /**
      * This multiplier is applied to every delay and animation

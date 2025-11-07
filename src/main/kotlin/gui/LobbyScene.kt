@@ -27,6 +27,7 @@ class LobbyScene(
 
     private val paneHeight = 760
 
+    /** Whether this is a hosted game with online players or a fully local game. */
     private var networkMode = false
 
     private val contentPane = Pane<StaticComponentView<*>>(
@@ -80,6 +81,7 @@ class LobbyScene(
         onSelectionChanged = { selectedIndex -> boardSize = selectedIndex + 4 }
     }
 
+    /** Target scene for the [backButton]. */
     var previousScene: MenuScene = app.mainMenuScene
 
     val backButton = Button(
@@ -111,12 +113,20 @@ class LobbyScene(
         }
     }
 
+    /**
+     * Currently selected player types.
+     */
     val playerTypes = mutableListOf<PlayerType>()
 
     val botDifficulties = mutableListOf<Int>()
 
     val playerCount get() = playerTypes.size
 
+    /**
+     * Currently selected size of the board.
+     *
+     * @see GameState.boardSize
+     */
     var boardSize = 4
 
     init {
@@ -149,7 +159,8 @@ class LobbyScene(
 
         val index = playerTypes.size
 
-        playerTypes.add(PlayerType.LOCAL)
+        val playerType = if (networkMode) PlayerType.REMOTE else PlayerType.LOCAL
+        playerTypes.add(playerType)
         botDifficulties.add(3)
 
         playerSetupViews[index].difficultySelection.selectButton(3)
@@ -171,6 +182,9 @@ class LobbyScene(
         updatePlayerSetupViews()
     }
 
+    /**
+     * Updates the [PlayerSetupView]s to account for player count and network mode.
+     */
     private fun updatePlayerSetupViews() {
         check(playerCount in 1..4) { "Requires 1 to 4 players." }
         check(playerTypes.size == botDifficulties.size) { "playerTypes and botDifficulties needs to match in size." }
@@ -187,21 +201,31 @@ class LobbyScene(
         playerSetupViews[3].removeButton.isVisible = !networkMode && playerCount == 4
     }
 
+    /**
+     * Enables or disabled network mode.
+     *
+     * Sets player count to 1 in network mode or to 2 in local mode.
+     *
+     * @param networkMode Whether this is a hosted online game or a fully local game.
+     *
+     * @see networkMode
+     */
     fun setNetworkMode(networkMode: Boolean) {
+        if (this.networkMode == networkMode)
+            return
+
         this.networkMode = networkMode
 
-        if (!networkMode) {
-            // Always require at least 2 players in local mode.
-            if (playerCount == 1) {
-                addPlayer()
-            }
-        } else {
-            // Remove all but one player.
-            repeat(playerCount - 1) {
-                removePlayer()
-            }
+        val defaultPlayerCount = if (networkMode) 1 else 2
 
-            playerTypes[0] = PlayerType.REMOTE
+        // Remove additional players.
+        repeat(playerCount - defaultPlayerCount) {
+            removePlayer()
+        }
+
+        // Add minimum players.
+        repeat(defaultPlayerCount - playerCount) {
+            addPlayer()
         }
 
         updatePlayerSetupViews()
