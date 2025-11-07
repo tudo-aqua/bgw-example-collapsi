@@ -81,6 +81,7 @@ class MainMenuScene(
     ).apply {
         onMouseClicked = {
             app.lobbyScene.previousScene = app.mainMenuScene
+            app.lobbyScene.setNetworkMode(false)
             app.showMenuScene(app.lobbyScene)
         }
     }

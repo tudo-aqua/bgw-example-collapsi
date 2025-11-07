@@ -134,6 +134,7 @@ class HostOnlineLobbyScene(
         onMouseClicked = {
             saveCredentials()
             app.lobbyScene.previousScene = app.hostOnlineLobbyScene
+            app.lobbyScene.setNetworkMode(true)
             app.showMenuScene(app.lobbyScene)
         }
     }

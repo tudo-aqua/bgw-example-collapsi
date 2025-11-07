@@ -36,6 +36,8 @@ class PlayerSetupView(
 
     val pawnSize = 120
 
+    var remotePlayer = false
+
     private val pawn = Label(
         posX = this.width / 2 - pawnSize / 2,
         posY = 60,
@@ -83,6 +85,16 @@ class PlayerSetupView(
         isVisible = false
     }
 
+    val remoteType = Label(
+        posX = this.width / 2 - 80 / 2,
+        posY = 200,
+        width = 80,
+        height = 80,
+        visual = ImageVisual("lobbyScene/Button_PlayerTypes_Remote_Selected.png")
+    ).apply {
+        isVisible = false
+    }
+
     val difficultySelection = ExclusiveButtonGroup(
         posX = 0,
         posY = 300,
@@ -110,6 +122,7 @@ class PlayerSetupView(
             removeButton,
             addButton,
             typeSelection,
+            remoteType,
             difficultySelection
         )
     }
@@ -122,6 +135,9 @@ class PlayerSetupView(
      * @param isIncluded The new value for [PlayerSetupView.isIncluded].
      */
     fun setIsIncluded(isIncluded: Boolean) {
+        if (this.isIncluded == isIncluded)
+            return
+
         this.isIncluded = isIncluded
 
         visual = if (isIncluded) {
@@ -132,8 +148,9 @@ class PlayerSetupView(
 
         // Re-select human as the default player type. This also hides the difficulty options.
         typeSelection.selectButton(0)
-        typeSelection.isVisible = isIncluded
-        addButton.isVisible = !isIncluded
-        removeButton.isVisible = isIncluded
+        typeSelection.isVisible = isIncluded && !remotePlayer
+        remoteType.isVisible = isIncluded && remotePlayer
+        addButton.isVisible = !isIncluded && playerId >= 2
+        removeButton.isVisible = isIncluded && playerId >= 2
     }
 }

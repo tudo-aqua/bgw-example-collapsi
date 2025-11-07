@@ -23,9 +23,11 @@ class LobbyScene(
     private val root: RootService
 ) : MenuScene(1920, 1080), Refreshable {
 
-    val paneWidth = 1100
+    private val paneWidth = 1100
 
-    val paneHeight = 760
+    private val paneHeight = 760
+
+    private var networkMode = false
 
     private val contentPane = Pane<StaticComponentView<*>>(
         posX = 1920 / 2 - paneWidth / 2,
@@ -88,6 +90,7 @@ class LobbyScene(
         visual = ImageVisual("lobbyScene/Button_Back.png")
     ).apply {
         onMouseClicked = {
+            app.hostOnlineLobbyScene.generateNewCode()
             app.showMenuScene(previousScene)
         }
     }
@@ -111,6 +114,8 @@ class LobbyScene(
     val playerTypes = mutableListOf<PlayerType>()
 
     val botDifficulties = mutableListOf<Int>()
+
+    val playerCount get() = playerTypes.size
 
     var boardSize = 4
 
@@ -140,50 +145,65 @@ class LobbyScene(
      * @throws IllegalStateException if there were already 4 players present.
      */
     fun addPlayer() {
-        check(playerTypes.size < 4) { "Tried to add a fifth player." }
+        check(playerCount < 4) { "Tried to add a fifth player." }
 
         val index = playerTypes.size
 
         playerTypes.add(PlayerType.LOCAL)
         botDifficulties.add(3)
 
-        playerSetupViews[index].setIsIncluded(true)
         playerSetupViews[index].difficultySelection.selectButton(3)
 
-        // Always disable remove buttons for Player 1 and 2.
-        if (index <= 1)
-            playerSetupViews[index].removeButton.isVisible = false
-
-        // Only allow removal of the latest player.
-        if (index >= 1)
-            playerSetupViews[index - 1].removeButton.isVisible = false
-
-        // Only allow adding Player 4 if Player 3 was already added.
-        if (index == 2)
-            playerSetupViews[3].addButton.isVisible = true
+        updatePlayerSetupViews()
     }
 
     /**
      * Removes the right-most player.
      *
-     * @throws IllegalStateException if there were only 2 players (2 players is the minimum).
+     * @throws IllegalStateException if there was only 1 player (1 player is the minimum).
      */
     fun removePlayer() {
-        check(playerTypes.size > 2) { "Tried to remove the second player." }
-
-        val index = playerTypes.lastIndex
+        check(playerCount > 1) { "Tried to remove the first player." }
 
         playerTypes.removeLast()
         botDifficulties.removeLast()
 
-        playerSetupViews[index].setIsIncluded(false)
+        updatePlayerSetupViews()
+    }
 
-        // Allow removal of Player 3 if Player 4 was removed.
-        if (index >= 3)
-            playerSetupViews[index - 1].removeButton.isVisible = true
+    private fun updatePlayerSetupViews() {
+        check(playerCount in 1..4) { "Requires 1 to 4 players." }
+        check(playerTypes.size == botDifficulties.size) { "playerTypes and botDifficulties needs to match in size." }
 
-        // Only allow adding Player 4 if Player 3 was already added.
-        if (index == 2)
-            playerSetupViews[3].addButton.isVisible = false
+        for (i in 0..<4) {
+            playerSetupViews[i].remotePlayer = i >= 1 && networkMode
+            playerSetupViews[i].setIsIncluded(i < playerCount)
+        }
+
+        playerSetupViews[2].addButton.isVisible = !networkMode && playerCount == 2
+        playerSetupViews[3].addButton.isVisible = !networkMode && playerCount == 3
+
+        playerSetupViews[2].removeButton.isVisible = !networkMode && playerCount == 3
+        playerSetupViews[3].removeButton.isVisible = !networkMode && playerCount == 4
+    }
+
+    fun setNetworkMode(networkMode: Boolean) {
+        this.networkMode = networkMode
+
+        if (!networkMode) {
+            // Always require at least 2 players in local mode.
+            if (playerCount == 1) {
+                addPlayer()
+            }
+        } else {
+            // Remove all but one player.
+            repeat(playerCount - 1) {
+                removePlayer()
+            }
+
+            playerTypes[0] = PlayerType.REMOTE
+        }
+
+        updatePlayerSetupViews()
     }
 }
