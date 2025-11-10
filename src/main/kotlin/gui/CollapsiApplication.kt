@@ -79,32 +79,28 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
      */
     fun playSound(path: String) {
         Thread {
-            try {
-                val inputStream = this::class.java.classLoader.getResourceAsStream(path)
-                checkNotNull(inputStream) { "Sound not found at path: $path." }
+            val inputStream = this::class.java.classLoader.getResourceAsStream(path)
+            checkNotNull(inputStream) { "Sound not found at path: $path." }
 
-                BufferedInputStream(inputStream).use { input ->
-                    val baseStream = AudioSystem.getAudioInputStream(input)
-                    val baseFormat = baseStream.format
+            BufferedInputStream(inputStream).use { input ->
+                val baseStream = AudioSystem.getAudioInputStream(input)
+                val baseFormat = baseStream.format
 
-                    // Convert to PCM format so the AudioSystem can handle it.
-                    val decodedFormat = AudioFormat(
-                        AudioFormat.Encoding.PCM_SIGNED,
-                        baseFormat.sampleRate,
-                        16,
-                        baseFormat.channels,
-                        baseFormat.channels * 2,
-                        baseFormat.sampleRate,
-                        baseFormat.isBigEndian
-                    )
+                // Convert to PCM format so the AudioSystem can handle it.
+                val decodedFormat = AudioFormat(
+                    AudioFormat.Encoding.PCM_SIGNED,
+                    baseFormat.sampleRate,
+                    16,
+                    baseFormat.channels,
+                    baseFormat.channels * 2,
+                    baseFormat.sampleRate,
+                    baseFormat.isBigEndian
+                )
 
-                    val decodedStream = AudioSystem.getAudioInputStream(decodedFormat, baseStream)
-                    val clip = AudioSystem.getClip()
-                    clip.open(decodedStream)
-                    clip.start()
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+                val decodedStream = AudioSystem.getAudioInputStream(decodedFormat, baseStream)
+                val clip = AudioSystem.getClip()
+                clip.open(decodedStream)
+                clip.start()
             }
         }.start()
     }

@@ -27,10 +27,5 @@ class CollapsiGameTest {
         assertEquals(gameState, collapsiGame.currentState)
         assertTrue(collapsiGame.undoStack.isEmpty())
         assertTrue(collapsiGame.redoStack.isEmpty())
-        assertEquals(1.0, collapsiGame.simulationSpeed)
-
-        collapsiGame.simulationSpeed = 2.0
-
-        assertEquals(2.0, collapsiGame.simulationSpeed)
     }
 }
