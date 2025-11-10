@@ -352,8 +352,10 @@ class GameScene(
         visual = ImageVisual("gameScene/Button_Pause.png")
     ).apply {
         onMouseClicked = {
-            setSimulationSpeed(0)
-            app.playSound(app.clickSfx)
+            if (root.currentGame != null) {
+                setSimulationSpeed(0)
+                app.playSound(app.clickSfx)
+            }
         }
     }
 
@@ -368,8 +370,10 @@ class GameScene(
             visual = ImageVisual("GameScene/Button_Speed_${index + 1}.png")
         ).apply {
             onMouseClicked = {
-                setSimulationSpeed(index + 1)
-                app.playSound(app.clickSfx)
+                if (root.currentGame != null) {
+                    setSimulationSpeed(index + 1)
+                    app.playSound(app.clickSfx)
+                }
             }
         }
     }
@@ -1009,8 +1013,6 @@ class GameScene(
      * @param index The index of the speed to set, where 0 = paused, 1-3 = increasing speeds.
      */
     private fun setSimulationSpeed(index: Int) {
-        root.currentGame ?: return // Ignore button presses after game end.
-
         require(index in 0..3) { "Index out of bounds." }
 
         // Set arrow position.
