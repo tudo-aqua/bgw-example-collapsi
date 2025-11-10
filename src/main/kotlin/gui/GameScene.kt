@@ -299,7 +299,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (game != null) {
+            if (game != null && !game.isOnlineGame()) {
                 root.fileService.saveGame()
 
                 app.playSound(app.clickSfx)
@@ -318,7 +318,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty()) {
+            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty() && !game.isOnlineGame()) {
                 root.playerActionService.undo()
                 app.playSound(app.clickSfx)
             }
@@ -336,7 +336,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty()) {
+            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty() && !game.isOnlineGame()) {
                 root.playerActionService.redo()
                 app.playSound(app.clickSfx)
             }

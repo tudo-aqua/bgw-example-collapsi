@@ -38,6 +38,7 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      */
     fun saveGame() {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        check(!game.isOnlineGame()) { "Can't save an online game." }
 
         val json = Json {
             allowStructuredMapKeys = true

@@ -26,4 +26,9 @@ data class CollapsiGame(
      * This is a LIFO stack with the top element at the last index.
      */
     val redoStack = mutableListOf<GameState>()
+
+    /**
+     * @return True if this game is played online.
+     */
+    fun isOnlineGame() = currentState.players.any { it.type == PlayerType.REMOTE }
 }
