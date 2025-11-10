@@ -83,6 +83,7 @@ class MainMenuScene(
             app.lobbyScene.previousScene = app.mainMenuScene
             app.lobbyScene.setNetworkMode(false)
             app.showMenuScene(app.lobbyScene)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -95,6 +96,7 @@ class MainMenuScene(
     ).apply {
         onMouseClicked = {
             root.fileService.loadGame()
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -109,6 +111,7 @@ class MainMenuScene(
             app.hostOnlineLobbyScene.generateNewCode()
             app.hostOnlineLobbyScene.loadCredentials()
             app.showMenuScene(app.hostOnlineLobbyScene)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -122,6 +125,7 @@ class MainMenuScene(
         onMouseClicked = {
             app.joinOnlineLobbyScene.loadCredentials()
             app.showMenuScene(app.joinOnlineLobbyScene)
+            app.playSound(app.clickSfx)
         }
     }
 

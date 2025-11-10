@@ -48,10 +48,17 @@ class LobbyScene(
             posY = 100,
             width = width,
             height = height,
-            playerId = index
+            playerId = index,
+            app = app
         ).apply {
-            addButton.onMouseClicked = { addPlayer() }
-            removeButton.onMouseClicked = { removePlayer() }
+            addButton.onMouseClicked = {
+                addPlayer()
+                app.playSound(app.clickSfx)
+            }
+            removeButton.onMouseClicked = {
+                removePlayer()
+                app.playSound(app.clickSfx)
+            }
             typeSelection.onSelectionChanged = {
                 if (playerTypes.size > index)
                     playerTypes[index] = PlayerType.entries[it]
@@ -76,7 +83,8 @@ class LobbyScene(
             "lobbyScene/Button_BoardSize_5x5",
             "lobbyScene/Button_BoardSize_6x6"
         ),
-        initialSelectedIndex = 0
+        initialSelectedIndex = 0,
+        app
     ).apply {
         onSelectionChanged = { selectedIndex -> boardSize = selectedIndex + 4 }
     }
@@ -94,6 +102,7 @@ class LobbyScene(
         onMouseClicked = {
             app.hostOnlineLobbyScene.generateNewCode()
             app.showMenuScene(previousScene)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -110,6 +119,7 @@ class LobbyScene(
                 botDifficulties,
                 boardSize
             )
+            app.playSound(app.clickSfx)
         }
     }
 

@@ -42,6 +42,7 @@ class HostOnlineLobbyScene(
     ).apply {
         onMouseClicked = {
             app.showMenuScene(app.mainMenuScene)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -136,6 +137,7 @@ class HostOnlineLobbyScene(
             app.lobbyScene.previousScene = app.hostOnlineLobbyScene
             app.lobbyScene.setNetworkMode(true)
             app.showMenuScene(app.lobbyScene)
+            app.playSound(app.clickSfx)
         }
     }
 

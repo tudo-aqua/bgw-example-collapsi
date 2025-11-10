@@ -37,6 +37,7 @@ class WaitingForHostScene(
     ).apply {
         onMouseClicked = {
             app.showMenuScene(app.joinOnlineLobbyScene)
+            app.playSound(app.clickSfx)
         }
     }
 

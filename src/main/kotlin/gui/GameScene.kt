@@ -19,6 +19,7 @@ import tools.aqua.bgw.visual.*
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.collections.iterator
+import kotlin.concurrent.thread
 import kotlin.math.*
 
 /**
@@ -256,6 +257,7 @@ class GameScene(
         onMouseClicked = {
             app.mainMenuScene.updateButtons()
             app.showMenuScene(app.mainMenuScene)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -299,6 +301,8 @@ class GameScene(
 
             if (game != null) {
                 root.fileService.saveGame()
+
+                app.playSound(app.clickSfx)
             }
         }
     }
@@ -316,6 +320,7 @@ class GameScene(
 
             if (!blockMovementInput && game != null && game.undoStack.isNotEmpty()) {
                 root.playerActionService.undo()
+                app.playSound(app.clickSfx)
             }
         }
     }
@@ -333,6 +338,7 @@ class GameScene(
 
             if (!blockMovementInput && game != null && game.redoStack.isNotEmpty()) {
                 root.playerActionService.redo()
+                app.playSound(app.clickSfx)
             }
         }
     }
@@ -347,6 +353,7 @@ class GameScene(
     ).apply {
         onMouseClicked = {
             setSimulationSpeed(0)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -362,6 +369,7 @@ class GameScene(
         ).apply {
             onMouseClicked = {
                 setSimulationSpeed(index + 1)
+                app.playSound(app.clickSfx)
             }
         }
     }
@@ -422,6 +430,24 @@ class GameScene(
      * True if an animation is playing which should prevent a local player from making moves.
      */
     private var blockMovementInput = false
+
+    //endregion
+
+    //region Audio
+
+    private val cardFlipSfx = listOf(
+        "audio/gameScene/CardFlip1.ogg",
+        "audio/gameScene/CardFlip2.ogg",
+        "audio/gameScene/CardFlip3.ogg"
+    )
+
+    private val tokenPlaceSfx = listOf(
+        "audio/gameScene/TokenPlace1.ogg",
+        "audio/gameScene/TokenPlace2.ogg",
+        "audio/gameScene/TokenPlace3.ogg"
+    )
+
+    private val playerChangeSfx = "audio/gameScene/PlayerChange.ogg"
 
     //endregion
 
@@ -494,6 +520,8 @@ class GameScene(
                     }
                 )
             }
+
+            app.playSound(cardFlipSfx)
         }
 
         // Move step token to tile.
@@ -516,6 +544,8 @@ class GameScene(
                     blockMovementInput = false
                 }
             })
+
+        app.playSound(tokenPlaceSfx)
 
         // Wait and then end the turn.
         if (currentState.currentPlayer.remainingMoves <= 0) {
@@ -549,6 +579,8 @@ class GameScene(
             }
         )
 
+        app.playSound(playerChangeSfx)
+
         // Hide all step tokens.
         stepTokenViews.forEach { it.isVisible = false }
         stepTokenLayout.clear()
@@ -567,9 +599,12 @@ class GameScene(
         if (currentState.currentPlayer.type == PlayerType.BOT
             && root.playerActionService.hasValidMove()
         ) {
-            root.botService.calculateTurn()
+            // Calculate the next turn without blocking the main thread.
+            thread {
+                root.botService.calculateTurn()
 
-            performNextBotMove()
+                performNextBotMove()
+            }
         }
     }
 
@@ -637,11 +672,23 @@ class GameScene(
      * Called at the start of a new game or after loading a game.
      */
     private fun loadScene() {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val currentState = game.currentState
+
         initializeBoard()
         initializePlayers()
         initializeLeftInfoPane()
         initializeToolbar()
         initializePlayerRanking()
+
+        if (currentState.currentPlayer.type == PlayerType.BOT) {
+            // Calculate the first turn without blocking the main thread.
+            thread {
+                root.botService.calculateTurn()
+
+                performNextBotMove()
+            }
+        }
     }
 
     /**
@@ -784,10 +831,7 @@ class GameScene(
 
         // Pause if the first player is a bot.
         if (currentState.currentPlayer.type == PlayerType.BOT) {
-            root.botService.calculateTurn()
-
             setSimulationSpeed(0)
-            performBotMoveOnUnpause = true
         } else {
             setSimulationSpeed(1)
         }

@@ -43,6 +43,7 @@ class JoinOnlineLobbyScene(
     ).apply {
         onMouseClicked = {
             app.showMenuScene(app.mainMenuScene)
+            app.playSound(app.clickSfx)
         }
     }
 
@@ -135,6 +136,7 @@ class JoinOnlineLobbyScene(
         onMouseClicked = {
             saveCredentials()
             app.showMenuScene(app.waitingForHostScene)
+            app.playSound(app.clickSfx)
         }
     }
 

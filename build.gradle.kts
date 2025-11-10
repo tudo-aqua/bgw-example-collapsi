@@ -31,11 +31,21 @@ repositories {
 }
 
 dependencies {
+    // Library for testing.
     testImplementation(kotlin("test-junit5"))
+
+    // BGW dependencies.
     implementation(group = "tools.aqua", name = "bgw-gui", version = bgwVersion)
     implementation(group = "tools.aqua", name = "bgw-net-common", version = bgwVersion)
     implementation(group = "tools.aqua", name = "bgw-net-client", version = bgwVersion)
+
+    // Saving/Loading.
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+
+    // Playing .ogg files.
+    implementation("com.googlecode.soundlibs:vorbisspi:1.0.3.3")
+    implementation("com.googlecode.soundlibs:tritonus-share:0.3.7.4")
+    implementation("com.googlecode.soundlibs:jorbis:0.0.17.4")
 }
 
 /* This is how you can add the HowToPlay.pdf to the distribution zip file */

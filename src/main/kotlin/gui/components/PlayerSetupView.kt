@@ -1,5 +1,6 @@
 package gui.components
 
+import gui.CollapsiApplication
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.*
@@ -22,7 +23,8 @@ class PlayerSetupView(
     posY: Number,
     width: Number,
     height: Number,
-    val playerId: Int
+    val playerId: Int,
+    app: CollapsiApplication
 ) :
     Pane<StaticComponentView<*>>(
         posX = posX,
@@ -80,7 +82,8 @@ class PlayerSetupView(
             "lobbyScene/Button_PlayerTypes_Local",
             "lobbyScene/Button_PlayerTypes_Bot"
         ),
-        initialSelectedIndex = 0
+        initialSelectedIndex = 0,
+        app
     ).apply {
         isVisible = false
     }
@@ -110,7 +113,8 @@ class PlayerSetupView(
             "lobbyScene/Button_BotDifficulty_3",
             "lobbyScene/Button_BotDifficulty_4"
         ),
-        initialSelectedIndex = 3
+        initialSelectedIndex = 3,
+        app
     ).apply {
         buttons[0].isDisabled = true
         isVisible = false

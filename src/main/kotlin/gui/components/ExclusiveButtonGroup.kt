@@ -1,5 +1,6 @@
 package gui.components
 
+import gui.CollapsiApplication
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.visual.ImageVisual
@@ -27,7 +28,8 @@ class ExclusiveButtonGroup(
     buttonSize: Number,
     spacing: Number,
     val imagePaths: List<String>,
-    initialSelectedIndex: Int
+    initialSelectedIndex: Int,
+    app: CollapsiApplication
 ) :
     Pane<Label>(
         posX = posX,
@@ -50,7 +52,12 @@ class ExclusiveButtonGroup(
             visual = ImageVisual("${imagePaths[buttonIndex]}_Deselected.png")
         ).apply {
             // Only call selectButton if a new button was selected.
-            onMouseClicked = { if (selectedIndex != buttonIndex) selectButton(buttonIndex) }
+            onMouseClicked = {
+                if (selectedIndex != buttonIndex) {
+                    selectButton(buttonIndex)
+                    app.playSound(app.clickSfx)
+                }
+            }
         }
     }
 
