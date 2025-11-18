@@ -79,7 +79,7 @@ licensed under the Creative Commons 0 License
 as well as
 ["Puzzle Pieces Foley Mvmt Wood Slide Up Down 01.wav"](https://freesound.org/people/cmorris035/sounds/254343/)
 by cmorris035
-licensed under the Attribution 3.0 License.
+licensed under the Creative Commons 0 License.
 
 src/main/resources/audio/ui/Click1.ogg etc.
 ["Click (2).mp3"](https://freesound.org/people/7778/sounds/202313/)
