@@ -77,9 +77,8 @@ modified version of
 by SpaceJoe
 licensed under the Creative Commons 0 License
 as well as
-["Glass Place.wav"](https://freesound.org/people/kelsey_w/sounds/467056/)
-and ["Glass Place 2.wav](https://freesound.org/people/kelsey_w/sounds/467057/)
-by kelsey_w
+["Puzzle Pieces Foley Mvmt Wood Slide Up Down 01.wav"](https://freesound.org/people/cmorris035/sounds/254343/)
+by cmorris035
 licensed under the Attribution 3.0 License.
 
 src/main/resources/audio/ui/Click1.ogg etc.
