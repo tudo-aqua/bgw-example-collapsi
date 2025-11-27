@@ -135,8 +135,11 @@ class JoinOnlineLobbyScene(
     ).apply {
         onMouseClicked = {
             saveCredentials()
+
             app.showMenuScene(app.waitingForHostScene)
             app.playSound(app.clickSfx)
+
+            root.networkService.joinGame(serverInput.text, secretInput.text, lobbyCodeInput.text)
         }
     }
 

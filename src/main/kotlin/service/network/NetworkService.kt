@@ -4,10 +4,12 @@ import entity.CollapsiGame
 import entity.Coordinate
 import entity.GameState
 import entity.Player
+import entity.PlayerType
 import entity.Tile
 import service.*
 import service.network.messages.*
 import service.network.types.*
+import kotlin.random.Random
 
 class NetworkService(private val root: RootService) : AbstractRefreshingService() {
     var currentClient: NetworkClient? = null
@@ -48,8 +50,8 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         check(connectionState == ConnectionState.DISCONNECTED) { "Can't connect while already connected to a server." }
         check(currentClient == null) { "client must be null." }
 
-        // Todo: Name (is this even important?)
-        val newClient = NetworkClient("TODO", server, secret, this)
+        val clientName = "Client ${"05d".format(Random.nextInt(100000))}"
+        val newClient = NetworkClient(clientName, server, secret, this)
 
         val success = newClient.connect()
 
@@ -72,7 +74,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         setConnectionState(ConnectionState.DISCONNECTED)
     }
 
-    fun startNewHostedGame(playerTypes: List<entity.PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
+    fun startNewHostedGame(playerTypes: List<PlayerType>, botDifficulties: List<Int>, boardSize: Int) {
         val client = checkNotNull(currentClient) { "Client was null." }
 
         check(connectionState == ConnectionState.WAITING_FOR_GUESTS)
@@ -84,18 +86,20 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
 
         // Todo: Fill
         val tiles = listOf<TileType>()
-        val players = listOf<PlayerType>()
+        val players = listOf<PlayerColor>()
 
         val message = InitMessage(tiles, players)
         client.sendGameActionMessage(message)
 
-        // Todo: Depends.
-        setConnectionState(ConnectionState.PLAYING_MY_TURN)
+        if (currentState.currentPlayer.color == entity.PlayerColor.GREEN_SQUARE)
+            setConnectionState(ConnectionState.PLAYING_MY_TURN)
+        else
+            setConnectionState(ConnectionState.WAITING_FOR_OPPONENTS)
     }
 
-    // Todo: Params
     fun startNewJoinedGame(message: InitMessage) {
         val client = checkNotNull(currentClient) { "Client was null." }
+        val clientColor = checkNotNull(client.color) { "Client didn't have a color assigned." }
 
         check(connectionState == ConnectionState.WAITING_FOR_INIT)
         { "Tried to start a game while not in lobby." }
@@ -110,8 +114,10 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
 
         root.currentGame = game
 
-        // Todo: Depends.
-        setConnectionState(ConnectionState.PLAYING_MY_TURN)
+        if (gameState.currentPlayer.color == clientColor.toEntityPlayerColor())
+            setConnectionState(ConnectionState.PLAYING_MY_TURN)
+        else
+            setConnectionState(ConnectionState.WAITING_FOR_OPPONENTS)
 
         onAllRefreshables { refreshAfterStartNewGame() }
     }

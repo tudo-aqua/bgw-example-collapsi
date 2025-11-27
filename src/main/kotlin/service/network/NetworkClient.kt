@@ -3,6 +3,7 @@ package service.network
 import service.network.messages.EndTurnMessage
 import service.network.messages.InitMessage
 import service.network.messages.MoveMessage
+import service.network.types.PlayerColor
 import tools.aqua.bgw.net.client.BoardGameClient
 import tools.aqua.bgw.net.common.annotations.GameActionReceiver
 import tools.aqua.bgw.net.common.notification.PlayerJoinedNotification
@@ -15,13 +16,15 @@ import tools.aqua.bgw.net.common.response.JoinGameResponse
 import tools.aqua.bgw.net.common.response.JoinGameResponseStatus
 
 class NetworkClient(
-    playerName: String,
+    clientName: String,
     host: String,
     secret: String,
     var networkService: NetworkService
-) : BoardGameClient(playerName, host, secret) {
+) : BoardGameClient(clientName, host, secret) {
     /** The identifier of this game session. Can be null if no session was started yet. */
     var sessionId: String? = null
+
+    var color: PlayerColor? = null
 
     override fun onCreateGameResponse(response: CreateGameResponse) {
         check(networkService.connectionState == ConnectionState.WAITING_FOR_HOST_CONFIRMATION)
@@ -29,8 +32,9 @@ class NetworkClient(
 
         when (response.status) {
             CreateGameResponseStatus.SUCCESS -> {
-                networkService.setConnectionState(ConnectionState.WAITING_FOR_GUESTS)
+                color = PlayerColor.GREEN_SQUARE
                 sessionId = response.sessionID
+                networkService.setConnectionState(ConnectionState.WAITING_FOR_GUESTS)
             }
 
             else -> disconnectAndError(response.status)
@@ -43,7 +47,7 @@ class NetworkClient(
 
         when (response.status) {
             JoinGameResponseStatus.SUCCESS -> {
-                // Todo: Save opponent names? response.opponents[]
+                color = PlayerColor.entries[response.opponents.size]
                 sessionId = response.sessionID
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_INIT)
             }
@@ -69,8 +73,7 @@ class NetworkClient(
                 ConnectionState.PLAYING_MY_TURN,
                 ConnectionState.WAITING_FOR_OPPONENTS
             )
-        )
-        { "Received unexpected GameActionResponse." }
+        ) { "Received unexpected GameActionResponse." }
 
         when (response.status) {
             GameActionResponseStatus.SUCCESS -> {}

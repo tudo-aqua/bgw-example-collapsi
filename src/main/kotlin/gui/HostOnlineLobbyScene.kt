@@ -134,10 +134,13 @@ class HostOnlineLobbyScene(
     ).apply {
         onMouseClicked = {
             saveCredentials()
+            
             app.lobbyScene.previousScene = app.hostOnlineLobbyScene
             app.lobbyScene.setNetworkMode(true)
             app.showMenuScene(app.lobbyScene)
             app.playSound(app.clickSfx)
+
+            root.networkService.hostGame(serverInput.text, secretInput.text, lobbyCodeInput.text)
         }
     }
 

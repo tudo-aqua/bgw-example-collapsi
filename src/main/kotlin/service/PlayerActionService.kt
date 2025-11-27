@@ -51,6 +51,10 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         player.position = destination
         player.remainingMoves--
 
+        if (player.type == PlayerType.REMOTE) {
+            root.networkService.sendMoveMessage(previousTile.position, destination)
+        }
+
         // Update the refreshables if this move was performed on the current game (instead of in a bot simulation).
         if (game == root.currentGame)
             onAllRefreshables { refreshAfterMoveTo(previousTile.position, destination) }

@@ -7,7 +7,7 @@ import tools.aqua.bgw.net.common.annotations.GameActionClass
 @GameActionClass
 data class InitMessage(
     val board: List<TileType>,
-    val players: List<PlayerType>
+    val players: List<PlayerColor>
 ) : GameAction() {
     override fun formatMessage(): String {
         return "Initialize game with board ${board.joinToString()}, and players ${players.joinToString()}.)"

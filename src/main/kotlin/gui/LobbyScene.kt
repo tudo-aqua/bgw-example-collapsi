@@ -114,11 +114,20 @@ class LobbyScene(
         visual = ImageVisual("lobbyScene/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
-            root.gameService.startNewGame(
-                playerTypes,
-                botDifficulties,
-                boardSize
-            )
+            if (networkMode) {
+                root.networkService.startNewHostedGame(
+                    playerTypes,
+                    botDifficulties,
+                    boardSize
+                )
+            } else {
+                root.gameService.startNewGame(
+                    playerTypes,
+                    botDifficulties,
+                    boardSize
+                )
+            }
+
             app.playSound(app.clickSfx)
         }
     }
@@ -239,5 +248,9 @@ class LobbyScene(
         }
 
         updatePlayerSetupViews()
+    }
+
+    override fun refreshAfterPlayerJoined() {
+        addPlayer()
     }
 }
