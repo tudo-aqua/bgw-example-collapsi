@@ -1,15 +1,15 @@
 package service.network.messages
 
+import service.network.types.*
 import tools.aqua.bgw.net.common.GameAction
 import tools.aqua.bgw.net.common.annotations.GameActionClass
 
-
 @GameActionClass
-data class InitMessage (
-    val board : List<TileTypeMessage>,
-    val players : List<PlayerTypeMessage>
+data class InitMessage(
+    val board: List<TileType>,
+    val players: List<PlayerType>
 ) : GameAction() {
-    override fun formatMessage(): String? {
-        TODO("Not yet implemented")
+    override fun formatMessage(): String {
+        return "Initialize game with board ${board.joinToString()}, and players ${players.joinToString()}.)"
     }
 }

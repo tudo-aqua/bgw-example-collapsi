@@ -1,6 +1,6 @@
-package service.network.messages
+package service.network.types
 
-enum class TileTypeMessage {
+enum class TileType {
     START_GREEN,
     START_ORANGE,
     START_YELLOW,

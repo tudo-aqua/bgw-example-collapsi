@@ -2,6 +2,7 @@ package service
 
 import entity.CollapsiGame
 import service.bot.*
+import service.network.*
 
 /**
  * Main class of the service layer for the Collapsi game. Provides access
@@ -43,6 +44,13 @@ class RootService {
     val botService = BotService(this)
 
     /**
+     * A reference to the [NetworkService] attached to this [RootService].
+     *
+     * @see NetworkService
+     */
+    val networkService = NetworkService(this)
+
+    /**
      * The currently active game. Can be `null`, if no game has started yet or after a game has finished.
      */
     var currentGame: CollapsiGame? = null
@@ -60,6 +68,7 @@ class RootService {
         gameService.addRefreshable(newRefreshable)
         playerActionService.addRefreshable(newRefreshable)
         fileService.addRefreshable(newRefreshable)
+        networkService.addRefreshable(newRefreshable)
     }
 
     /**

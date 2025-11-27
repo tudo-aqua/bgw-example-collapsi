@@ -1,6 +1,6 @@
-package service.network.messages
+package service.network.types
 
-enum class PlayerTypeMessage {
+enum class PlayerType {
     GREEN_SQUARE,
     ORANGE_HEXAGON,
     YELLOW_CIRCLE,

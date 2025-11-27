@@ -1,6 +1,7 @@
 package service
 
 import entity.*
+import service.network.ConnectionState
 
 /**
  * This interface provides a mechanism for the service layer classes to communicate
@@ -62,4 +63,14 @@ interface Refreshable {
      * Performs refreshes that are necessary after a past game was loaded from a file.
      */
     fun refreshAfterLoad() {}
+
+    /**
+     * Performs refreshes that are necessary after the [ConnectionState] has changed.
+     */
+    fun refreshAfterConnectionStateChange(newState: ConnectionState) {}
+
+    /**
+     * Performs refreshes that are necessary after a new remote player joins the lobby in the pre-game.
+     */
+    fun refreshAfterPlayerJoined() {}
 }

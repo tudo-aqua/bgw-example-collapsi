@@ -1,13 +1,12 @@
 package service.network.messages
 
+import service.network.types.*
 import tools.aqua.bgw.net.common.GameAction
 import tools.aqua.bgw.net.common.annotations.GameActionClass
 
 @GameActionClass
 data class MoveMessage(
-    val direction : DirectionMessage
+    val direction: Direction
 ) : GameAction() {
-    override fun formatMessage(): String? {
-        TODO("Not yet implemented")
-    }
+    override fun formatMessage(): String = "Move pawn in direction $direction."
 }
