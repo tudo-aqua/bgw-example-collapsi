@@ -119,9 +119,9 @@ class MoveToTest {
         val game = checkNotNull(rootService.currentGame) { "No game is currently running." }
         val gameState = game.currentState
         val currentPlayer = gameState.currentPlayer
-
-        // Try to move the player to a position that is not adjacent.
-        val newPosition = Coordinate(currentPlayer.position.x + 2, currentPlayer.position.y, boardSize = 4)
+        
+        currentPlayer.position = Coordinate(0, 0, 4)
+        val newPosition = Coordinate(2, 0, 4)
 
         // Check that an exception is thrown.
         assertFailsWith<IllegalArgumentException> {

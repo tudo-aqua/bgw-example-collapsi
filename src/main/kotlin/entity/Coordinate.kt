@@ -15,6 +15,11 @@ data class Coordinate(
     val y: Int,
     val boardSize: Int
 ) {
+    init {
+        require(x in 0 until boardSize) { "X-coordinate must be in range [0, boardSize)." }
+        require(y in 0 until boardSize) { "Y-coordinate must be in range [0, boardSize)." }
+    }
+
     /*
     Note:
     Modulo (.mod) and Remainder (%) are different for negative values. When in doubt, use modulo.
