@@ -28,7 +28,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         setConnectionState(ConnectionState.CONNECTED)
 
         val client = checkNotNull(currentClient)
-        client.createGame("Azul", sessionId, "Hello :3")
+        client.createGame("Collapsi", sessionId, "Hello :3")
 
         setConnectionState(ConnectionState.WAITING_FOR_HOST_CONFIRMATION)
     }

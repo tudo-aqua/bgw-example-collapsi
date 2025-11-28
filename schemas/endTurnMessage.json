@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "@class": "service.network.messages.EndTurnMessage",
+  "title": "End Turn Message Schema",
+  "description": "Message signaling the end of the current player's turn.",
+  "required": [],
+  "additionalProperties": false,
+  "properties": {}
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "@class": "service.network.messages.MoveMessage",
+  "title": "Move Message Schema",
+  "required": [
+    "direction"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "direction": {
+      "type": "string",
+      "description": "Direction to move the pawn.",
+      "enum": [
+        "LEFT",
+        "RIGHT",
+        "UP",
+        "DOWN"
+      ]
+    }
+  }
+}

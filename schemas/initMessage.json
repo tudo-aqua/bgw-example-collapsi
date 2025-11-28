@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "object",
+  "@class": "service.network.messages.InitMessage",
+  "title": "Init Message Schema",
+  "required": [
+    "board",
+    "players"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "board": {
+      "type": "array",
+      "description": "List of tiles describing the game board in order. Rows then columns.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "START_GREEN",
+          "START_ORANGE",
+          "START_YELLOW",
+          "START_RED",
+          "ONE",
+          "TWO",
+          "THREE",
+          "FOUR"
+        ]
+      }
+    },
+    "players": {
+      "type": "array",
+      "description": "List of player colors participating in the game, sorted by turn order.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "GREEN_SQUARE",
+          "ORANGE_HEXAGON",
+          "YELLOW_CIRCLE",
+          "RED_TRIANGLE"
+        ]
+      }
+    }
+  }
+}
