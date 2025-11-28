@@ -5,6 +5,7 @@ import service.network.messages.InitMessage
 import service.network.messages.MoveMessage
 import service.network.types.PlayerColor
 import tools.aqua.bgw.net.client.BoardGameClient
+import tools.aqua.bgw.net.client.NetworkLogging
 import tools.aqua.bgw.net.common.annotations.GameActionReceiver
 import tools.aqua.bgw.net.common.notification.PlayerJoinedNotification
 import tools.aqua.bgw.net.common.notification.PlayerLeftNotification
@@ -20,11 +21,16 @@ class NetworkClient(
     host: String,
     secret: String,
     var networkService: NetworkService
-) : BoardGameClient(clientName, host, secret) {
+) : BoardGameClient(clientName, host, secret, NetworkLogging.VERBOSE) {
     /** The identifier of this game session. Can be null if no session was started yet. */
     var sessionId: String? = null
 
     var color: PlayerColor? = null
+
+    /**
+     * 0 if the player is not a bot. Otherwise, this represents the [entity.Player.botDifficulty].
+     */
+    var botDifficulty: Int? = null
 
     override fun onCreateGameResponse(response: CreateGameResponse) {
         check(networkService.connectionState == ConnectionState.WAITING_FOR_HOST_CONFIRMATION)
@@ -33,6 +39,7 @@ class NetworkClient(
         when (response.status) {
             CreateGameResponseStatus.SUCCESS -> {
                 color = PlayerColor.GREEN_SQUARE
+                botDifficulty = 1 // Todo: Assigned in lobby scene by host to self.
                 sessionId = response.sessionID
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_GUESTS)
             }
@@ -48,6 +55,7 @@ class NetworkClient(
         when (response.status) {
             JoinGameResponseStatus.SUCCESS -> {
                 color = PlayerColor.entries[response.opponents.size]
+                botDifficulty = 1 // Todo: Assigned in join scene by scene.
                 sessionId = response.sessionID
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_INIT)
             }

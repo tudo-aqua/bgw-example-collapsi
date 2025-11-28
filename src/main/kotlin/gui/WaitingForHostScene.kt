@@ -1,5 +1,7 @@
 package gui
 
+import gui.components.ExclusiveButtonGroup
+import service.RootService
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -14,11 +16,12 @@ import tools.aqua.bgw.visual.*
  * @param app The main [CollapsiApplication] containing all other scenes.
  */
 class WaitingForHostScene(
-    private val app: CollapsiApplication
+    private val app: CollapsiApplication,
+    private val root: RootService
 ) : MenuScene(1920, 1080) {
     val paneWidth = 900
 
-    val paneHeight = 400
+    val paneHeight = 380
 
     private val contentPane = Pane<StaticComponentView<*>>(
         posX = 1920 / 2 - paneWidth / 2,
@@ -51,6 +54,31 @@ class WaitingForHostScene(
         text = "Waiting for host to start the game..."
     )
 
+    val difficultySelection = ExclusiveButtonGroup(
+        posX = paneWidth / 2 - 220 / 2,
+        posY = paneHeight / 2 - 35 / 2 + 100,
+        width = 220,
+        height = 35,
+        buttonCount = 6,
+        buttonSize = 35,
+        spacing = 3,
+        imagePaths = listOf(
+            "lobbyScene/Button_BotDifficulty_Icon",
+            "lobbyScene/Button_BotDifficulty_0",
+            "lobbyScene/Button_BotDifficulty_1",
+            "lobbyScene/Button_BotDifficulty_2",
+            "lobbyScene/Button_BotDifficulty_3",
+            "lobbyScene/Button_BotDifficulty_4"
+        ),
+        initialSelectedIndex = 1,
+        app
+    ).apply {
+        buttons[0].isDisabled = true
+        onSelectionChanged = {
+            root.networkService.setBotDifficultyOfClient(it - 1)
+        }
+    }
+
     init {
         background = Visual.EMPTY
 
@@ -60,7 +88,8 @@ class WaitingForHostScene(
 
         contentPane.addAll(
             backButton,
-            waitingLabel
+            waitingLabel,
+            difficultySelection
         )
     }
 }

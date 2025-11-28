@@ -22,7 +22,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     val joinOnlineLobbyScene = JoinOnlineLobbyScene(this, root)
 
-    val waitingForHostScene = WaitingForHostScene(this)
+    val waitingForHostScene = WaitingForHostScene(this, root)
 
     val gameScene = GameScene(this, root)
 

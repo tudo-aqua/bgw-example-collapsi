@@ -66,7 +66,13 @@ class LobbyScene(
                 // Only show difficulty selection if the player type is bot.
                 difficultySelection.isVisible = it == 1
             }
-            difficultySelection.onSelectionChanged = { botDifficulties[index] = it }
+            difficultySelection.onSelectionChanged = {
+                botDifficulties[index] = it
+
+                if (index == 0 && networkMode) {
+                    root.networkService.setBotDifficultyOfClient(it)
+                }
+            }
         }
     }
 

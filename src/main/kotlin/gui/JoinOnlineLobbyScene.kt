@@ -26,6 +26,8 @@ class JoinOnlineLobbyScene(
 
     val paneHeight = 760
 
+    val inputWidth = 300
+
     private val contentPane = Pane<StaticComponentView<*>>(
         posX = 1920 / 2 - paneWidth / 2,
         posY = 1080 / 2 - paneHeight / 2,
@@ -65,7 +67,7 @@ class JoinOnlineLobbyScene(
     )
 
     private val lobbyCodeHeading = Label(
-        posX = paneWidth / 2 - 200 / 2,
+        posX = paneWidth / 2 - inputWidth / 2,
         posY = 140,
         width = 220,
         height = 100,
@@ -75,9 +77,9 @@ class JoinOnlineLobbyScene(
     )
 
     val lobbyCodeInput = TextField(
-        posX = paneWidth / 2 - 200 / 2,
+        posX = paneWidth / 2 - inputWidth / 2,
         posY = 210,
-        width = 200,
+        width = inputWidth,
         height = 100,
         visual = ColorVisual(Color(0x777777)),
         font = Constants.font_input,
@@ -87,7 +89,7 @@ class JoinOnlineLobbyScene(
     }
 
     private val serverHeading = Label(
-        posX = paneWidth / 2 - 200 / 2,
+        posX = paneWidth / 2 - inputWidth / 2,
         posY = 320,
         width = 220,
         height = 100,
@@ -97,9 +99,9 @@ class JoinOnlineLobbyScene(
     )
 
     val serverInput = TextField(
-        posX = paneWidth / 2 - 200 / 2,
+        posX = paneWidth / 2 - inputWidth / 2,
         posY = 390,
-        width = 200,
+        width = inputWidth,
         height = 100,
         visual = ColorVisual(Color(0x777777)),
         font = Constants.font_input,
@@ -107,7 +109,7 @@ class JoinOnlineLobbyScene(
     )
 
     private val secretHeading = Label(
-        posX = paneWidth / 2 - 200 / 2,
+        posX = paneWidth / 2 - inputWidth / 2,
         posY = 500,
         width = 220,
         height = 100,
@@ -117,9 +119,9 @@ class JoinOnlineLobbyScene(
     )
 
     val secretInput = TextField(
-        posX = paneWidth / 2 - 200 / 2,
+        posX = paneWidth / 2 - inputWidth / 2,
         posY = 570,
-        width = 200,
+        width = inputWidth,
         height = 100,
         visual = ColorVisual(Color(0x777777)),
         font = Constants.font_input,
