@@ -2,6 +2,7 @@ package gui
 
 import entity.*
 import service.*
+import service.network.ConnectionState
 import tools.aqua.bgw.animation.*
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene
@@ -255,9 +256,15 @@ class GameScene(
         visual = ImageVisual("gameScene/BackToMenuButton.png")
     ).apply {
         onMouseClicked = {
-            app.mainMenuScene.updateButtons()
-            app.showMenuScene(app.mainMenuScene)
             app.playSound(app.clickSfx)
+
+            if (root.networkService.connectionState != ConnectionState.DISCONNECTED) {
+                // Scene will change in refresh in Application.
+                root.networkService.disconnect()
+            } else {
+                app.mainMenuScene.updateButtons()
+                app.showMenuScene(app.mainMenuScene)
+            }
         }
     }
 
@@ -551,8 +558,8 @@ class GameScene(
 
         app.playSound(tokenPlaceSfx)
 
-        // Wait and then end the turn.
-        if (currentState.currentPlayer.remainingMoves <= 0) {
+        // Wait and then end the turn automatically if this is not an online player.
+        if (currentState.currentPlayer.remainingMoves <= 0 && currentState.currentPlayer.type != PlayerType.REMOTE) {
             playAnimation(DelayAnimation(endTurnDelay).apply {
                 onFinished = {
                     root.gameService.endTurn()
@@ -619,6 +626,15 @@ class GameScene(
         val alivePlayerCount = currentState.players.count { it.alive }
 
         showPlayerRank(player, alivePlayerCount + 1)
+
+        // Wait and then end the turn automatically if this is not an online player.
+        if (currentState.currentPlayer.type != PlayerType.REMOTE) {
+            playAnimation(DelayAnimation(endTurnDelay).apply {
+                onFinished = {
+                    root.gameService.endTurn()
+                }
+            })
+        }
     }
 
     override fun refreshAfterGameEnd(winner: Player) {

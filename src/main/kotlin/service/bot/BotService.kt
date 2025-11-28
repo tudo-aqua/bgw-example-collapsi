@@ -299,7 +299,13 @@ class BotService(private val root: RootService) {
             currentPath.forEach { root.playerActionService.moveTo(it, game) }
             root.gameService.endTurn(game)
 
-            val gameEnded = game.currentState.players.count { it.alive } == 1
+            var gameEnded = game.currentState.players.count { it.alive } <= 1
+
+            // Automatically end the turn for all dead players.
+            while (!game.currentState.currentPlayer.alive && !gameEnded) {
+                root.gameService.endTurn(game)
+                gameEnded = game.currentState.players.count { it.alive } <= 1
+            }
 
             // Evaluate the current position depending on depth.
             // If the maxDepth or maxTime was reached or the game ended, we stop here.

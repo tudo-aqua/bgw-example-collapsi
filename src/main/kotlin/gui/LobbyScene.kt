@@ -9,6 +9,8 @@ import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
 import gui.components.ExclusiveButtonGroup
 import gui.components.PlayerSetupView
+import service.network.ConnectionState
+import tools.aqua.bgw.components.uicomponents.Label
 
 /**
  * Scene for setting up the players and the game rules.
@@ -60,7 +62,7 @@ class LobbyScene(
                 app.playSound(app.clickSfx)
             }
             typeSelection.onSelectionChanged = {
-                if (playerTypes.size > index)
+                if (playerTypes.size > index && (!networkMode || index == 0))
                     playerTypes[index] = PlayerType.entries[it]
 
                 // Only show difficulty selection if the player type is bot.
@@ -98,7 +100,7 @@ class LobbyScene(
     /** Target scene for the [backButton]. */
     var previousScene: MenuScene = app.mainMenuScene
 
-    val backButton = Button(
+    private val backButton = Button(
         posX = 20,
         posY = 20,
         width = 80,
@@ -106,9 +108,15 @@ class LobbyScene(
         visual = ImageVisual("lobbyScene/Button_Back.png")
     ).apply {
         onMouseClicked = {
-            app.hostOnlineLobbyScene.generateNewCode()
-            app.showMenuScene(previousScene)
             app.playSound(app.clickSfx)
+
+            if (root.networkService.connectionState != ConnectionState.DISCONNECTED) {
+                // Scene will change in refresh in Application.
+                root.networkService.disconnect()
+            } else {
+                app.hostOnlineLobbyScene.generateNewCode()
+                app.showMenuScene(previousScene)
+            }
         }
     }
 
@@ -138,6 +146,18 @@ class LobbyScene(
         }
     }
 
+    val lobbyCode = Label(
+        posX = 550,
+        posY = 570,
+        width = 400,
+        height = 150,
+        text = "Lobby Code: ERROR",
+        alignment = Alignment.CENTER,
+        font = Constants.font_lobbyCode
+    ).apply {
+        isVisible = false
+    }
+
     /**
      * Currently selected player types.
      */
@@ -165,7 +185,8 @@ class LobbyScene(
         contentPane.addAll(
             boardSizeSelection,
             backButton,
-            startButton
+            startButton,
+            lobbyCode
         )
 
         addPlayer()
@@ -236,12 +257,14 @@ class LobbyScene(
      * @see networkMode
      */
     fun setNetworkMode(networkMode: Boolean) {
-        if (this.networkMode == networkMode)
+        if (!this.networkMode && !networkMode)
             return
 
         this.networkMode = networkMode
 
         val defaultPlayerCount = if (networkMode) 1 else 2
+
+        lobbyCode.isVisible = networkMode
 
         // Remove additional players.
         repeat(playerCount - defaultPlayerCount) {

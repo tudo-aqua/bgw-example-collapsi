@@ -39,7 +39,7 @@ class NetworkClient(
         when (response.status) {
             CreateGameResponseStatus.SUCCESS -> {
                 color = PlayerColor.GREEN_SQUARE
-                botDifficulty = 1 // Todo: Assigned in lobby scene by host to self.
+                botDifficulty = 3
                 sessionId = response.sessionID
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_GUESTS)
             }
@@ -55,7 +55,7 @@ class NetworkClient(
         when (response.status) {
             JoinGameResponseStatus.SUCCESS -> {
                 color = PlayerColor.entries[response.opponents.size]
-                botDifficulty = 1 // Todo: Assigned in join scene by scene.
+                botDifficulty = 0
                 sessionId = response.sessionID
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_INIT)
             }
@@ -65,8 +65,12 @@ class NetworkClient(
     }
 
     override fun onPlayerJoined(notification: PlayerJoinedNotification) {
-        check(networkService.connectionState == ConnectionState.WAITING_FOR_GUESTS)
-        { "Received unexpected PlayerJoinedNotification." }
+        check(
+            networkService.connectionState in setOf(
+                ConnectionState.WAITING_FOR_GUESTS,
+                ConnectionState.WAITING_FOR_INIT
+            )
+        ) { "Received unexpected PlayerJoinedNotification." }
 
         networkService.onPlayerJoined()
     }

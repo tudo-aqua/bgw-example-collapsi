@@ -51,9 +51,8 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
         player.position = destination
         player.remainingMoves--
 
-        if (player.type == PlayerType.REMOTE) {
+        if (game == root.currentGame && game.isOnlineGame() && player.type != PlayerType.REMOTE)
             root.networkService.sendMoveMessage(previousTile.position, destination)
-        }
 
         // Update the refreshables if this move was performed on the current game (instead of in a bot simulation).
         if (game == root.currentGame)
@@ -193,7 +192,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
     fun undo(game: CollapsiGame? = root.currentGame) {
         checkNotNull(game) { "No game is currently running." }
         check(game.undoStack.isNotEmpty()) { "Can't undo, because there are no past states." }
-        check(!game.isOnlineGame()) { "Can't undo in an online game." }
+        check(!game.isOnlineGame() || game != root.currentGame) { "Can't undo in an online game." }
 
         val doRefresh = game == root.currentGame
 
@@ -218,7 +217,7 @@ class PlayerActionService(private val root: RootService) : AbstractRefreshingSer
     fun redo(game: CollapsiGame? = root.currentGame) {
         checkNotNull(game) { "No game is currently running." }
         check(game.redoStack.isNotEmpty()) { "Can't redo, because there are no future states." }
-        check(!game.isOnlineGame()) { "Can't redo in an online game." }
+        check(!game.isOnlineGame() || game != root.currentGame) { "Can't redo in an online game." }
 
         val doRefresh = game == root.currentGame
 

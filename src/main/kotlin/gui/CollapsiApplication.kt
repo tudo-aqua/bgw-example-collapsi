@@ -1,6 +1,7 @@
 package gui
 
 import service.*
+import service.network.ConnectionState
 import tools.aqua.bgw.core.BoardGameApplication
 import tools.aqua.bgw.util.Font
 import java.io.BufferedInputStream
@@ -41,7 +42,9 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
             this,
             lobbyScene,
             gameScene,
-            consoleRefreshable
+            consoleRefreshable,
+            hostOnlineLobbyScene,
+            joinOnlineLobbyScene
         )
 
         showGameScene(gameScene)
@@ -54,6 +57,12 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
 
     override fun refreshAfterLoad() {
         hideMenuScene(500)
+    }
+
+    override fun refreshAfterConnectionStateChange(newState: ConnectionState) {
+        if (newState == ConnectionState.DISCONNECTED) {
+            showMenuScene(mainMenuScene)
+        }
     }
 
     /**

@@ -2,6 +2,7 @@ package gui
 
 import gui.components.ExclusiveButtonGroup
 import service.RootService
+import service.network.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -41,6 +42,9 @@ class WaitingForHostScene(
         onMouseClicked = {
             app.showMenuScene(app.joinOnlineLobbyScene)
             app.playSound(app.clickSfx)
+
+            if (root.networkService.connectionState != ConnectionState.DISCONNECTED)
+                root.networkService.disconnect()
         }
     }
 

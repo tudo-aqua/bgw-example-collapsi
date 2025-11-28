@@ -124,9 +124,8 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
         player.visitedTiles.clear()
         player.remainingMoves = currentTile.movesToMake
 
-        if (player.type == PlayerType.REMOTE) {
+        if (game == root.currentGame && game.isOnlineGame() && player.type != PlayerType.REMOTE)
             root.networkService.sendEndTurnMessage()
-        }
 
         // Declare a winner.
         if (gameState.players.count { it.alive } <= 1) {
@@ -152,8 +151,6 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
             // current game (instead of in a bot simulation).
             if (game == root.currentGame)
                 onAllRefreshables { refreshAfterPlayerDied(player) }
-
-            endTurn(game)
         }
     }
 

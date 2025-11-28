@@ -1,7 +1,9 @@
 package gui
 
 import service.FileService
+import service.Refreshable
 import service.RootService
+import service.network.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -21,7 +23,7 @@ import tools.aqua.bgw.visual.*
 class JoinOnlineLobbyScene(
     private val app: CollapsiApplication,
     private val root: RootService
-) : MenuScene(1920, 1080) {
+) : MenuScene(1920, 1080), Refreshable {
     val paneWidth = 600
 
     val paneHeight = 760
@@ -138,7 +140,6 @@ class JoinOnlineLobbyScene(
         onMouseClicked = {
             saveCredentials()
 
-            app.showMenuScene(app.waitingForHostScene)
             app.playSound(app.clickSfx)
 
             root.networkService.joinGame(serverInput.text, secretInput.text, lobbyCodeInput.text)
@@ -180,5 +181,11 @@ class JoinOnlineLobbyScene(
     fun loadCredentials() {
         secretInput.text = root.fileService.loadSecret()
         serverInput.text = root.fileService.loadServer()
+    }
+
+    override fun refreshAfterConnectionStateChange(newState: ConnectionState) {
+        if (newState == ConnectionState.WAITING_FOR_INIT) {
+            app.showMenuScene(app.waitingForHostScene)
+        }
     }
 }

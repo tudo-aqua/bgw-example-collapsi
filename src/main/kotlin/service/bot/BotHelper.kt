@@ -125,8 +125,10 @@ class BotHelper(private val root: RootService) {
         while (root.currentGame != null) {
             root.botService.calculateTurn()
 
-            repeat(gameState.currentPlayer.remainingMoves) {
-                root.botService.makeMove()
+            if (gameState.currentPlayer.alive) {
+                repeat(gameState.currentPlayer.remainingMoves) {
+                    root.botService.makeMove()
+                }
             }
 
             root.gameService.endTurn()

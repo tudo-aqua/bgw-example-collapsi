@@ -1,6 +1,7 @@
 package gui
 
 import service.*
+import service.network.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -20,7 +21,7 @@ import tools.aqua.bgw.visual.*
 class HostOnlineLobbyScene(
     private val app: CollapsiApplication,
     private val root: RootService
-) : MenuScene(1920, 1080) {
+) : MenuScene(1920, 1080), Refreshable {
     val paneWidth = 600
 
     val paneHeight = 760
@@ -84,7 +85,10 @@ class HostOnlineLobbyScene(
         font = Constants.font_input,
         prompt = "..."
     ).apply {
-        onTextChanged = { text = text.uppercase() }
+        onTextChanged = {
+            text = text.uppercase()
+            app.lobbyScene.lobbyCode.text = "Lobby Code: $text"
+        }
     }
 
     private val serverHeading = Label(
@@ -137,9 +141,6 @@ class HostOnlineLobbyScene(
         onMouseClicked = {
             saveCredentials()
 
-            app.lobbyScene.previousScene = app.hostOnlineLobbyScene
-            app.lobbyScene.setNetworkMode(true)
-            app.showMenuScene(app.lobbyScene)
             app.playSound(app.clickSfx)
 
             root.networkService.hostGame(serverInput.text, secretInput.text, lobbyCodeInput.text)
@@ -168,11 +169,11 @@ class HostOnlineLobbyScene(
     }
 
     /**
-     * Generates a new 4-character lobby code, avoiding ambiguous characters,
+     * Generates a new 4-character lobby code while avoiding ambiguous characters
      * and sets it to the lobbyCodeInput field in uppercase.
      */
     fun generateNewCode() {
-        val chars = ('0'..'9') + ('a'..'z').filter { it != 'i' && it != 'l' && it != '0' && it != 'o' }
+        val chars = (('0'..'9') + ('a'..'z')).filter { it != 'i' && it != 'l' && it != '0' && it != 'o' }
         val code = (1..4).map { chars.random() }.joinToString("")
         lobbyCodeInput.text = code.uppercase()
     }
@@ -191,5 +192,13 @@ class HostOnlineLobbyScene(
     fun loadCredentials() {
         secretInput.text = root.fileService.loadSecret()
         serverInput.text = root.fileService.loadServer()
+    }
+
+    override fun refreshAfterConnectionStateChange(newState: ConnectionState) {
+        if (newState == ConnectionState.WAITING_FOR_GUESTS) {
+            app.lobbyScene.previousScene = app.hostOnlineLobbyScene
+            app.lobbyScene.setNetworkMode(true)
+            app.showMenuScene(app.lobbyScene)
+        }
     }
 }

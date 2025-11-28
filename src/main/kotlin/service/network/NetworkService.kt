@@ -234,6 +234,8 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         val message = EndTurnMessage()
 
         client.sendGameActionMessage(message)
+
+        setConnectionState(ConnectionState.WAITING_FOR_OPPONENTS)
     }
 
     @Suppress("UNUSED_PARAMETER", "unused")
@@ -242,6 +244,15 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         { "Unexpected EndTurnMessage. Not opponents turn." }
 
         root.gameService.endTurn()
+
+        val client = checkNotNull(currentClient) { "Client was null." }
+        val clientColor = checkNotNull(client.color) { "Client didn't have an assigned player color." }
+        val game = root.currentGame ?: return // Don't throw, because currentGame may be null after game end.
+        val currentPlayer = game.currentState.currentPlayer
+
+        if (clientColor.toEntityPlayerColor() == currentPlayer.color) {
+            setConnectionState(ConnectionState.PLAYING_MY_TURN)
+        }
     }
 
     fun setConnectionState(newState: ConnectionState) {
