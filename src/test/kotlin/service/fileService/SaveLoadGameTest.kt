@@ -15,6 +15,8 @@ class SaveLoadGameTest {
 
     private var testRefreshable = TestRefreshable(root)
 
+    private val path = "saveFile_test.json"
+
     /**
      * Setup function to attach a [TestRefreshable] to a new [RootService] before each test and clear the saved game.
      */
@@ -25,8 +27,9 @@ class SaveLoadGameTest {
         root.addRefreshable(testRefreshable)
 
         // Delete saved game if it exists.
-        if (File(root.fileService.saveFilePath).exists())
-            root.fileService.deleteSavedGame()
+        val file = File(path)
+        if (file.exists())
+            file.delete()
     }
 
     /**
@@ -35,8 +38,9 @@ class SaveLoadGameTest {
     @AfterTest
     fun cleanup() {
         // Delete saved game if it exists.
-        if (File(root.fileService.saveFilePath).exists())
-            root.fileService.deleteSavedGame()
+        val file = File(path)
+        if (file.exists())
+            file.delete()
     }
 
     /**
@@ -78,6 +82,7 @@ class SaveLoadGameTest {
         }
 
         assertDoesNotThrow { root.fileService.deleteSavedGame() }
+        assertFalse { File(path).exists() }
     }
 
     /**

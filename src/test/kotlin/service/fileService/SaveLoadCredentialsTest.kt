@@ -9,7 +9,9 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
  * Tests the save/load/delete functionality for server/secret (credentials) of the [FileService].
@@ -18,6 +20,8 @@ class SaveLoadCredentialsTest {
     private var root = RootService()
 
     private var testRefreshable = TestRefreshable(root)
+    
+    private val path = "app_test.properties"
 
     /**
      * Setup function to attach a [TestRefreshable] to a new [RootService] before each test and clear
@@ -30,8 +34,9 @@ class SaveLoadCredentialsTest {
         root.addRefreshable(testRefreshable)
 
         // Delete property file if it exists.
-        if (File(root.fileService.propertiesFilePath).exists())
-            root.fileService.deleteCredentials()
+        val file = File(path)
+        if (file.exists())
+            file.delete()
     }
 
     /**
@@ -40,8 +45,9 @@ class SaveLoadCredentialsTest {
     @AfterTest
     fun cleanup() {
         // Delete property file if it exists.
-        if (File(root.fileService.propertiesFilePath).exists())
-            root.fileService.deleteCredentials()
+        val file = File(path)
+        if (file.exists())
+            file.delete()
     }
 
     /**
@@ -60,22 +66,23 @@ class SaveLoadCredentialsTest {
         val savedServer = "hello234"
         val savedSecret = "test123"
 
-        assertDoesNotThrow { root.fileService.saveCredentials(savedServer, savedSecret) }
+        assertDoesNotThrow { root.fileService.saveCredentials(savedServer, savedSecret, path) }
 
         // Test overriding an existing file.
-        assertDoesNotThrow { root.fileService.saveCredentials(savedServer, savedSecret) }
+        assertDoesNotThrow { root.fileService.saveCredentials(savedServer, savedSecret, path) }
 
         var loadedSecret: String? = null
-        assertDoesNotThrow { loadedSecret = root.fileService.loadSecret() }
+        assertDoesNotThrow { loadedSecret = root.fileService.loadSecret(path) }
         assertNotNull(loadedSecret)
         assertEquals(savedSecret, loadedSecret)
 
         var loadedServer: String? = null
-        assertDoesNotThrow { loadedServer = root.fileService.loadServer() }
+        assertDoesNotThrow { loadedServer = root.fileService.loadServer(path) }
         assertNotNull(loadedServer)
         assertEquals(savedServer, loadedServer)
 
-        assertDoesNotThrow { root.fileService.deleteCredentials() }
+        assertDoesNotThrow { root.fileService.deleteCredentials(path) }
+        assertFalse { File(path).exists() }
     }
 
     /**
@@ -84,7 +91,7 @@ class SaveLoadCredentialsTest {
     @Test
     fun testExceptions() {
         // No file found.
-        assertThrows(IllegalStateException::class.java) { root.fileService.deleteCredentials() }
+        assertThrows(IllegalStateException::class.java) { root.fileService.deleteCredentials(path) }
     }
 
     /**
@@ -92,7 +99,7 @@ class SaveLoadCredentialsTest {
      */
     @Test
     fun testLoadNoCredentials() {
-        assertEquals("", root.fileService.loadSecret())
-        assertEquals("", root.fileService.loadServer())
+        assertEquals("", root.fileService.loadSecret(path))
+        assertEquals("", root.fileService.loadServer(path))
     }
 }

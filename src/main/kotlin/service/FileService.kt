@@ -36,7 +36,7 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      *
      * @throws IllegalStateException if no game was running.
      */
-    fun saveGame() {
+    fun saveGame(path: String = saveFilePath) {
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         check(!game.isOnlineGame()) { "Can't save an online game." }
 
@@ -45,7 +45,7 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
             prettyPrint = true
         }
         val jsonString = json.encodeToString(game)
-        File(saveFilePath).writeText(jsonString)
+        File(path).writeText(jsonString)
     }
 
     /**
@@ -54,14 +54,14 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      * @throws IllegalStateException if a game was already running.
      * @throws IllegalStateException if no file at [saveFilePath] exists.
      */
-    fun loadGame() {
+    fun loadGame(path: String = saveFilePath) {
         check(root.currentGame == null) { "Tried to load save file while a game was running." }
-        check(saveFileExists()) { "Save File doesn't exist." }
+        check(saveFileExists(path)) { "Save File doesn't exist." }
 
         val json = Json {
             allowStructuredMapKeys = true
         }
-        val jsonString = File(saveFilePath).readText()
+        val jsonString = File(path).readText()
         root.currentGame = json.decodeFromString(jsonString)
 
         onAllRefreshables { refreshAfterLoad() }
@@ -72,17 +72,17 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      *
      * @return True if a saved game exists.
      */
-    fun saveFileExists(): Boolean = File(saveFilePath).exists()
+    fun saveFileExists(path: String = saveFilePath): Boolean = File(path).exists()
 
     /**
      * Deletes the [CollapsiGame] from the file at [saveFilePath].
      *
      * @throws IllegalStateException if no file at [saveFilePath] exists.
      */
-    fun deleteSavedGame() {
-        check(File(saveFilePath).exists()) { "Save File doesn't exist." }
+    fun deleteSavedGame(path: String = saveFilePath) {
+        check(saveFileExists(path)) { "Save File doesn't exist." }
 
-        File(saveFilePath).delete()
+        File(path).delete()
     }
 
     /**
@@ -91,12 +91,12 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      * @param server The used network server.
      * @param secret The network secret for the server.
      */
-    fun saveCredentials(server: String, secret: String) {
+    fun saveCredentials(server: String, secret: String, path: String = propertiesFilePath) {
         val properties = Properties()
         properties.setProperty("server", server)
         properties.setProperty("secret", secret)
 
-        FileOutputStream(propertiesFilePath).use { output ->
+        FileOutputStream(path).use { output ->
             properties.store(output, "Network Credentials")
         }
     }
@@ -106,12 +106,12 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      *
      * @return The network server for the SoPra server or empty if it is unknown.
      */
-    fun loadServer(): String {
-        if (!File(propertiesFilePath).exists())
+    fun loadServer(path: String = propertiesFilePath): String {
+        if (!File(path).exists())
             return ""
 
         val properties = Properties()
-        FileInputStream(propertiesFilePath).use { input ->
+        FileInputStream(path).use { input ->
             properties.load(input)
         }
 
@@ -123,12 +123,12 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      *
      * @return The network secret for the SoPra server or empty if it is unknown.
      */
-    fun loadSecret(): String {
-        if (!File(propertiesFilePath).exists())
+    fun loadSecret(path: String = propertiesFilePath): String {
+        if (!File(path).exists())
             return ""
 
         val properties = Properties()
-        FileInputStream(propertiesFilePath).use { input ->
+        FileInputStream(path).use { input ->
             properties.load(input)
         }
 
@@ -140,8 +140,8 @@ class FileService(private val root: RootService) : AbstractRefreshingService() {
      *
      * @throws IllegalStateException if no file at [propertiesFilePath] exists.
      */
-    fun deleteCredentials() {
-        val file = File(propertiesFilePath)
+    fun deleteCredentials(path: String = propertiesFilePath) {
+        val file = File(path)
         check(file.exists()) { "Credentials file doesn't exist." }
         file.delete()
     }
