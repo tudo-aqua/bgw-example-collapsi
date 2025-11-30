@@ -306,7 +306,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (game != null && !game.isOnlineGame()) {
+            if (game != null) {
                 root.fileService.saveGame()
 
                 app.playSound(app.clickSfx)
@@ -325,7 +325,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty() && !game.isOnlineGame()) {
+            if (!blockMovementInput && game != null && game.undoStack.isNotEmpty()) {
                 root.playerActionService.undo()
                 app.playSound(app.clickSfx)
             }
@@ -343,7 +343,7 @@ class GameScene(
         onMouseClicked = {
             val game = root.currentGame
 
-            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty() && !game.isOnlineGame()) {
+            if (!blockMovementInput && game != null && game.redoStack.isNotEmpty()) {
                 root.playerActionService.redo()
                 app.playSound(app.clickSfx)
             }
@@ -487,15 +487,6 @@ class GameScene(
 
         infoPane.addAll(activePlayerArrow, playerOrderLayout, stepTokenLayout)
         backToMenuButtonPane.add(backToMenuButton)
-
-        toolbarLayout.addAll(
-            saveButton,
-            undoButton,
-            redoButton,
-            pauseButton
-        )
-        toolbarLayout.addAll(speedButtons)
-        toolbarLayout.posX = boardGrid.posX - toolbarLayout.width / 2
     }
 
     //region Refreshes
@@ -840,14 +831,23 @@ class GameScene(
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentState = game.currentState
 
-        // Hide pause button if no bots are in the game. Show it otherwise.
-        if (currentState.players.any { it.type == PlayerType.BOT }) {
-            if (!toolbarLayout.contains(pauseButton))
-                toolbarLayout.add(pauseButton, 3)
-        } else {
-            if (toolbarLayout.contains(pauseButton))
-                toolbarLayout.remove(pauseButton)
+        toolbarLayout.clear()
+
+        // Save/Undo/Redo is disabled in online games.
+        if (!game.isOnlineGame()) {
+            toolbarLayout.add(saveButton)
+            toolbarLayout.add(undoButton)
+            toolbarLayout.add(redoButton)
         }
+
+        // Pausing means stopping bots and is therefore unnecessary for games without bots.
+        if (currentState.players.any { it.type == PlayerType.BOT }) {
+            toolbarLayout.add(pauseButton)
+        }
+
+        toolbarLayout.addAll(speedButtons)
+
+        toolbarLayout.posX = boardGrid.posX - toolbarLayout.width / 2
 
         // Pause if the first player is a bot.
         if (currentState.currentPlayer.type == PlayerType.BOT) {
