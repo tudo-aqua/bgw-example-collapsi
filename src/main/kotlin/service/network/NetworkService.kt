@@ -14,7 +14,8 @@ import kotlin.math.sqrt
 import kotlin.random.Random
 
 class NetworkService(private val root: RootService) : AbstractRefreshingService() {
-    private var currentClient: NetworkClient? = null
+    var currentClient: NetworkClient? = null
+        private set
 
     var connectionState = ConnectionState.DISCONNECTED
         private set

@@ -2,13 +2,13 @@ package gui
 
 import entity.*
 import service.*
+import gui.types.*
+import gui.components.*
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
-import gui.components.ExclusiveButtonGroup
-import gui.components.PlayerSetupView
 import service.network.ConnectionState
 import tools.aqua.bgw.components.uicomponents.Label
 
@@ -28,9 +28,6 @@ class LobbyScene(
     private val paneWidth = 1100
 
     private val paneHeight = 760
-
-    /** Whether this is a hosted game with online players or a fully local game. */
-    private var networkMode = false
 
     private val contentPane = Pane<StaticComponentView<*>>(
         posX = 1920 / 2 - paneWidth / 2,
@@ -62,18 +59,10 @@ class LobbyScene(
                 app.playSound(app.clickSfx)
             }
             typeSelection.onSelectionChanged = {
-                if (playerTypes.size > index && (!networkMode || index == 0))
-                    playerTypes[index] = PlayerType.entries[it]
-
-                // Only show difficulty selection if the player type is bot.
-                difficultySelection.isVisible = it == 1
+                changeTypeOfPlayer(index, it)
             }
             difficultySelection.onSelectionChanged = {
-                botDifficulties[index] = it
-
-                if (index == 0 && networkMode) {
-                    root.networkService.setBotDifficultyOfClient(it)
-                }
+                changeDifficultyOfPlayer(index, it)
             }
         }
     }
@@ -97,9 +86,6 @@ class LobbyScene(
         onSelectionChanged = { selectedIndex -> boardSize = selectedIndex + 4 }
     }
 
-    /** Target scene for the [backButton]. */
-    var previousScene: MenuScene = app.mainMenuScene
-
     private val backButton = Button(
         posX = 20,
         posY = 20,
@@ -115,7 +101,7 @@ class LobbyScene(
                 root.networkService.disconnect()
             } else {
                 app.hostOnlineLobbyScene.generateNewCode()
-                app.showMenuScene(previousScene)
+                app.showMenuScene(app.mainMenuScene)
             }
         }
     }
@@ -128,13 +114,15 @@ class LobbyScene(
         visual = ImageVisual("lobbyScene/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
-            if (networkMode) {
+            if (lobbyMode == LobbyMode.HOST) {
                 root.networkService.startNewHostedGame(
                     playerTypes,
                     botDifficulties,
                     boardSize
                 )
             } else {
+                check(lobbyMode == LobbyMode.LOCAL) { "Illegal value for lobbyMode." }
+
                 root.gameService.startNewGame(
                     playerTypes,
                     botDifficulties,
@@ -158,6 +146,18 @@ class LobbyScene(
         isVisible = false
     }
 
+    val waitingLabel = Label(
+        posX = paneWidth / 2 - 700 / 2,
+        posY = paneHeight - 200,
+        width = 700,
+        height = 100,
+        visual = ColorVisual(Color(0x555555)),
+        font = Constants.font_input,
+        text = "Waiting for the host to start the game..."
+    ).apply {
+        isVisible = false
+    }
+
     /**
      * Currently selected player types.
      */
@@ -166,6 +166,15 @@ class LobbyScene(
     val botDifficulties = mutableListOf<Int>()
 
     val playerCount get() = playerTypes.size
+
+    /** Whether this is a hosted game with online players or a fully local game. */
+    private var lobbyMode = LobbyMode.LOCAL
+
+    private val networkMode
+        get() = lobbyMode != LobbyMode.LOCAL
+
+    /** If [lobbyMode] is [LobbyMode.HOST] or [LobbyMode.GUEST], this is the index of the local player for this app. */
+    private var localPlayerIndex: Int? = null
 
     /**
      * Currently selected size of the board.
@@ -186,7 +195,8 @@ class LobbyScene(
             boardSizeSelection,
             backButton,
             startButton,
-            lobbyCode
+            lobbyCode,
+            waitingLabel
         )
 
         addPlayer()
@@ -205,7 +215,12 @@ class LobbyScene(
 
         val index = playerTypes.size
 
-        val playerType = if (networkMode) PlayerType.REMOTE else PlayerType.LOCAL
+        val playerType = if (!networkMode || localPlayerIndex == index) {
+            PlayerType.LOCAL
+        } else {
+            PlayerType.REMOTE
+        }
+
         playerTypes.add(playerType)
         botDifficulties.add(3)
 
@@ -220,8 +235,6 @@ class LobbyScene(
      * @throws IllegalStateException if there was only 1 player (1 player is the minimum).
      */
     fun removePlayer() {
-        check(playerCount > 1) { "Tried to remove the first player." }
-
         playerTypes.removeLast()
         botDifficulties.removeLast()
 
@@ -232,11 +245,11 @@ class LobbyScene(
      * Updates the [PlayerSetupView]s to account for player count and network mode.
      */
     private fun updatePlayerSetupViews() {
-        check(playerCount in 1..4) { "Requires 1 to 4 players." }
+        check(playerCount <= 4) { "Passed 4 player limit." }
         check(playerTypes.size == botDifficulties.size) { "playerTypes and botDifficulties needs to match in size." }
 
         for (i in 0..<4) {
-            playerSetupViews[i].remotePlayer = i >= 1 && networkMode
+            playerSetupViews[i].remotePlayer = playerTypes.getOrElse(i) { PlayerType.LOCAL } == PlayerType.REMOTE
             playerSetupViews[i].setIsIncluded(i < playerCount)
         }
 
@@ -256,27 +269,54 @@ class LobbyScene(
      *
      * @see networkMode
      */
-    fun setNetworkMode(networkMode: Boolean) {
-        if (!this.networkMode && !networkMode)
+    fun setNetworkMode(lobbyMode: LobbyMode, desiredPlayerCount: Int, localPlayerIndex: Int?) {
+        // Don't reset players if we go from local to local.
+        if (this.lobbyMode == LobbyMode.LOCAL && lobbyMode == LobbyMode.LOCAL)
             return
 
-        this.networkMode = networkMode
+        require((localPlayerIndex == null) == (lobbyMode == LobbyMode.LOCAL))
+        { "localPlayerIndex should be null only for local games." }
 
-        val defaultPlayerCount = if (networkMode) 1 else 2
-
-        lobbyCode.isVisible = networkMode
+        this.lobbyMode = lobbyMode
+        this.localPlayerIndex = localPlayerIndex
 
         // Remove additional players.
-        repeat(playerCount - defaultPlayerCount) {
+        repeat(playerCount) {
             removePlayer()
         }
 
         // Add minimum players.
-        repeat(defaultPlayerCount - playerCount) {
+        repeat(desiredPlayerCount) {
             addPlayer()
         }
 
-        updatePlayerSetupViews()
+        startButton.isVisible = lobbyMode != LobbyMode.GUEST
+        boardSizeSelection.isVisible = lobbyMode != LobbyMode.GUEST
+        lobbyCode.isVisible = lobbyMode == LobbyMode.HOST
+        waitingLabel.isVisible = lobbyMode == LobbyMode.GUEST
+    }
+
+    private fun changeTypeOfPlayer(playerIndex: Int, typeIndex: Int) {
+        if (playerTypes.size <= playerIndex || (networkMode && playerIndex != localPlayerIndex))
+            return
+
+        playerTypes[playerIndex] = PlayerType.entries[typeIndex]
+
+        // Only show difficulty selection if the player type is bot.
+        playerSetupViews[playerIndex].difficultySelection.isVisible = typeIndex == 1
+
+        if (networkMode && playerIndex == localPlayerIndex) {
+            val difficulty = if (playerTypes[playerIndex] == PlayerType.LOCAL) 0 else botDifficulties[playerIndex]
+            root.networkService.setBotDifficultyOfClient(difficulty)
+        }
+    }
+
+    private fun changeDifficultyOfPlayer(playerIndex: Int, difficultyIndex: Int) {
+        botDifficulties[playerIndex] = difficultyIndex
+
+        if (networkMode && playerIndex == localPlayerIndex && playerTypes[playerIndex] == PlayerType.BOT) {
+            root.networkService.setBotDifficultyOfClient(difficultyIndex)
+        }
     }
 
     override fun refreshAfterPlayerJoined() {

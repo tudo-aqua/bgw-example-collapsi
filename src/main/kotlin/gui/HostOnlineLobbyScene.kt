@@ -1,5 +1,6 @@
 package gui
 
+import gui.types.LobbyMode
 import service.*
 import service.network.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
@@ -196,8 +197,7 @@ class HostOnlineLobbyScene(
 
     override fun refreshAfterConnectionStateChange(newState: ConnectionState) {
         if (newState == ConnectionState.WAITING_FOR_GUESTS) {
-            app.lobbyScene.previousScene = app.hostOnlineLobbyScene
-            app.lobbyScene.setNetworkMode(true)
+            app.lobbyScene.setNetworkMode(LobbyMode.HOST, 1, 0)
             app.showMenuScene(app.lobbyScene)
         }
     }

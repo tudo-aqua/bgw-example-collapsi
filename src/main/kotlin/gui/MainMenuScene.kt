@@ -1,5 +1,6 @@
 package gui
 
+import gui.types.LobbyMode
 import service.RootService
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
@@ -80,8 +81,7 @@ class MainMenuScene(
         visual = ImageVisual("menuScenes/Button_MainMenu_New.png")
     ).apply {
         onMouseClicked = {
-            app.lobbyScene.previousScene = app.mainMenuScene
-            app.lobbyScene.setNetworkMode(false)
+            app.lobbyScene.setNetworkMode(LobbyMode.LOCAL, 2, null)
             app.showMenuScene(app.lobbyScene)
             app.playSound(app.clickSfx)
         }

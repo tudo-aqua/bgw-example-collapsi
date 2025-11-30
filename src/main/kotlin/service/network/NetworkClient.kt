@@ -24,8 +24,10 @@ class NetworkClient(
 ) : BoardGameClient(clientName, host, secret, NetworkLogging.VERBOSE) {
     /** The identifier of this game session. Can be null if no session was started yet. */
     var sessionId: String? = null
+        private set
 
     var color: PlayerColor? = null
+        private set
 
     /**
      * 0 if the player is not a bot. Otherwise, this represents the [entity.Player.botDifficulty].

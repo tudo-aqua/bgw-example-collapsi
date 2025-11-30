@@ -1,5 +1,6 @@
 package gui
 
+import gui.types.LobbyMode
 import service.FileService
 import service.Refreshable
 import service.RootService
@@ -185,7 +186,12 @@ class JoinOnlineLobbyScene(
 
     override fun refreshAfterConnectionStateChange(newState: ConnectionState) {
         if (newState == ConnectionState.WAITING_FOR_INIT) {
-            app.showMenuScene(app.waitingForHostScene)
+            val client = checkNotNull(root.networkService.currentClient) { "No client found." }
+            val color = checkNotNull(client.color) { "Client didn't have color assigned." }
+            val playerId = color.ordinal
+
+            app.lobbyScene.setNetworkMode(LobbyMode.GUEST, playerId + 1, playerId)
+            app.showMenuScene(app.lobbyScene)
         }
     }
 }

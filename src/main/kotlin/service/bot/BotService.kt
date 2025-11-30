@@ -76,7 +76,7 @@ class BotService(private val root: RootService) {
         // Tip: If the bot should not have access to certain information (such as the draw stack in other games),
         // then you could remove that data here.
         val game = CollapsiGame(oldGame.currentState.clone())
-        val currentPlayer = oldGame.currentState.currentPlayer
+        val currentPlayer = game.currentState.currentPlayer
 
         check(currentPlayer.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
         check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
@@ -92,7 +92,8 @@ class BotService(private val root: RootService) {
             else -> throw IllegalStateException("Unsupported bot difficulty: ${currentPlayer.botDifficulty}")
         }
 
-        check(path.size == currentPlayer.remainingMoves) { "The calculated path wasn't of the correct size." }
+        check(path.size == oldGame.currentState.currentPlayer.remainingMoves)
+        { "The calculated path wasn't of the correct size." }
 
         intendedMoves.addAll(path)
     }
