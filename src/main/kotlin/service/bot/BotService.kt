@@ -79,6 +79,7 @@ class BotService(private val root: RootService) {
         val currentPlayer = game.currentState.currentPlayer
 
         check(currentPlayer.type == PlayerType.BOT) { "Tried to make a bot move for a non-bot player." }
+        check(currentPlayer.alive) { "The current player was not alive." }
         check(root.playerActionService.hasValidMove()) { "Bot did not have any valid moves." }
         check(currentPlayer.visitedTiles.isEmpty()) { "Tried to calculate a turn for a player that already moved." }
         check(currentPlayer.botDifficulty in 1..4) { "Bot difficulty needs to be between 1 and 4 (inclusive)." }

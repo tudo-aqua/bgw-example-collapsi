@@ -125,13 +125,16 @@ class BotHelper(private val root: RootService) {
         while (root.currentGame != null) {
             root.botService.calculateTurn()
 
-            if (gameState.currentPlayer.alive) {
-                repeat(gameState.currentPlayer.remainingMoves) {
-                    root.botService.makeMove()
-                }
+            repeat(gameState.currentPlayer.remainingMoves) {
+                root.botService.makeMove()
             }
 
             root.gameService.endTurn()
+
+            // Automatically end the turn for all dead players.
+            while (!gameState.currentPlayer.alive && root.currentGame != null) {
+                root.gameService.endTurn(game)
+            }
         }
     }
 }

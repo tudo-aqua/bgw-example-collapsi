@@ -29,12 +29,12 @@ class PlayerTest {
         assertTrue(player.visitedTiles.isEmpty())
         assertTrue(player.alive)
 
-        player.position = Coordinate(4, 2, 4)
+        player.position = Coordinate(3, 2, 4)
         player.remainingMoves++
         player.visitedTiles.add(Coordinate(3, 2, 4))
         player.alive = false
 
-        assertEquals(Coordinate(4, 2, 4), player.position)
+        assertEquals(Coordinate(3, 2, 4), player.position)
         assertEquals(2, player.remainingMoves)
         assertEquals(1, player.visitedTiles.size)
         assertFalse(player.alive)
