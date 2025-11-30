@@ -3,6 +3,8 @@ package gui
 import service.*
 import service.network.ConnectionState
 import tools.aqua.bgw.core.BoardGameApplication
+import tools.aqua.bgw.dialog.Dialog
+import tools.aqua.bgw.dialog.DialogType
 import tools.aqua.bgw.util.Font
 import java.io.BufferedInputStream
 import javax.sound.sampled.AudioFormat
@@ -110,6 +112,11 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
                 clip.start()
             }
         }.start()
+    }
+
+    override fun showDialogue(header: String, message: String, dialogType: DialogType) {
+        val dialog = Dialog(dialogType, "Collapsi", header, message)
+        showDialogNonBlocking(dialog)
     }
 }
 

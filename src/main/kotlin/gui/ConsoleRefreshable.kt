@@ -2,6 +2,8 @@ package gui
 
 import entity.*
 import service.*
+import service.network.ConnectionState
+import tools.aqua.bgw.dialog.DialogType
 
 /**
  * Refreshable that listens to all refreshes and logs them to the console.
@@ -87,6 +89,26 @@ class ConsoleRefreshable(private val root: RootService) : Refreshable {
             "- Loaded game with ${gameState.players.size} players " +
                     "on a ${gameState.boardSize}x${gameState.boardSize} board."
         )
+        println()
+    }
+
+    override fun refreshAfterConnectionStateChange(newState: ConnectionState) {
+        println("[Refresh] Connection State Changed:")
+        println("- New state: ${newState.name}")
+        println()
+    }
+
+    override fun refreshAfterPlayerJoined() {
+        println("[Refresh] Player Joined:")
+        println("- An online player has joined the game.")
+        println()
+    }
+
+    override fun showDialogue(header: String, message: String, dialogType: DialogType) {
+        println("[Dialog] Show Dialog:")
+        println("- Header: $header")
+        println("- Message: $message")
+        println("- Type: ${dialogType.name}")
         println()
     }
 }

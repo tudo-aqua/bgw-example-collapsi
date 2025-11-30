@@ -11,6 +11,7 @@ import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
 import service.network.ConnectionState
 import tools.aqua.bgw.components.uicomponents.Label
+import tools.aqua.bgw.dialog.DialogType
 
 /**
  * Scene for setting up the players and the game rules.
@@ -114,21 +115,7 @@ class LobbyScene(
         visual = ImageVisual("lobbyScene/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
-            if (lobbyMode == LobbyMode.HOST) {
-                root.networkService.startNewHostedGame(
-                    playerTypes,
-                    botDifficulties,
-                    boardSize
-                )
-            } else {
-                check(lobbyMode == LobbyMode.LOCAL) { "Illegal value for lobbyMode." }
-
-                root.gameService.startNewGame(
-                    playerTypes,
-                    botDifficulties,
-                    boardSize
-                )
-            }
+            tryStartGame()
 
             app.playSound(app.clickSfx)
         }
@@ -316,6 +303,39 @@ class LobbyScene(
 
         if (networkMode && playerIndex == localPlayerIndex && playerTypes[playerIndex] == PlayerType.BOT) {
             root.networkService.setBotDifficultyOfClient(difficultyIndex)
+        }
+    }
+
+    private fun tryStartGame() {
+        if (playerCount < 2) {
+            app.showDialogue("Too few players", "Collapsi requires at least 2 players.", DialogType.ERROR)
+            return
+        }
+
+        if (boardSize < playerCount + 2) {
+            app.showDialogue(
+                "Board too small",
+                "Player amount of $playerCount requires a board of size ${playerCount + 2}x${playerCount + 2} " +
+                        "or bigger. Please select a bigger board size.",
+                DialogType.ERROR
+            )
+            return
+        }
+
+        if (lobbyMode == LobbyMode.HOST) {
+            root.networkService.startNewHostedGame(
+                playerTypes,
+                botDifficulties,
+                boardSize
+            )
+        } else {
+            check(lobbyMode == LobbyMode.LOCAL) { "Illegal value for lobbyMode." }
+
+            root.gameService.startNewGame(
+                playerTypes,
+                botDifficulties,
+                boardSize
+            )
         }
     }
 

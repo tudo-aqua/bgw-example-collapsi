@@ -13,6 +13,7 @@ import tools.aqua.bgw.components.uicomponents.TextField
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.Color
 import tools.aqua.bgw.core.MenuScene
+import tools.aqua.bgw.dialog.DialogType
 import tools.aqua.bgw.visual.*
 
 /**
@@ -139,11 +140,15 @@ class JoinOnlineLobbyScene(
         visual = ImageVisual("lobbyScene/Button_Confirm.png")
     ).apply {
         onMouseClicked = {
-            saveCredentials()
+            if (lobbyCodeInput.text.trim().isEmpty()) {
+                app.showDialogue("Invalid Lobby Code", "Please enter a lobby code.", DialogType.ERROR)
+            } else {
+                saveCredentials()
 
-            app.playSound(app.clickSfx)
+                app.playSound(app.clickSfx)
 
-            root.networkService.joinGame(serverInput.text, secretInput.text, lobbyCodeInput.text)
+                root.networkService.joinGame(serverInput.text, secretInput.text, lobbyCodeInput.text)
+            }
         }
     }
 

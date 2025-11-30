@@ -156,5 +156,6 @@ class PlayerSetupView(
         remoteType.isVisible = isIncluded && remotePlayer
         addButton.isVisible = !isIncluded && playerId >= 2
         removeButton.isVisible = isIncluded && playerId >= 2
+        difficultySelection.isVisible = isIncluded && typeSelection.selectedIndex == 1
     }
 }

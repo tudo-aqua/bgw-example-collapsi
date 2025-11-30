@@ -64,7 +64,8 @@ class ExclusiveButtonGroup(
     /**
      * The index of the button that is currently selected.
      */
-    private var selectedIndex = initialSelectedIndex
+    var selectedIndex = initialSelectedIndex
+        private set
 
     /**
      * A custom function that is called whenever the selection changes.

@@ -9,6 +9,7 @@ import entity.Tile
 import service.*
 import service.network.messages.*
 import service.network.types.*
+import tools.aqua.bgw.dialog.DialogType
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 import kotlin.random.Random
@@ -271,5 +272,9 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         check(root.currentGame == null) { "The game has already started." }
 
         client.botDifficulty = difficulty
+    }
+
+    fun showDialogue(header: String, message: String, dialogType: DialogType) {
+        onAllRefreshables { showDialogue(header, message, dialogType) }
     }
 }

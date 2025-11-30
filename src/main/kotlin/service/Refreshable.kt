@@ -2,6 +2,7 @@ package service
 
 import entity.*
 import service.network.ConnectionState
+import tools.aqua.bgw.dialog.DialogType
 
 /**
  * This interface provides a mechanism for the service layer classes to communicate
@@ -73,4 +74,6 @@ interface Refreshable {
      * Performs refreshes that are necessary after a new remote player joins the lobby in the pre-game.
      */
     fun refreshAfterPlayerJoined() {}
+
+    fun showDialogue(header: String, message: String, dialogType: DialogType) {}
 }

@@ -4,6 +4,7 @@ import service.network.messages.EndTurnMessage
 import service.network.messages.InitMessage
 import service.network.messages.MoveMessage
 import service.network.types.PlayerColor
+import tools.aqua.bgw.dialog.DialogType
 import tools.aqua.bgw.net.client.BoardGameClient
 import tools.aqua.bgw.net.client.NetworkLogging
 import tools.aqua.bgw.net.common.annotations.GameActionReceiver
@@ -21,7 +22,7 @@ class NetworkClient(
     host: String,
     secret: String,
     var networkService: NetworkService
-) : BoardGameClient(clientName, host, secret, NetworkLogging.VERBOSE) {
+) : BoardGameClient(clientName, host, secret, NetworkLogging.INFO) {
     /** The identifier of this game session. Can be null if no session was started yet. */
     var sessionId: String? = null
         private set
@@ -46,6 +47,15 @@ class NetworkClient(
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_GUESTS)
             }
 
+            CreateGameResponseStatus.SESSION_WITH_ID_ALREADY_EXISTS -> {
+                networkService.disconnect()
+                networkService.showDialogue(
+                    "Invalid Lobby Code",
+                    "A lobby with the given code already exists.",
+                    DialogType.ERROR
+                )
+            }
+
             else -> disconnectAndError(response.status)
         }
     }
@@ -60,6 +70,15 @@ class NetworkClient(
                 botDifficulty = 0
                 sessionId = response.sessionID
                 networkService.setConnectionState(ConnectionState.WAITING_FOR_INIT)
+            }
+
+            JoinGameResponseStatus.INVALID_SESSION_ID -> {
+                networkService.disconnect()
+                networkService.showDialogue(
+                    "Invalid Lobby Code",
+                    "No lobby with the given was found.",
+                    DialogType.ERROR
+                )
             }
 
             else -> disconnectAndError(response.status)
@@ -78,7 +97,12 @@ class NetworkClient(
     }
 
     override fun onPlayerLeft(notification: PlayerLeftNotification) {
-        disconnectAndError(notification.message)
+        networkService.disconnect()
+        networkService.showDialogue(
+            "You were disconnected.",
+            "You have been disconnected from the server, because a player has left the game.",
+            DialogType.WARNING
+        )
     }
 
     override fun onGameActionResponse(response: GameActionResponse) {
@@ -115,6 +139,6 @@ class NetworkClient(
 
     private fun disconnectAndError(message: Any) {
         networkService.disconnect()
-        error(message)
+        networkService.showDialogue("Network Error", message.toString(), DialogType.EXCEPTION)
     }
 }
