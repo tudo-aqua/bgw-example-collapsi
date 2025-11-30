@@ -75,7 +75,6 @@ class PlayerSetupView(
         posY = 200,
         width = this.width,
         height = 80,
-        buttonCount = 2,
         buttonSize = 80,
         spacing = 10,
         imagePaths = listOf(
@@ -103,7 +102,6 @@ class PlayerSetupView(
         posY = 300,
         width = this.width,
         height = 35,
-        buttonCount = 5,
         buttonSize = 35,
         spacing = 3,
         imagePaths = listOf(

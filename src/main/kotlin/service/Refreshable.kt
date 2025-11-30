@@ -75,5 +75,8 @@ interface Refreshable {
      */
     fun refreshAfterPlayerJoined() {}
 
+    /**
+     * Shows a dialog window in the gui.
+     */
     fun showDialogue(header: String, message: String, dialogType: DialogType) {}
 }

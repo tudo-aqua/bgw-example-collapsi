@@ -128,7 +128,7 @@ class GameService(private val root: RootService) : AbstractRefreshingService() {
             root.networkService.sendEndTurnMessage()
 
         // Declare a winner.
-        if (gameState.players.count { it.alive } <= 1) {
+        if (gameState.gameEnded) {
             root.gameService.endGame(game)
 
             return

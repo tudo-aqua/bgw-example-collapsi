@@ -109,6 +109,23 @@ class BotHelper(private val root: RootService) {
     }
 
     /**
+     * Move along the given path and end the turn until the next alive player.
+     *
+     * @param game The cloned [CollapsiGame] that the bot simulation runs on.
+     * @param path The [Path] to move along.
+     */
+    fun applyPath(game: CollapsiGame, path: Path) {
+        // Move along the path.
+        path.forEach { root.playerActionService.moveTo(it, game) }
+        root.gameService.endTurn(game)
+
+        // Automatically end the turn for all dead players.
+        while (!game.currentState.currentPlayer.alive && !game.currentState.gameEnded) {
+            root.gameService.endTurn(game)
+        }
+    }
+
+    /**
      * Calls [BotService.calculateTurn] and [BotService.makeMove] until the current game is over.
      * A game must have been started beforehand.
      *

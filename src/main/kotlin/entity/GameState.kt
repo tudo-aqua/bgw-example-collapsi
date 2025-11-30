@@ -21,6 +21,9 @@ data class GameState(
     /** The [Player] whose turn it currently is. */
     val currentPlayer get() = players[currentPlayerIndex]
 
+    /** Whether the game has ended by only having one player alive. */
+    val gameEnded get() = players.count { it.alive } <= 1
+
     /*
     Coding Tip:
     The field above is known as a property without a backing field, so it doesn't save any data.
@@ -58,7 +61,7 @@ data class GameState(
      * Sets the [currentPlayerIndex] to the next living player.
      */
     fun nextPlayer() {
-        check(players.count { it.alive } >= 1) { "nextPlayer() requires at least 1 player to be alive." }
+        check(!gameEnded) { "nextPlayer() requires at least 1 player to be alive." }
 
         do {
             currentPlayerIndex = (currentPlayerIndex + 1) % players.size

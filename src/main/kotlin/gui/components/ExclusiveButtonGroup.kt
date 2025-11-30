@@ -24,7 +24,6 @@ class ExclusiveButtonGroup(
     posY: Number,
     width: Number,
     height: Number,
-    buttonCount: Int,
     buttonSize: Number,
     spacing: Number,
     val imagePaths: List<String>,
@@ -37,6 +36,8 @@ class ExclusiveButtonGroup(
         width = width,
         height = height,
     ) {
+
+    val buttonCount get() = imagePaths.size
 
     /**
      * The buttons that are in this group.

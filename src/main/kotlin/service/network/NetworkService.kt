@@ -10,11 +10,12 @@ import service.*
 import service.network.messages.*
 import service.network.types.*
 import tools.aqua.bgw.dialog.DialogType
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
 import kotlin.random.Random
 
+@Suppress("TooManyFunctions")
 class NetworkService(private val root: RootService) : AbstractRefreshingService() {
+    private val networkHelper = NetworkHelper()
+
     var currentClient: NetworkClient? = null
         private set
 
@@ -85,51 +86,11 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
 
         root.gameService.startNewGame(playerTypes, botDifficulties, boardSize)
         val game = checkNotNull(root.currentGame)
-        val currentState = game.currentState
 
-        val tileTypes = mutableListOf<TileType>()
-        for (y in 0..<boardSize) {
-            for (x in 0..<boardSize) {
-                val entityTile = currentState.getTileAt(Coordinate(x, y, boardSize))
-
-                val startTileColor = entityTile.startTileColor
-                val tileType = if (startTileColor != null) {
-                    when (startTileColor) {
-                        entity.PlayerColor.GREEN_SQUARE -> TileType.START_GREEN
-                        entity.PlayerColor.ORANGE_HEXAGON -> TileType.START_ORANGE
-                        entity.PlayerColor.YELLOW_CIRCLE -> TileType.START_YELLOW
-                        entity.PlayerColor.RED_TRIANGLE -> TileType.START_RED
-                    }
-                } else {
-                    when (entityTile.movesToMake) {
-                        1 -> TileType.ONE
-                        2 -> TileType.TWO
-                        3 -> TileType.THREE
-                        4 -> TileType.FOUR
-                        else -> throw IllegalStateException("Found tile with illegal step count.")
-                    }
-                }
-
-                tileTypes.add(tileType)
-            }
-        }
-
-        val playerColors = mutableListOf<PlayerColor>()
-        for (player in currentState.players) {
-            val playerColor = when (player.color) {
-                entity.PlayerColor.GREEN_SQUARE -> PlayerColor.GREEN_SQUARE
-                entity.PlayerColor.ORANGE_HEXAGON -> PlayerColor.ORANGE_HEXAGON
-                entity.PlayerColor.YELLOW_CIRCLE -> PlayerColor.YELLOW_CIRCLE
-                entity.PlayerColor.RED_TRIANGLE -> PlayerColor.RED_TRIANGLE
-            }
-
-            playerColors.add(playerColor)
-        }
-
-        val message = InitMessage(tileTypes, playerColors)
+        val message = networkHelper.convertGameToInitMessage(game)
         client.sendGameActionMessage(message)
 
-        if (currentState.currentPlayer.color == entity.PlayerColor.GREEN_SQUARE)
+        if (game.currentState.currentPlayer.color == entity.PlayerColor.GREEN_SQUARE)
             setConnectionState(ConnectionState.PLAYING_MY_TURN)
         else
             setConnectionState(ConnectionState.WAITING_FOR_OPPONENTS)
@@ -138,54 +99,16 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
     fun startNewJoinedGame(message: InitMessage) {
         val client = checkNotNull(currentClient) { "Client was null." }
         val clientColor = checkNotNull(client.color) { "Client didn't have a color assigned." }
+        val clientBotDifficulty = checkNotNull(client.botDifficulty) { "Client didn't have a difficulty assigned." }
 
         check(connectionState == ConnectionState.WAITING_FOR_INIT)
         { "Tried to start a game while not in lobby." }
 
-        val boardSize = sqrt(message.board.size.toDouble()).roundToInt()
-
-        val positions = message.board.indices.map {
-            Coordinate(it % boardSize, it / boardSize, boardSize)
-        }.toMutableList()
-
-        val board = mutableMapOf<Coordinate, Tile>()
-        val playerPositions = mutableMapOf<entity.PlayerColor, Coordinate>()
-        for (tileType in message.board) {
-            val position = positions.removeFirst()
-            val startTileColor = tileType.getPlayerColor()
-            val tile = Tile(position, tileType.getStepCount(), startTileColor)
-            board[position] = tile
-
-            if (startTileColor != null) {
-                playerPositions[startTileColor] = position
-            }
-        }
-
-        val players = mutableListOf<Player>()
-        for (playerColor in message.players) {
-            val isClient = playerColor == client.color
-
-            val entityPlayerColor = playerColor.toEntityPlayerColor()
-            val position = playerPositions.getValue(entityPlayerColor)
-            val botDifficulty = checkNotNull(client.botDifficulty) { "Client didn't have a botDifficulty assigned." }
-            val playerType = if (!isClient) {
-                PlayerType.REMOTE
-            } else if (botDifficulty == 0) {
-                PlayerType.LOCAL
-            } else {
-                PlayerType.BOT
-            }
-
-            val player = Player(entityPlayerColor, position, playerType, botDifficulty)
-            players.add(player)
-        }
-
-        val gameState = GameState(players, board, boardSize)
-        val game = CollapsiGame(gameState)
+        val game = networkHelper.convertInitMessageToGame(message, clientColor, clientBotDifficulty)
 
         root.currentGame = game
 
-        if (gameState.currentPlayer.color == clientColor.toEntityPlayerColor())
+        if (game.currentState.currentPlayer.color == clientColor.toEntityPlayerColor())
             setConnectionState(ConnectionState.PLAYING_MY_TURN)
         else
             setConnectionState(ConnectionState.WAITING_FOR_OPPONENTS)

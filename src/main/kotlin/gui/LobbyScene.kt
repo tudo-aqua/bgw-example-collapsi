@@ -73,7 +73,6 @@ class LobbyScene(
         posY = 570,
         width = 490,
         height = 100,
-        buttonCount = 3,
         buttonSize = 150,
         spacing = 5,
         imagePaths = listOf(

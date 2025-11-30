@@ -298,21 +298,12 @@ class BotService(private val root: RootService) {
 
         for (currentPath in possiblePaths) {
             // Try out the path.
-            currentPath.forEach { root.playerActionService.moveTo(it, game) }
-            root.gameService.endTurn(game)
-
-            var gameEnded = game.currentState.players.count { it.alive } <= 1
-
-            // Automatically end the turn for all dead players.
-            while (!game.currentState.currentPlayer.alive && !gameEnded) {
-                root.gameService.endTurn(game)
-                gameEnded = game.currentState.players.count { it.alive } <= 1
-            }
+            helper.applyPath(game, currentPath)
 
             // Evaluate the current position depending on depth.
             // If the maxDepth or maxTime was reached or the game ended, we stop here.
             val currentEval: Evaluation
-            if (maxDepth > 1 && !gameEnded) {
+            if (maxDepth > 1 && !game.currentState.gameEnded) {
                 val minimaxResult = minimax(maxDepth - 1, maxTime, game)
                 if (minimaxResult.aborted)
                     return minimaxResult
@@ -374,14 +365,12 @@ class BotService(private val root: RootService) {
     private fun evaluate(game: CollapsiGame): Evaluation {
         val gameState = game.currentState
 
-        val gameEnded = gameState.players.count { it.alive } == 1
-
         val eval: Evaluation = List(gameState.players.size) { playerIndex ->
             val player = gameState.players[playerIndex]
 
             if (!player.alive) // Player died. Gain a penalty.
                 BotConstants.EVAL_LOSS
-            else if (gameEnded) // Player won. Earn a reward.
+            else if (gameState.gameEnded) // Player won. Earn a reward.
                 BotConstants.EVAL_WIN
             else // Game still going. Associate more movement options with a better evaluation.
                 helper.getPossibleUniquePathsForPlayer(player.color, game).size.toDouble()
