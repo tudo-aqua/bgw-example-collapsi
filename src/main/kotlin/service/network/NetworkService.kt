@@ -1,14 +1,11 @@
 package service.network
 
-import entity.CollapsiGame
 import entity.Coordinate
-import entity.GameState
-import entity.Player
 import entity.PlayerType
-import entity.Tile
 import service.*
 import service.network.messages.*
-import service.network.types.*
+import service.network.messages.types.*
+import service.network.types.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 import kotlin.random.Random
 
@@ -54,7 +51,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         check(connectionState == ConnectionState.DISCONNECTED) { "Can't connect while already connected to a server." }
         check(currentClient == null) { "client must be null." }
 
-        val clientName = "Client ${Random.nextInt(100000).toString().padStart(5, '0')}"
+        val clientName = "Collapsi Client ${Random.nextInt(100000).toString().padStart(5, '0')}"
         val newClient = NetworkClient(clientName, server, secret, this)
 
         val success = newClient.connect()
@@ -197,7 +194,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         client.botDifficulty = difficulty
     }
 
-    fun showDialogue(header: String, message: String, dialogType: DialogType) {
-        onAllRefreshables { showDialogue(header, message, dialogType) }
+    fun showDialog(header: String, message: String, dialogType: DialogType) {
+        onAllRefreshables { this.showDialog(header, message, dialogType) }
     }
 }

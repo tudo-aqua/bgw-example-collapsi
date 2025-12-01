@@ -1,11 +1,14 @@
-package service.bot
+package service.bot.types
+
+import service.bot.Evaluation
+import service.bot.Path
 
 /**
- * The result of one recursive call of the [BotService.minimax] function.
+ * The result of one recursive call of the [service.bot.BotService.minimax] function.
  *
- * @param bestPath The best [Path] that the current player could take right now.
- * @param evaluation The [Evaluation] of the [bestPath].
- * @param estimatedEvaluation Whether the minimax had to use the [BotService.evaluate] method to guess the evaluation
+ * @param bestPath The best [service.bot.Path] that the current player could take right now.
+ * @param evaluation The [service.bot.Evaluation] of the [bestPath].
+ * @param estimatedEvaluation Whether the minimax had to use the [service.bot.BotService.evaluate] method to guess the evaluation
  * of a state instead of doing a full search.
  *
  * If this is false, the [bestPath] is guaranteed

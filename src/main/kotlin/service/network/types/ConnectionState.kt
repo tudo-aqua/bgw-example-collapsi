@@ -1,4 +1,4 @@
-package service.network
+package service.network.types
 
 enum class ConnectionState {
     DISCONNECTED,

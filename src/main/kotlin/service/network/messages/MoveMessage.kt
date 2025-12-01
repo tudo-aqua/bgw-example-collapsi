@@ -1,6 +1,6 @@
 package service.network.messages
 
-import service.network.types.*
+import service.network.messages.types.Direction
 import tools.aqua.bgw.net.common.GameAction
 import tools.aqua.bgw.net.common.annotations.GameActionClass
 

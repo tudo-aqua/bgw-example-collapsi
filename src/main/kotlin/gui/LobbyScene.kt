@@ -9,7 +9,7 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
-import service.network.ConnectionState
+import service.network.types.ConnectionState
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.dialog.DialogType
 
@@ -307,12 +307,12 @@ class LobbyScene(
 
     private fun tryStartGame() {
         if (playerCount < 2) {
-            app.showDialogue("Too few players", "Collapsi requires at least 2 players.", DialogType.ERROR)
+            app.showDialog("Too few players", "Collapsi requires at least 2 players.", DialogType.ERROR)
             return
         }
 
         if (boardSize < playerCount + 2) {
-            app.showDialogue(
+            app.showDialog(
                 "Board too small",
                 "Player amount of $playerCount requires a board of size ${playerCount + 2}x${playerCount + 2} " +
                         "or bigger. Please select a bigger board size.",

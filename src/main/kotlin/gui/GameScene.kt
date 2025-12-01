@@ -2,7 +2,7 @@ package gui
 
 import entity.*
 import service.*
-import service.network.ConnectionState
+import service.network.types.ConnectionState
 import tools.aqua.bgw.animation.*
 import tools.aqua.bgw.core.Alignment
 import tools.aqua.bgw.core.BoardGameScene

@@ -7,7 +7,7 @@ import entity.Player
 import entity.PlayerType
 import entity.Tile
 import service.network.messages.*
-import service.network.types.*
+import service.network.messages.types.*
 import kotlin.math.*
 
 class NetworkHelper {
@@ -39,7 +39,7 @@ class NetworkHelper {
         return InitMessage(tileTypes, playerColors)
     }
 
-    fun getTileType(tile: Tile): TileType {
+    private fun getTileType(tile: Tile): TileType {
         val startTileColor = tile.startTileColor
         return if (startTileColor != null) {
             when (startTileColor) {

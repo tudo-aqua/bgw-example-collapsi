@@ -4,7 +4,7 @@ import gui.types.LobbyMode
 import service.FileService
 import service.Refreshable
 import service.RootService
-import service.network.ConnectionState
+import service.network.types.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
@@ -141,7 +141,7 @@ class JoinOnlineLobbyScene(
     ).apply {
         onMouseClicked = {
             if (lobbyCodeInput.text.trim().isEmpty()) {
-                app.showDialogue("Invalid Lobby Code", "Please enter a lobby code.", DialogType.ERROR)
+                app.showDialog("Invalid Lobby Code", "Please enter a lobby code.", DialogType.ERROR)
             } else {
                 saveCredentials()
 

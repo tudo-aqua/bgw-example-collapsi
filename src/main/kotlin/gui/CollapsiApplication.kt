@@ -1,7 +1,7 @@
 package gui
 
 import service.*
-import service.network.ConnectionState
+import service.network.types.ConnectionState
 import tools.aqua.bgw.core.BoardGameApplication
 import tools.aqua.bgw.dialog.Dialog
 import tools.aqua.bgw.dialog.DialogType
@@ -114,7 +114,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
         }.start()
     }
 
-    override fun showDialogue(header: String, message: String, dialogType: DialogType) {
+    override fun showDialog(header: String, message: String, dialogType: DialogType) {
         val dialog = Dialog(dialogType, "Collapsi", header, message)
         showDialogNonBlocking(dialog)
     }

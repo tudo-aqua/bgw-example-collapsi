@@ -2,7 +2,7 @@ package gui
 
 import entity.*
 import service.*
-import service.network.ConnectionState
+import service.network.types.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 
 /**
@@ -105,7 +105,7 @@ class ConsoleRefreshable(private val root: RootService) : Refreshable {
         println()
     }
 
-    override fun showDialogue(header: String, message: String, dialogType: DialogType) {
+    override fun showDialog(header: String, message: String, dialogType: DialogType) {
         println("[Dialog] Show Dialog:")
         println("- Header: $header")
         println("- Message: $message")

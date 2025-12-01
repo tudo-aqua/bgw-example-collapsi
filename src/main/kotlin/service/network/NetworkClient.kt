@@ -1,21 +1,14 @@
 package service.network
 
-import service.network.messages.EndTurnMessage
-import service.network.messages.InitMessage
-import service.network.messages.MoveMessage
-import service.network.types.PlayerColor
+import service.network.messages.*
+import service.network.messages.types.*
+import service.network.types.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 import tools.aqua.bgw.net.client.BoardGameClient
 import tools.aqua.bgw.net.client.NetworkLogging
 import tools.aqua.bgw.net.common.annotations.GameActionReceiver
-import tools.aqua.bgw.net.common.notification.PlayerJoinedNotification
-import tools.aqua.bgw.net.common.notification.PlayerLeftNotification
-import tools.aqua.bgw.net.common.response.CreateGameResponse
-import tools.aqua.bgw.net.common.response.CreateGameResponseStatus
-import tools.aqua.bgw.net.common.response.GameActionResponse
-import tools.aqua.bgw.net.common.response.GameActionResponseStatus
-import tools.aqua.bgw.net.common.response.JoinGameResponse
-import tools.aqua.bgw.net.common.response.JoinGameResponseStatus
+import tools.aqua.bgw.net.common.notification.*
+import tools.aqua.bgw.net.common.response.*
 
 class NetworkClient(
     clientName: String,
@@ -49,7 +42,7 @@ class NetworkClient(
 
             CreateGameResponseStatus.SESSION_WITH_ID_ALREADY_EXISTS -> {
                 networkService.disconnect()
-                networkService.showDialogue(
+                networkService.showDialog(
                     "Invalid Lobby Code",
                     "A lobby with the given code already exists.",
                     DialogType.ERROR
@@ -74,7 +67,7 @@ class NetworkClient(
 
             JoinGameResponseStatus.INVALID_SESSION_ID -> {
                 networkService.disconnect()
-                networkService.showDialogue(
+                networkService.showDialog(
                     "Invalid Lobby Code",
                     "No lobby with the given was found.",
                     DialogType.ERROR
@@ -98,7 +91,7 @@ class NetworkClient(
 
     override fun onPlayerLeft(notification: PlayerLeftNotification) {
         networkService.disconnect()
-        networkService.showDialogue(
+        networkService.showDialog(
             "You were disconnected.",
             "You have been disconnected from the server, because a player has left the game.",
             DialogType.WARNING
@@ -139,6 +132,6 @@ class NetworkClient(
 
     private fun disconnectAndError(message: Any) {
         networkService.disconnect()
-        networkService.showDialogue("Network Error", message.toString(), DialogType.EXCEPTION)
+        networkService.showDialog("Network Error", message.toString(), DialogType.EXCEPTION)
     }
 }

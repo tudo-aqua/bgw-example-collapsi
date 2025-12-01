@@ -1,4 +1,4 @@
-package service.network.types
+package service.network.messages.types
 
 enum class Direction {
     LEFT,

@@ -1,7 +1,7 @@
 package service
 
 import entity.*
-import service.network.ConnectionState
+import service.network.types.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 
 /**
@@ -78,5 +78,5 @@ interface Refreshable {
     /**
      * Shows a dialog window in the gui.
      */
-    fun showDialogue(header: String, message: String, dialogType: DialogType) {}
+    fun showDialog(header: String, message: String, dialogType: DialogType) {}
 }
