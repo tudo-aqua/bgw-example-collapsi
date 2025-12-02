@@ -2,7 +2,7 @@ package service.bot
 
 import entity.*
 import service.*
-import service.bot.types.MinimaxResult
+import service.bot.types.*
 import java.util.Date
 import kotlin.random.Random
 

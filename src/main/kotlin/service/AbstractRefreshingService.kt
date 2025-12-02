@@ -43,6 +43,6 @@ abstract class AbstractRefreshingService {
      *
      * @see addRefreshable
      */
-    fun onAllRefreshables(method: Refreshable.() -> Unit) =
+    protected fun onAllRefreshables(method: Refreshable.() -> Unit) =
         refreshables.forEach { it.method() }
 }

@@ -12,12 +12,12 @@ import tools.aqua.bgw.visual.ImageVisual
  * @param posY The y position of the component.
  * @param width The width of the component.
  * @param height The height of the component.
- * @param buttonCount The number of buttons that are in this group.
  * @param buttonSize The width/height of the buttons. Buttons are always square.
  * @param spacing The spacing between the individual buttons.
- * @param imagePaths The images used for the buttons. Size must match [buttonCount].
+ * @param imagePaths The images used for the buttons.
  * Path must lead to two images. Once when adding "_Selected.png" and one when adding "_Deselected.png".
  * @param initialSelectedIndex The index of the initially selected button.
+ * @param app A reference to the primary [CollapsiApplication].
  */
 class ExclusiveButtonGroup(
     posX: Number,
@@ -37,6 +37,9 @@ class ExclusiveButtonGroup(
         height = height,
     ) {
 
+    /**
+     * Amount of buttons that are shown.
+     */
     val buttonCount get() = imagePaths.size
 
     /**

@@ -17,6 +17,7 @@ import tools.aqua.bgw.visual.Visual
  * @param width The width of the component.
  * @param height The height of the component.
  * @param playerId The index of the player this view is for. 0-3.
+ * @param app A reference to the primary [CollapsiApplication].
  */
 class PlayerSetupView(
     posX: Number,

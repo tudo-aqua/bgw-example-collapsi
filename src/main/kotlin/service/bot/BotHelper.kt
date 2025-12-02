@@ -1,7 +1,7 @@
 package service.bot
 
 import entity.*
-import service.RootService
+import service.*
 
 /**
  * Helper class for the [BotService].
@@ -100,7 +100,7 @@ class BotHelper(private val root: RootService) {
      *
      * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      *
-     * @return A list of valid [Coordinate]s for [service.PlayerActionService.moveTo].
+     * @return A list of valid [Coordinate]s for [PlayerActionService.moveTo].
      */
     private fun getPossibleMoves(game: CollapsiGame): List<Coordinate> {
         val player = game.currentState.currentPlayer

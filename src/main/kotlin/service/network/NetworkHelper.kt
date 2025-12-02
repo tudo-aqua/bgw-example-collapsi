@@ -10,10 +10,23 @@ import service.network.messages.*
 import service.network.messages.types.*
 import kotlin.math.*
 
+/**
+ * Helper class for the [NetworkService].
+ *
+ * This class contains non-network methods that are only relevant for the network implementation.
+ */
 class NetworkHelper {
+    /**
+     * Creates an [InitMessage] using a given [CollapsiGame]. Assumes that the game was just started.
+     *
+     * @param game The input [CollapsiGame].
+     *
+     * @return An [InitMessage] based on [game].
+     */
     fun convertGameToInitMessage(game: CollapsiGame): InitMessage {
         val currentState = game.currentState
 
+        // Create [InitMessage.board].
         val tileTypes = mutableListOf<TileType>()
         for (y in 0..<currentState.boardSize) {
             for (x in 0..<currentState.boardSize) {
@@ -24,6 +37,7 @@ class NetworkHelper {
             }
         }
 
+        // Create [InitMessage.players].
         val playerColors = mutableListOf<PlayerColor>()
         for (player in currentState.players) {
             val playerColor = when (player.color) {
@@ -39,6 +53,13 @@ class NetworkHelper {
         return InitMessage(tileTypes, playerColors)
     }
 
+    /**
+     * Converts a [Tile] into a [TileType].
+     *
+     * @param tile The input [Tile].
+     *
+     * @return A [TileType] based on [tile].
+     */
     private fun getTileType(tile: Tile): TileType {
         val startTileColor = tile.startTileColor
         return if (startTileColor != null) {
@@ -59,6 +80,17 @@ class NetworkHelper {
         }
     }
 
+    /**
+     * Creates a [CollapsiGame] using a given [InitMessage]. The game will be in a state as if it
+     * has just been started.
+     *
+     * @param message The input [InitMessage].
+     * @param clientColor The color of the local client. Used for setting [Player.type].
+     * @param clientBotDifficulty The bot difficulty of the local client.
+     * Used for setting [Player.type] and [Player.botDifficulty].
+     *
+     * @return A [CollapsiGame] based on the given [InitMessage].
+     */
     fun convertInitMessageToGame(
         message: InitMessage,
         clientColor: PlayerColor,
@@ -70,6 +102,7 @@ class NetworkHelper {
             Coordinate(it % boardSize, it / boardSize, boardSize)
         }.toMutableList()
 
+        // Create board.
         val board = mutableMapOf<Coordinate, Tile>()
         val playerPositions = mutableMapOf<entity.PlayerColor, Coordinate>()
         for (tileType in message.board) {
@@ -83,6 +116,7 @@ class NetworkHelper {
             }
         }
 
+        // Create player list.
         val players = mutableListOf<Player>()
         for (playerColor in message.players) {
             val isClient = playerColor == clientColor

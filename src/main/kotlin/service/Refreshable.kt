@@ -77,6 +77,10 @@ interface Refreshable {
 
     /**
      * Shows a dialog window in the gui.
+     *
+     * @param header The header of the dialog window.
+     * @param message The main message of the dialog window.
+     * @param dialogType The type of the dialog window (info, warning, error, exception).
      */
     fun showDialog(header: String, message: String, dialogType: DialogType) {}
 }

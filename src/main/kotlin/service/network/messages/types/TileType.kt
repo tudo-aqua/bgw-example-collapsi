@@ -2,6 +2,12 @@ package service.network.messages.types
 
 import entity.PlayerColor
 
+/**
+ * An enum to represent the type and values of a tile on the board.
+ *
+ * This contains information about the number of steps to take, whether this is a starting tile, and the color
+ * if it is a starting tile.
+ */
 enum class TileType {
     START_GREEN,
     START_ORANGE,
@@ -12,6 +18,9 @@ enum class TileType {
     THREE,
     FOUR;
 
+    /**
+     * Returns the [entity.Tile.movesToMake] value, a.k.a. the step count.
+     */
     fun getStepCount(): Int = when (this) {
         START_GREEN -> 1
         START_ORANGE -> 1
@@ -23,6 +32,11 @@ enum class TileType {
         FOUR -> 4
     }
 
+    /**
+     * If this is a starting tile (a tile that a player spawns on), this will return the color of that player.
+     *
+     * Otherwise, this will return null.
+     */
     fun getPlayerColor(): PlayerColor? = when (this) {
         START_GREEN -> PlayerColor.GREEN_SQUARE
         START_ORANGE -> PlayerColor.ORANGE_HEXAGON

@@ -81,21 +81,28 @@ class GameStateTest {
     fun testNextPlayer() {
         val player1 = Player(PlayerColor.GREEN_SQUARE, Coordinate(0, 0, 4), PlayerType.LOCAL)
         val player2 = Player(PlayerColor.ORANGE_HEXAGON, Coordinate(1, 1, 4), PlayerType.LOCAL)
-        val players = listOf(player1, player2)
+        val player3 = Player(PlayerColor.YELLOW_CIRCLE, Coordinate(2, 1, 4), PlayerType.LOCAL)
+        val players = listOf(player1, player2, player3)
         val board = mapOf(
             player1.position to Tile(player1.position, 1, player1.color),
-            player2.position to Tile(player2.position, 2, player2.color)
+            player2.position to Tile(player2.position, 1, player2.color),
+            player3.position to Tile(player3.position, 1, player3.color)
         )
         val gameState = GameState(players, board, 4)
 
         assertEquals(player1, gameState.currentPlayer)
 
         gameState.nextPlayer()
-        assertNotEquals(player1, gameState.currentPlayer)
         assertEquals(player2, gameState.currentPlayer)
+
+        gameState.nextPlayer()
+        assertEquals(player3, gameState.currentPlayer)
+
+        gameState.nextPlayer()
+        assertEquals(player1, gameState.currentPlayer)
 
         player2.alive = false
         gameState.nextPlayer()
-        assertEquals(player1, gameState.currentPlayer)
+        assertEquals(player3, gameState.currentPlayer)
     }
 }
