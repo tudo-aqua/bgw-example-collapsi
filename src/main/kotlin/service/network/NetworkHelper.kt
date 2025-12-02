@@ -23,7 +23,7 @@ class NetworkHelper {
      *
      * @return An [InitMessage] based on [game].
      */
-    fun convertGameToInitMessage(game: CollapsiGame): InitMessage {
+    internal fun convertGameToInitMessage(game: CollapsiGame): InitMessage {
         val currentState = game.currentState
 
         // Create [InitMessage.board].
@@ -91,7 +91,7 @@ class NetworkHelper {
      *
      * @return A [CollapsiGame] based on the given [InitMessage].
      */
-    fun convertInitMessageToGame(
+    internal fun convertInitMessageToGame(
         message: InitMessage,
         clientColor: PlayerColor,
         clientBotDifficulty: Int

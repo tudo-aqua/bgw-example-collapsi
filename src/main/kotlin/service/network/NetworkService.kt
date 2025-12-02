@@ -179,7 +179,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      *
      * @throws IllegalStateException if [connectionState] != [ConnectionState.WAITING_FOR_INIT]
      */
-    fun startNewJoinedGame(message: InitMessage) {
+    internal fun startNewJoinedGame(message: InitMessage) {
         check(connectionState == ConnectionState.WAITING_FOR_INIT)
         { "Tried to start a game while not in lobby." }
 
@@ -239,7 +239,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      *
      * @see PlayerActionService.moveTo
      */
-    fun receiveMoveMessage(message: MoveMessage) {
+    internal fun receiveMoveMessage(message: MoveMessage) {
         require(connectionState == ConnectionState.WAITING_FOR_OPPONENTS)
         { "Unexpected MoveMessage. Not opponents turn." }
 
@@ -284,7 +284,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      * @see GameService.endTurn
      */
     @Suppress("UNUSED_PARAMETER", "unused")
-    fun receiveEndTurnMessage(message: EndTurnMessage) {
+    internal fun receiveEndTurnMessage(message: EndTurnMessage) {
         require(connectionState == ConnectionState.WAITING_FOR_OPPONENTS)
         { "Unexpected EndTurnMessage. Not opponents turn." }
 
@@ -305,7 +305,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      *
      * @param newState The new [ConnectionState] for [connectionState].
      */
-    fun setConnectionState(newState: ConnectionState) {
+    internal fun setConnectionState(newState: ConnectionState) {
         connectionState = newState
         onAllRefreshables { refreshAfterConnectionStateChange(newState) }
     }
@@ -316,7 +316,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      * Note that [NetworkClient] can't be an [AbstractRefreshingService], because it already extends
      * [tools.aqua.bgw.net.client.BoardGameClient] and is also not persistent.
      */
-    fun onPlayerJoined() {
+    internal fun onPlayerJoined() {
         onAllRefreshables { refreshAfterPlayerJoined() }
     }
 
@@ -324,6 +324,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      * Sets the [NetworkClient.botDifficulty] value of the [currentClient].
      *
      * @throws IllegalStateException if no client exists.
+     * @throws IllegalStateException if the game was already started.
      */
     fun setBotDifficultyOfClient(difficulty: Int) {
         val client = checkNotNull(currentClient) { "Client was null." }
@@ -340,7 +341,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
      * @param message The main message of the dialog window.
      * @param dialogType The type of the dialog window (info, warning, error, exception).
      */
-    fun showDialog(header: String, message: String, dialogType: DialogType) {
+    internal fun showDialog(header: String, message: String, dialogType: DialogType) {
         onAllRefreshables { showDialog(header, message, dialogType) }
     }
 }

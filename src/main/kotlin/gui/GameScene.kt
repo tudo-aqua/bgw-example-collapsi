@@ -834,7 +834,7 @@ class GameScene(
         toolbarLayout.clear()
 
         // Save/Undo/Redo is disabled in online games.
-        if (!game.isOnlineGame()) {
+        if (!game.isOnlineGame) {
             toolbarLayout.add(saveButton)
             toolbarLayout.add(undoButton)
             toolbarLayout.add(redoButton)

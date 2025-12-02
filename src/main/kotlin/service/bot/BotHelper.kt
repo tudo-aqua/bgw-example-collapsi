@@ -23,7 +23,7 @@ class BotHelper(private val root: RootService) {
      *
      * @see Path
      */
-    fun getPossibleUniquePaths(game: CollapsiGame): List<Path> {
+    internal fun getPossibleUniquePaths(game: CollapsiGame): List<Path> {
         val paths = mutableListOf<Path>()
 
         completePath(paths, game)
@@ -44,7 +44,7 @@ class BotHelper(private val root: RootService) {
      *
      * @see Path
      */
-    fun getPossibleUniquePathsForPlayer(color: PlayerColor, game: CollapsiGame): List<Path> {
+    internal fun getPossibleUniquePathsForPlayer(color: PlayerColor, game: CollapsiGame): List<Path> {
         val gameState = game.currentState
 
         val paths = mutableListOf<Path>()
@@ -114,7 +114,7 @@ class BotHelper(private val root: RootService) {
      * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      * @param path The [Path] to move along.
      */
-    fun applyPath(game: CollapsiGame, path: Path) {
+    internal fun applyPath(game: CollapsiGame, path: Path) {
         // Move along the path.
         path.forEach { root.playerActionService.moveTo(it, game) }
         root.gameService.endTurn(game)

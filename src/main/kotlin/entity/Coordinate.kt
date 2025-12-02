@@ -56,15 +56,5 @@ data class Coordinate(
         return neighbours.contains(other)
     }
 
-    override fun equals(other: Any?): Boolean {
-        return other is Coordinate && x == other.x && y == other.y && boardSize == other.boardSize
-    }
-
-    override fun hashCode(): Int {
-        var result = x
-        result = 31 * result + y
-        return result
-    }
-
     override fun toString(): String = "($x, $y)"
 }

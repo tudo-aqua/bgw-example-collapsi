@@ -28,7 +28,7 @@ data class CollapsiGame(
     val redoStack = mutableListOf<GameState>()
 
     /**
-     * @return True if this game is played online.
+     * Whether this game is played online.
      */
-    fun isOnlineGame() = currentState.players.any { it.type == PlayerType.REMOTE }
+    val isOnlineGame get() = currentState.players.any { it.type == PlayerType.REMOTE }
 }

@@ -53,7 +53,7 @@ class BotService(private val root: RootService) {
      * @see calculateTurn
      * @see makeMove
      */
-    val intendedMoves = mutableListOf<Coordinate>()
+    private val intendedMoves = mutableListOf<Coordinate>()
 
     /**
      * The helper class for the [BotService]. Contains deterministic methods only relevant for the bot.

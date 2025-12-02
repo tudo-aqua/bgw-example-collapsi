@@ -50,6 +50,7 @@ class NetworkClient(
      * Can be null if no session was started yet.
      */
     var botDifficulty: Int? = null
+        internal set
 
     /**
      * Handle a [CreateGameResponse] sent by the server.
