@@ -46,9 +46,9 @@ class BotService(private val root: RootService) {
      * Note: The idea behind the entity-service-gui pattern is for the entire game state to be stored in
      * the entity-layer and for every service to remain stateless.
      *
-     * The [BotService] as well as the [NetworkService] are some of the only classes that are occasionally
-     * allowed to break this rule. This is because the variables stored there are not related to the state
-     * of the game, but rather the plan of the bot or the state of the network respectively.
+     * The [BotService] as well as the [service.network.NetworkService] are some of the only classes that are
+     * occasionally allowed to break this rule. This is because the variables stored there are not related to
+     * the state of the game, but rather the plan of the bot or the state of the network respectively.
      *
      * @see calculateTurn
      * @see makeMove
