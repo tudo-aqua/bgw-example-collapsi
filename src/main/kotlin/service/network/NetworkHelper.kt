@@ -113,7 +113,11 @@ class NetworkHelper {
             board[position] = tile
 
             if (startTileColor != null) {
-                playerPositions[startTileColor] = position
+                if (startTileColor.ordinal < message.players.size) {
+                    playerPositions[startTileColor] = position
+                } else {
+                    tile.collapsed = true
+                }
             }
         }
 
