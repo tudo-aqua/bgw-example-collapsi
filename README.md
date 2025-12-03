@@ -1,11 +1,10 @@
 # BGW Example: Collapsi
 
 <div style="overflow-x:auto; white-space:nowrap;">
-  <img src=screenshots/MainMenu.jpg alt=InGame_2P style="height:240px; display:inline-block; margin-right:8px;">
-  <img src=screenshots/InGame_2P.jpg alt=InGame_2P style="height:240px; display:inline-block; margin-right:8px;">
-  <img src=screenshots/InGame_3P.jpg alt=InGame_3P style="height:240px; display:inline-block; margin-right:8px;">
-  <img src=screenshots/Lobby_Local.jpg alt=HostScene style="height:240px; display:inline-block; margin-right:8px;">
-  <img src=screenshots/HostScene.jpg alt=HostScene style="height:240px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/MainMenu.jpg alt=MainMenu style="height:180px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/InGame_2P.jpg alt=InGame_2P style="height:180px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/InGame_3P.jpg alt=InGame_3P style="height:180px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/Lobby_Local.jpg alt=LocalLobbyScene style="height:180px; display:inline-block; margin-right:8px;">
 </div>
 
 ## Rules
