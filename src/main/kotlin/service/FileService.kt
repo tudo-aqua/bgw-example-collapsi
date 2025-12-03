@@ -8,7 +8,7 @@ import java.io.FileOutputStream
 import java.util.Properties
 
 /**
- * Service class that manages al io-related operations for the Collapsi game.
+ * Service class that manages al IO-related operations for the Collapsi game.
  *
  * @param root The [RootService] that provides access to the overall game state and the other services.
  *

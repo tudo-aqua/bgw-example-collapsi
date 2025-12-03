@@ -321,20 +321,20 @@ class LobbyScene(
             return
         }
 
-        if (lobbyMode == LobbyMode.HOST) {
-            root.networkService.startNewHostedGame(
+        when (lobbyMode) {
+            LobbyMode.LOCAL -> root.gameService.startNewGame(
                 playerTypes,
                 botDifficulties,
                 boardSize
             )
-        } else {
-            check(lobbyMode == LobbyMode.LOCAL) { "Illegal value for lobbyMode." }
 
-            root.gameService.startNewGame(
+            LobbyMode.HOST -> root.networkService.startNewHostedGame(
                 playerTypes,
                 botDifficulties,
                 boardSize
             )
+
+            LobbyMode.GUEST -> throw IllegalStateException("Cannot start a game in a joined lobby.")
         }
     }
 

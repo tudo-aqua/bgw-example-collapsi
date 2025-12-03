@@ -1,5 +1,13 @@
 # BGW Example: Collapsi
 
+<div style="overflow-x:auto; white-space:nowrap;">
+  <img src=screenshots/MainMenu.jpg alt=InGame_2P style="height:240px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/InGame_2P.jpg alt=InGame_2P style="height:240px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/InGame_3P.jpg alt=InGame_3P style="height:240px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/Lobby_Local.jpg alt=HostScene style="height:240px; display:inline-block; margin-right:8px;">
+  <img src=screenshots/HostScene.jpg alt=HostScene style="height:240px; display:inline-block; margin-right:8px;">
+</div>
+
 ## Rules
 
 Collapsi is a simple board game invented by Mark S. Ball in 2025.
