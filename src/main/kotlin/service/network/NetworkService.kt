@@ -4,7 +4,6 @@ import entity.Coordinate
 import entity.PlayerType
 import service.*
 import service.network.messages.*
-import service.network.messages.types.*
 import service.network.types.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 import kotlin.random.Random
@@ -215,13 +214,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
 
         val client = checkNotNull(currentClient) { "Client was null." }
 
-        val direction = when (newPosition) {
-            previousPosition.leftNeighbour -> Direction.LEFT
-            previousPosition.rightNeighbour -> Direction.RIGHT
-            previousPosition.upNeighbour -> Direction.UP
-            previousPosition.downNeighbour -> Direction.DOWN
-            else -> throw IllegalArgumentException("Given coordinates were not adjacent.")
-        }
+        val direction = networkHelper.convertPositionsToDirection(previousPosition, newPosition)
 
         val message = MoveMessage(direction)
 
@@ -246,12 +239,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentPlayer = game.currentState.currentPlayer
 
-        val newPosition = when (message.direction) {
-            Direction.LEFT -> currentPlayer.position.leftNeighbour
-            Direction.RIGHT -> currentPlayer.position.rightNeighbour
-            Direction.UP -> currentPlayer.position.upNeighbour
-            Direction.DOWN -> currentPlayer.position.downNeighbour
-        }
+        val newPosition = networkHelper.convertDirectionToPosition(currentPlayer.position, message.direction)
 
         root.playerActionService.moveTo(newPosition)
     }

@@ -13,7 +13,8 @@ import kotlin.math.*
 /**
  * Helper class for the [NetworkService].
  *
- * This class contains non-network methods that are only relevant for the network implementation.
+ * This class contains non-network methods that are only relevant for the network implementation, such as
+ * converting between messages and entity-layer representations.
  */
 class NetworkHelper {
     /**
@@ -31,7 +32,7 @@ class NetworkHelper {
         for (y in 0..<currentState.boardSize) {
             for (x in 0..<currentState.boardSize) {
                 val entityTile = currentState.getTileAt(Coordinate(x, y, currentState.boardSize))
-                val tileType = getTileType(entityTile)
+                val tileType = convertTileToTileType(entityTile)
 
                 tileTypes.add(tileType)
             }
@@ -60,7 +61,7 @@ class NetworkHelper {
      *
      * @return A [TileType] based on [tile].
      */
-    private fun getTileType(tile: Tile): TileType {
+    private fun convertTileToTileType(tile: Tile): TileType {
         val startTileColor = tile.startTileColor
         return if (startTileColor != null) {
             when (startTileColor) {
@@ -139,4 +140,39 @@ class NetworkHelper {
 
         return CollapsiGame(gameState)
     }
+
+    /**
+     * Applies a [Direction] to a given [Coordinate] and returns the result.
+     *
+     * @param originalPosition The [Coordinate] to apply the direction to.
+     * @param direction The [Direction] to move in.
+     *
+     * @return The new position. Always adjacent to [originalPosition] in the direction of [direction].
+     */
+    internal fun convertDirectionToPosition(originalPosition: Coordinate, direction: Direction) =
+        when (direction) {
+            Direction.LEFT -> originalPosition.leftNeighbour
+            Direction.RIGHT -> originalPosition.rightNeighbour
+            Direction.UP -> originalPosition.upNeighbour
+            Direction.DOWN -> originalPosition.downNeighbour
+        }
+
+    /**
+     * Finds and returns the relative [Direction] between two adjacent [Coordinate]s.
+     *
+     * @param originalPosition Position 1.
+     * @param newPosition Position 2. Must be adjacent ot [originalPosition].
+     *
+     * @return The relative [Direction] between [originalPosition] and [newPosition].
+     *
+     * @throws IllegalArgumentException if the given [Coordinate]s were not adjacent.
+     */
+    internal fun convertPositionsToDirection(originalPosition: Coordinate, newPosition: Coordinate) =
+        when (newPosition) {
+            originalPosition.leftNeighbour -> Direction.LEFT
+            originalPosition.rightNeighbour -> Direction.RIGHT
+            originalPosition.upNeighbour -> Direction.UP
+            originalPosition.downNeighbour -> Direction.DOWN
+            else -> throw IllegalArgumentException("Given coordinates were not adjacent.")
+        }
 }
