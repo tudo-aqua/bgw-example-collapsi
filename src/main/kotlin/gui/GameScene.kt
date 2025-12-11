@@ -41,7 +41,7 @@ class GameScene(
      *
      * This GridPane is emptied and refilled between games.
      */
-    private val boardGrid = GridPane<CardView>(
+    private var boardGrid = GridPane<CardView>(
         posX = 1052,
         posY = 500,
         rows = 0,
@@ -712,8 +712,17 @@ class GameScene(
         // Init GridPane.
 
         // Reset GridPane.
-        repeat(boardGrid.rows) { boardGrid.removeRow(0) }
-        repeat(boardGrid.columns) { boardGrid.removeColumn(0) }
+        removeComponents(boardGrid)
+        boardGrid = GridPane(
+            posX = 1052,
+            posY = 500,
+            rows = 0,
+            columns = 0,
+            spacing = 20,
+            layoutFromCenter = true
+        )
+        addComponents(boardGrid)
+        boardGrid.toBack()
         boardGrid.addRows(0, currentState.boardSize)
         boardGrid.addColumns(0, currentState.boardSize)
 

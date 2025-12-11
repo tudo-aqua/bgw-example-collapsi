@@ -75,8 +75,7 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
     fun playSound(paths: List<String>) {
         require(paths.isNotEmpty()) { "No sounds provided." }
 
-        val randomIndex = (0 until paths.size).random()
-        playSound(paths[randomIndex])
+        playSound(paths.random())
     }
 
     /**
