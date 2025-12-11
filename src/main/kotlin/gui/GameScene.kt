@@ -505,6 +505,8 @@ class GameScene(
         // Move player's main pawn.
         movePlayerPawn(from, to, currentState.currentPlayer.color)
 
+        val sidestepFrom = currentState.players.count { it.position == from } >= 1
+
         // Collapse tile (flip it).
         if (currentState.currentPlayer.visitedTiles.size == 1) {
             val collapsedTileView = tileViews.forward(from)
@@ -532,15 +534,15 @@ class GameScene(
             MovementAnimation(
                 stepToken,
                 stepToken.actualPosX,
-                getPlayerPosX(from),
+                getPlayerPosX(from, sidestepFrom),
                 stepToken.actualPosY,
-                getPlayerPosY(from),
+                getPlayerPosY(from, sidestepFrom),
                 moveAnimationDuration
             ).apply {
                 onFinished = {
                     stepToken.offset(
-                        getPlayerPosX(from) - stepToken.actualPosX,
-                        getPlayerPosY(from) - stepToken.actualPosY
+                        getPlayerPosX(from, sidestepFrom) - stepToken.actualPosX,
+                        getPlayerPosY(from, sidestepFrom) - stepToken.actualPosY
                     )
 
                     blockMovementInput = false
@@ -910,9 +912,12 @@ class GameScene(
         for (player in currentState.players) {
             val pawn = playerMainPawns.getValue(player.color)
 
+            val sidestep = player == currentState.currentPlayer
+                    && currentState.players.count { it.position == player.position } >= 2
+
             pawn.apply {
-                posX = getPlayerPosX(player.position)
-                posY = getPlayerPosY(player.position)
+                posX = getPlayerPosX(player.position, sidestep)
+                posY = getPlayerPosY(player.position, sidestep)
                 isVisible = player.alive
             }
         }
@@ -981,13 +986,12 @@ class GameScene(
             if (i < currentPlayer.remainingMoves)
                 continue
 
+            val position = currentPlayer.visitedTiles[i - currentPlayer.remainingMoves]
+            val sidestep = currentState.players.count { it.position == position } >= 1
+
             stepTokenView.apply {
-                posX = getPlayerPosX(
-                    currentPlayer.visitedTiles[i - currentPlayer.remainingMoves]
-                ) - stepTokenView.actualPosX
-                posY = getPlayerPosY(
-                    currentPlayer.visitedTiles[i - currentPlayer.remainingMoves]
-                ) - stepTokenView.actualPosY
+                posX = getPlayerPosX(position, sidestep) - stepTokenView.actualPosX
+                posY = getPlayerPosY(position, sidestep) - stepTokenView.actualPosY
             }
         }
     }
@@ -1082,12 +1086,18 @@ class GameScene(
      * @param playerColor The [PlayerColor] of the player whose pawn is being moved.
      */
     private fun movePlayerPawn(from: Coordinate, to: Coordinate, playerColor: PlayerColor) {
+        val game = checkNotNull(root.currentGame) { "No game is currently running." }
+        val currentState = game.currentState
+
         val maxBoardCoordinate = boardGrid.columns - 1
 
         val currentPlayerPawn = playerMainPawns.getValue(playerColor)
 
-        var mainFromX = getPlayerPosX(from)
-        var mainFromY = getPlayerPosY(from)
+        val sidestepFrom = currentState.players.count { it.position == from } >= 1
+        val sidestepTo = currentState.players.count { it.position == to } >= 2
+
+        var mainFromX = getPlayerPosX(from, sidestepFrom)
+        var mainFromY = getPlayerPosY(from, sidestepFrom)
 
         // Move the player's duplicate pawn for wrap-around animation if needed.
         // In this case, the main pawn always moves from off-screen to the destination and the duplicate
@@ -1096,34 +1106,34 @@ class GameScene(
             val distance = 200
             val currentPlayerDuplicatePawn = playerDuplicatePawns.getValue(playerColor)
 
-            var duplicateToX = getPlayerPosX(to)
-            var duplicateToY = getPlayerPosY(to)
+            var duplicateToX = getPlayerPosX(to, sidestepTo)
+            var duplicateToY = getPlayerPosY(to, sidestepTo)
 
             // These are the four possible wrap-around cases.
             if (from.x == 0 && to.x == maxBoardCoordinate) {
-                mainFromX = getPlayerPosX(to) + distance
-                duplicateToX = getPlayerPosX(from) - distance
+                mainFromX = getPlayerPosX(to, sidestepTo) + distance
+                duplicateToX = getPlayerPosX(from, sidestepFrom) - distance
             } else if (from.x == maxBoardCoordinate && to.x == 0) {
-                mainFromX = getPlayerPosX(to) - distance
-                duplicateToX = getPlayerPosX(from) + distance
+                mainFromX = getPlayerPosX(to, sidestepTo) - distance
+                duplicateToX = getPlayerPosX(from, sidestepFrom) + distance
             } else if (from.y == 0 && to.y == maxBoardCoordinate) {
-                mainFromY = getPlayerPosY(to) + distance
-                duplicateToY = getPlayerPosY(from) - distance
+                mainFromY = getPlayerPosY(to, sidestepTo) + distance
+                duplicateToY = getPlayerPosY(from, sidestepFrom) - distance
             } else if (from.y == maxBoardCoordinate && to.y == 0) {
-                mainFromY = getPlayerPosY(to) - distance
-                duplicateToY = getPlayerPosY(from) + distance
+                mainFromY = getPlayerPosY(to, sidestepTo) - distance
+                duplicateToY = getPlayerPosY(from, sidestepFrom) + distance
             }
 
-            currentPlayerDuplicatePawn.posX = getPlayerPosX(from)
-            currentPlayerDuplicatePawn.posY = getPlayerPosY(from)
+            currentPlayerDuplicatePawn.posX = getPlayerPosX(from, sidestepFrom)
+            currentPlayerDuplicatePawn.posY = getPlayerPosY(from, sidestepFrom)
 
             // Move the duplicate pawn from the original position to off-screen.
             playAnimation(
                 MovementAnimation(
                     currentPlayerDuplicatePawn,
-                    getPlayerPosX(from),
+                    getPlayerPosX(from, sidestepFrom),
                     duplicateToX,
-                    getPlayerPosY(from),
+                    getPlayerPosY(from, sidestepFrom),
                     duplicateToY,
                     moveAnimationDuration
                 ).apply {
@@ -1142,14 +1152,14 @@ class GameScene(
             MovementAnimation(
                 currentPlayerPawn,
                 mainFromX,
-                getPlayerPosX(to),
+                getPlayerPosX(to, sidestepTo),
                 mainFromY,
-                getPlayerPosY(to),
+                getPlayerPosY(to, sidestepTo),
                 moveAnimationDuration
             ).apply {
                 onFinished = {
-                    currentPlayerPawn.posX = getPlayerPosX(to)
-                    currentPlayerPawn.posY = getPlayerPosY(to)
+                    currentPlayerPawn.posX = getPlayerPosX(to, sidestepTo)
+                    currentPlayerPawn.posY = getPlayerPosY(to, sidestepTo)
                 }
             })
     }
@@ -1160,10 +1170,12 @@ class GameScene(
      * @param position The tile coordinate.
      * @return The X position for the player's pawn.
      */
-    private fun getPlayerPosX(position: Coordinate): Double {
+    private fun getPlayerPosX(position: Coordinate, sidestep: Boolean = false): Double {
         val currentTile = tileViews.forward(position)
 
-        return currentTile.actualPosX + (currentTile.width - 64) / 2
+        val offset = if (sidestep) currentTile.width * 0.2 else 0.0
+
+        return currentTile.actualPosX + currentTile.width / 2 - 64 / 2 + offset
     }
 
     /**
@@ -1172,10 +1184,12 @@ class GameScene(
      * @param position The tile coordinate.
      * @return The Y position for the player's pawn.
      */
-    private fun getPlayerPosY(position: Coordinate): Double {
+    private fun getPlayerPosY(position: Coordinate, sidestep: Boolean = false): Double {
         val currentTile = tileViews.forward(position)
 
-        return currentTile.actualPosY + (currentTile.height - 64) / 2
+        val offset = if (sidestep) currentTile.height * 0.2 else 0.0
+
+        return currentTile.actualPosY + currentTile.height / 2 - 64 / 2 + offset
     }
 
     /**
