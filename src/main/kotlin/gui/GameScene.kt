@@ -1169,6 +1169,8 @@ class GameScene(
      * Translates a tile coordinate to the X position where the player's pawn should be placed.
      *
      * @param position The tile coordinate.
+     * @param sidestep Whether to move the position slightly off-center, because there is another pawn on the tile.
+     *
      * @return The X position for the player's pawn.
      */
     private fun getPlayerPosX(position: Coordinate, sidestep: Boolean = false): Double {
@@ -1183,6 +1185,8 @@ class GameScene(
      * Translates a tile coordinate to the Y position where the player's pawn should be placed.
      *
      * @param position The tile coordinate.
+     * @param sidestep Whether to move the position slightly off-center, because there is another pawn on the tile.
+     *
      * @return The Y position for the player's pawn.
      */
     private fun getPlayerPosY(position: Coordinate, sidestep: Boolean = false): Double {

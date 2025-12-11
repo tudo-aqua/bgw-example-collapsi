@@ -35,6 +35,8 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
         "audio/ui/Click3.ogg"
     )
 
+    var mute = false
+
     init {
         loadFont("fonts/RussoOne-Regular.ttf", "RussoOne", Font.FontWeight.NORMAL)
 
@@ -86,6 +88,8 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
      * @throws IllegalArgumentException If the provided path does not lead to a valid sound effect file.
      */
     fun playSound(path: String) {
+        if (mute) return
+
         Thread {
             val inputStream = this::class.java.classLoader.getResourceAsStream(path)
             checkNotNull(inputStream) { "Sound not found at path: $path." }
