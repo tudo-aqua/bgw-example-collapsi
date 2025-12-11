@@ -600,7 +600,8 @@ class GameScene(
         }
 
         // Start bot move if the next player is a bot.
-        if (currentState.currentPlayer.type == PlayerType.BOT
+        if (currentState.currentPlayer.alive
+            && currentState.currentPlayer.type == PlayerType.BOT
             && root.playerActionService.hasValidMove()
         ) {
             // Calculate the next turn without blocking the main thread.
