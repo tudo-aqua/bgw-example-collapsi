@@ -41,7 +41,7 @@ This implementation realizes variants of Collapsi with more players and differen
 
 - 2-4 players
 - board sizes 4x4, 5x5, and 6x6
-- hotseat or online (requires [BGW Net Server](https://github.com/tudo-aqua/bgw/tree/main/bgw-net/bgw-net-server)).
+- hotseat or online (requires [BGW Net Server](https://github.com/tudo-aqua/bgw/tree/main/bgw-net/bgw-net-server))
 - bots with four levels of difficulty
 - sounds and animations
 - change animation speed mid-game
