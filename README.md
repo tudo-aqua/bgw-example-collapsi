@@ -45,8 +45,8 @@ This implementation realizes variants of Collapsi with more players and differen
 - bots with four levels of difficulty
 - sounds and animations
 - change animation speed mid-game
-- save and load local games.
-- undo and redo turns.
+- save and load local games
+- undo and redo turns
 
 ## License / Attribution
 
