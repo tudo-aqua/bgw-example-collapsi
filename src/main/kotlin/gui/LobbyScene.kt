@@ -244,6 +244,16 @@ class LobbyScene(
 
         playerSetupViews[2].removeButton.isVisible = !networkMode && playerCount == 3
         playerSetupViews[3].removeButton.isVisible = !networkMode && playerCount == 4
+
+        // Auto select bigger board size if necessary.
+        if (boardSize < playerCount + 2) {
+            boardSizeSelection.selectButton(playerCount - 2)
+        }
+
+        // Disable buttons for illegal board sizes.
+        for (i in 0..<3) {
+            boardSizeSelection.buttons[i].isDisabled = i < playerCount - 2
+        }
     }
 
     /**
