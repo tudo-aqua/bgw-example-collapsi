@@ -718,17 +718,8 @@ class GameScene(
         // Init GridPane.
 
         // Reset GridPane.
-        boardGrid.isVisible = false
-        boardGrid = GridPane(
-            posX = 1052,
-            posY = 500,
-            rows = 0,
-            columns = 0,
-            spacing = 20,
-            layoutFromCenter = true
-        )
-        addComponents(boardGrid)
-        boardGrid.toBack()
+        repeat(boardGrid.rows) { boardGrid.removeRow(0) }
+        repeat(boardGrid.columns) { boardGrid.removeColumn(0) }
         boardGrid.addRows(0, currentState.boardSize)
         boardGrid.addColumns(0, currentState.boardSize)
 
