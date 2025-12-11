@@ -35,6 +35,9 @@ class CollapsiApplication : BoardGameApplication("Collapsi"), Refreshable {
         "audio/ui/Click3.ogg"
     )
 
+    /**
+     * Mutes all audio. Currently not set anywhere.
+     */
     var mute = false
 
     init {

@@ -174,7 +174,7 @@ class HostOnlineLobbyScene(
      * and sets it to the lobbyCodeInput field in uppercase.
      */
     fun generateNewCode() {
-        val chars = (('0'..'9') + ('a'..'z')).filter { it != 'i' && it != 'l' && it != '0' && it != 'o' }
+        val chars = (('0'..'9') + ('a'..'z')).filter { it !in setOf('i', 'l', '0', 'o', 's', '5') }
         val code = (1..4).map { chars.random() }.joinToString("")
         lobbyCodeInput.text = code.uppercase()
     }

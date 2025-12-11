@@ -253,7 +253,7 @@ class GameScene(
         height = 90,
         posX = 65,
         posY = 65,
-        visual = ImageVisual("gameScene/BackToMenuButton.png")
+        visual = ImageVisual("gameScene/QuitButton.png") // Alternate visual: "gameScene/BackToMenuButton.png".
     ).apply {
         onMouseClicked = {
             app.playSound(app.clickSfx)
@@ -265,6 +265,9 @@ class GameScene(
                 app.mainMenuScene.updateButtons()
                 app.showMenuScene(app.mainMenuScene)
             }
+
+            // Todo: Due to bug in BGW, starting a second game is temporarily not possible, so quit here.
+            app.exit()
         }
     }
 
@@ -715,7 +718,7 @@ class GameScene(
         // Init GridPane.
 
         // Reset GridPane.
-        removeComponents(boardGrid)
+        boardGrid.isVisible = false
         boardGrid = GridPane(
             posX = 1052,
             posY = 500,
