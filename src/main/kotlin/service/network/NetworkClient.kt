@@ -1,6 +1,5 @@
 package service.network
 
-import service.network.types.*
 import service.network.messages.*
 import service.network.messages.types.*
 import tools.aqua.bgw.dialog.DialogType

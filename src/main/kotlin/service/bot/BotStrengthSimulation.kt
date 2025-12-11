@@ -14,7 +14,7 @@ class BotStrengthSimulation {
      */
     private val root = RootService()
 
-    private val helper = BotHelper(root)
+    private val helper = BotHelperService(root)
 
     /**
      * Fight between two lvl-1 bots as a sanity check. The result should be around 50% for both.

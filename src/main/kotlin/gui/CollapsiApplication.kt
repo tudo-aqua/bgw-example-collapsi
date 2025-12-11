@@ -1,7 +1,7 @@
 package gui
 
 import service.*
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.core.BoardGameApplication
 import tools.aqua.bgw.dialog.Dialog
 import tools.aqua.bgw.dialog.DialogType

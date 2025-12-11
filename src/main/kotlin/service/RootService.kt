@@ -44,11 +44,21 @@ class RootService {
     val botService = BotService(this)
 
     /**
+     * The helper class for the [BotService]. Contains deterministic methods only relevant for the bot.
+     */
+    val botHelper = BotHelperService(this)
+
+    /**
      * A reference to the [NetworkService] attached to this [RootService].
      *
      * @see NetworkService
      */
     val networkService = NetworkService(this)
+
+    /**
+     * The helper class for the [NetworkService]. Contains helper methods only relevant for the network.
+     */
+    val networkHelper = NetworkHelperService()
 
     /**
      * The currently active game. Can be `null`, if no game has started yet or after a game has finished.

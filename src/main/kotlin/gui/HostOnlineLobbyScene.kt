@@ -2,7 +2,7 @@ package gui
 
 import gui.types.LobbyMode
 import service.*
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button

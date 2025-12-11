@@ -2,7 +2,6 @@ package service.bot
 
 import entity.*
 import service.*
-import service.bot.types.*
 import java.util.Date
 import kotlin.random.Random
 
@@ -54,11 +53,6 @@ class BotService(private val root: RootService) {
      * @see makeMove
      */
     private val intendedMoves = mutableListOf<Coordinate>()
-
-    /**
-     * The helper class for the [BotService]. Contains deterministic methods only relevant for the bot.
-     */
-    val helper = BotHelper(root)
 
     /**
      * Precalculate the exact order of moves to perform in the upcoming turn.
@@ -189,7 +183,7 @@ class BotService(private val root: RootService) {
      * @param game The cloned [CollapsiGame] that the bot simulation runs on.
      */
     private fun getRandomPath(game: CollapsiGame): Path {
-        val possiblePaths = helper.getPossibleUniquePaths(game)
+        val possiblePaths = root.botHelper.getPossibleUniquePaths(game)
         check(possiblePaths.isNotEmpty()) { "Possible paths was empty." }
 
         return possiblePaths[Random.nextInt(possiblePaths.size)]
@@ -288,7 +282,7 @@ class BotService(private val root: RootService) {
         val currentPlayerIndex = game.currentState.currentPlayerIndex
 
         // Get all paths the player could take right now.
-        val possiblePaths = helper.getPossibleUniquePaths(game)
+        val possiblePaths = root.botHelper.getPossibleUniquePaths(game)
 
         check(possiblePaths.isNotEmpty()) { "Bot could not find any possible paths." }
 
@@ -299,7 +293,7 @@ class BotService(private val root: RootService) {
 
         for (currentPath in possiblePaths) {
             // Try out the path.
-            helper.applyPath(game, currentPath)
+            root.botHelper.applyPath(game, currentPath)
 
             // Evaluate the current position depending on depth.
             // If the maxDepth or maxTime was reached or the game ended, we stop here.
@@ -374,7 +368,7 @@ class BotService(private val root: RootService) {
             else if (gameState.gameEnded) // Player won. Earn a reward.
                 BotConstants.EVAL_WIN
             else // Game still going. Associate more movement options with a better evaluation.
-                helper.getPossibleUniquePathsForPlayer(player.color, game).size.toDouble()
+                root.botHelper.getPossibleUniquePathsForPlayer(player.color, game).size.toDouble()
         }
 
         return eval

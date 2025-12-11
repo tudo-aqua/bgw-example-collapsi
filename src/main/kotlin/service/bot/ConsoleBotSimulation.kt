@@ -16,7 +16,7 @@ class ConsoleBotSimulation {
      */
     private val root = RootService()
 
-    private val helper = BotHelper(root)
+    private val helper = BotHelperService(root)
 
     /**
      * The value of [Player.botDifficulty] for each bot.

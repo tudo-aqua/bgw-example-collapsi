@@ -3,7 +3,7 @@ package service
 import entity.PlayerType
 import org.junit.jupiter.api.RepeatedTest
 import org.junit.jupiter.api.assertDoesNotThrow
-import service.bot.BotHelper
+import service.bot.BotHelperService
 import kotlin.test.BeforeTest
 
 /**
@@ -17,7 +17,7 @@ class RandomBotStressTest {
      */
     private var root = RootService()
 
-    private var botHelper = BotHelper(root)
+    private var botHelper = BotHelperService(root)
 
     /**
      * The value of [entity.Player.botDifficulty] for each bot.
@@ -30,7 +30,7 @@ class RandomBotStressTest {
     @BeforeTest
     fun setup() {
         root = RootService()
-        botHelper = BotHelper(root)
+        botHelper = BotHelperService(root)
     }
 
     /**

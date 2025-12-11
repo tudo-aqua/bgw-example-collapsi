@@ -54,15 +54,15 @@ class SaveLoadGameTest {
             boardSize = 4
         )
 
-        assertDoesNotThrow { root.fileService.saveGame() }
+        assertDoesNotThrow { root.fileService.saveGame(path) }
 
         // Test overriding an existing file.
-        assertDoesNotThrow { root.fileService.saveGame() }
+        assertDoesNotThrow { root.fileService.saveGame(path) }
 
         val savedGame = checkNotNull(root.currentGame)
         root.currentGame = null
 
-        assertDoesNotThrow { root.fileService.loadGame() }
+        assertDoesNotThrow { root.fileService.loadGame(path) }
 
         val loadedGame = assertNotNull(root.currentGame)
 
@@ -81,7 +81,7 @@ class SaveLoadGameTest {
             )
         }
 
-        assertDoesNotThrow { root.fileService.deleteSavedGame() }
+        assertDoesNotThrow { root.fileService.deleteSavedGame(path) }
         assertFalse { File(path).exists() }
     }
 
@@ -91,12 +91,12 @@ class SaveLoadGameTest {
     @Test
     fun testExceptions() {
         // No game running.
-        assertThrows<IllegalStateException> { root.fileService.saveGame() }
+        assertThrows<IllegalStateException> { root.fileService.saveGame(path) }
 
         // No file found.
-        assertThrows<IllegalStateException> { root.fileService.loadGame() }
+        assertThrows<IllegalStateException> { root.fileService.loadGame(path) }
 
         // No file found.
-        assertThrows<IllegalStateException> { root.fileService.deleteSavedGame() }
+        assertThrows<IllegalStateException> { root.fileService.deleteSavedGame(path) }
     }
 }

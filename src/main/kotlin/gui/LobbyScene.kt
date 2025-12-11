@@ -9,7 +9,7 @@ import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button
 import tools.aqua.bgw.core.*
 import tools.aqua.bgw.visual.*
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.dialog.DialogType
 

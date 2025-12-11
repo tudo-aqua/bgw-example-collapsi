@@ -1,7 +1,7 @@
 package service
 
 import entity.*
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 
 /**

@@ -1,6 +1,4 @@
-package service.bot.types
-
-import service.bot.*
+package service.bot
 
 /**
  * The result of one recursive call of the [BotService.minimax] function.

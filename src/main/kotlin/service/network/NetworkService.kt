@@ -4,7 +4,7 @@ import entity.Coordinate
 import entity.PlayerType
 import service.*
 import service.network.messages.*
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 import kotlin.random.Random
 
@@ -16,13 +16,6 @@ import kotlin.random.Random
  */
 @Suppress("TooManyFunctions")
 class NetworkService(private val root: RootService) : AbstractRefreshingService() {
-    /**
-     * Reference to the helper class containing non-network methods.
-     *
-     * @see NetworkHelper
-     */
-    private val networkHelper = NetworkHelper()
-
     /**
      * Reference to the [NetworkClient] if we are currently connected to a server.
      */
@@ -159,7 +152,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         val game = checkNotNull(root.currentGame)
 
         // We need to convert the game state into a message to send to the other clients.
-        val message = networkHelper.convertGameToInitMessage(game)
+        val message = root.networkHelper.convertGameToInitMessage(game)
         client.sendGameActionMessage(message)
 
         if (game.currentState.currentPlayer.color == clientColor.toEntityPlayerColor())
@@ -187,7 +180,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         val clientBotDifficulty = checkNotNull(client.botDifficulty) { "Client didn't have a difficulty assigned." }
 
         // Read the message and transform it into a complete entity layer.
-        val game = networkHelper.convertInitMessageToGame(message, clientColor, clientBotDifficulty)
+        val game = root.networkHelper.convertInitMessageToGame(message, clientColor, clientBotDifficulty)
 
         // Set the currently active game here instead of using GameService.startNewGame().
         root.currentGame = game
@@ -214,7 +207,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
 
         val client = checkNotNull(currentClient) { "Client was null." }
 
-        val direction = networkHelper.convertPositionsToDirection(previousPosition, newPosition)
+        val direction = root.networkHelper.convertPositionsToDirection(previousPosition, newPosition)
 
         val message = MoveMessage(direction)
 
@@ -239,7 +232,7 @@ class NetworkService(private val root: RootService) : AbstractRefreshingService(
         val game = checkNotNull(root.currentGame) { "No game is currently running." }
         val currentPlayer = game.currentState.currentPlayer
 
-        val newPosition = networkHelper.convertDirectionToPosition(currentPlayer.position, message.direction)
+        val newPosition = root.networkHelper.convertDirectionToPosition(currentPlayer.position, message.direction)
 
         root.playerActionService.moveTo(newPosition)
     }

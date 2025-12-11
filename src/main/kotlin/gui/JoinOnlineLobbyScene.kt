@@ -4,7 +4,7 @@ import gui.types.LobbyMode
 import service.FileService
 import service.Refreshable
 import service.RootService
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.components.StaticComponentView
 import tools.aqua.bgw.components.layoutviews.Pane
 import tools.aqua.bgw.components.uicomponents.Button

@@ -16,7 +16,7 @@ import kotlin.math.*
  * This class contains non-network methods that are only relevant for the network implementation, such as
  * converting between messages and entity-layer representations.
  */
-class NetworkHelper {
+class NetworkHelperService {
     /**
      * Creates an [InitMessage] using a given [CollapsiGame]. Assumes that the game was just started.
      *

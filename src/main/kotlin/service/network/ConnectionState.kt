@@ -1,6 +1,4 @@
-package service.network.types
-
-import service.network.*
+package service.network
 
 /**
  * Enum to distinguish the different states that a client can be in, in particular

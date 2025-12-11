@@ -2,7 +2,7 @@ package gui
 
 import entity.*
 import service.*
-import service.network.types.ConnectionState
+import service.network.ConnectionState
 import tools.aqua.bgw.dialog.DialogType
 
 /**
@@ -10,7 +10,6 @@ import tools.aqua.bgw.dialog.DialogType
  *
  * This can be useful for debugging or for understanding the game state without the need for a GUI.
  */
-@Suppress("TooManyFunctions")
 class ConsoleRefreshable(private val root: RootService) : Refreshable {
     override fun refreshAfterStartNewGame() {
         println("[Refresh] Start New Game:")

@@ -10,7 +10,7 @@ import service.*
  *
  * @param root The [RootService] that provides access to the overall game state and the other services.
  */
-class BotHelper(private val root: RootService) {
+class BotHelperService(private val root: RootService) {
     /**
      * Returns a list of all [Path]s the current player could take.
      *
