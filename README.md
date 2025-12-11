@@ -28,12 +28,14 @@ We recommend using [Azul Zulu OpenJDK](https://www.azul.com/downloads/?version=j
 
 ## Rules
 
-Collapsi is a game for 2-4 players. Players take turns moving their pawns on the board
+Collapsi is an abstract strategy maze game. Players take turns moving their pawns on the board
 with fewer and fewer tiles to stand on. If a player can't make any legal moves, the tile below
-them collapses and they're out of the game. The last player standing wins.
+them collapses, and they're out of the game. The last player standing wins.
 
-Watch the [Mark's video on YouTube](https://www.youtube.com/watch?v=6vYEHdjlw3g) for a thorough introduction
+Watch [Mark's video on YouTube](https://www.youtube.com/watch?v=6vYEHdjlw3g) for a thorough introduction
 of the game and its rules.
+
+This implementation realizes variants of Collapsi with 2-4 players and different board sizes.
 
 ## Features
 
