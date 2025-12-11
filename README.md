@@ -35,7 +35,7 @@ them collapses, and they're out of the game. The last player standing wins.
 Watch [Mark's video on YouTube](https://www.youtube.com/watch?v=6vYEHdjlw3g) for a thorough introduction
 of the game and its rules.
 
-This implementation realizes variants of Collapsi with 2-4 players and different board sizes.
+This implementation realizes variants of Collapsi with more players and different board sizes.
 
 ## Features
 
