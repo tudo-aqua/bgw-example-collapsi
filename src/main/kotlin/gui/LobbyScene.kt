@@ -12,6 +12,7 @@ import tools.aqua.bgw.visual.*
 import service.network.ConnectionState
 import tools.aqua.bgw.components.uicomponents.Label
 import tools.aqua.bgw.dialog.DialogType
+import kotlin.math.max
 
 /**
  * Scene for setting up the players and the game rules.
@@ -224,6 +225,11 @@ class LobbyScene(
         playerTypes.removeLast()
         botDifficulties.removeLast()
 
+        // Auto select smaller board size for convenience.
+        if (boardSize == playerCount + 3) {
+            boardSizeSelection.selectButton(max(playerCount - 2, 0))
+        }
+
         updatePlayerSetupViews()
     }
 
@@ -245,14 +251,14 @@ class LobbyScene(
         playerSetupViews[2].removeButton.isVisible = !networkMode && playerCount == 3
         playerSetupViews[3].removeButton.isVisible = !networkMode && playerCount == 4
 
-        // Auto select bigger board size if necessary.
-        if (boardSize < playerCount + 2) {
-            boardSizeSelection.selectButton(playerCount - 2)
+        // Disable buttons for illegal board sizes and enable the rest.
+        for (i in 0..<3) {
+            boardSizeSelection.setButtonEnabled(i, i >= playerCount - 2)
         }
 
-        // Disable buttons for illegal board sizes.
-        for (i in 0..<3) {
-            boardSizeSelection.buttons[i].isDisabled = i < playerCount - 2
+        // Auto select bigger board size if necessary.
+        if (boardSize < playerCount + 2) {
+            boardSizeSelection.selectButton(max(playerCount - 2, 0))
         }
     }
 
@@ -318,16 +324,6 @@ class LobbyScene(
     private fun tryStartGame() {
         if (playerCount < 2) {
             app.showDialog("Too few players", "Collapsi requires at least 2 players.", DialogType.ERROR)
-            return
-        }
-
-        if (boardSize < playerCount + 2) {
-            app.showDialog(
-                "Board too small",
-                "Player amount of $playerCount requires a board of size ${playerCount + 2}x${playerCount + 2} " +
-                        "or bigger. Please select a bigger board size.",
-                DialogType.ERROR
-            )
             return
         }
 

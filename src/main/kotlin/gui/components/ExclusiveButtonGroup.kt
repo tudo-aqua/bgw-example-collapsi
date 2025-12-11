@@ -38,7 +38,7 @@ class ExclusiveButtonGroup(
     ) {
 
     /**
-     * Amount of buttons that are shown.
+     * Number of buttons that are shown.
      */
     val buttonCount get() = imagePaths.size
 
@@ -71,6 +71,8 @@ class ExclusiveButtonGroup(
     var selectedIndex = initialSelectedIndex
         private set
 
+    val disabledButtons = mutableSetOf<Int>()
+
     /**
      * A custom function that is called whenever the selection changes.
      *
@@ -96,16 +98,47 @@ class ExclusiveButtonGroup(
      * @param index The index of the button to select.
      */
     fun selectButton(index: Int) {
+        require(index in buttons.indices) { "Index for selected button out of range." }
+
         selectedIndex = index
 
+        updateButtons()
+
+        onSelectionChanged?.invoke(selectedIndex)
+    }
+
+    /**
+     * Disables or enables the given button and updates the images.
+     *
+     * @param index The index of the button to disable/enable.
+     * @param enabled Whether the button should be enabled or disabled.
+     */
+    fun setButtonEnabled(index: Int, enabled: Boolean) {
+        val button = buttons[index]
+
+        button.isDisabled = !enabled
+
+        if (enabled) {
+            disabledButtons.remove(index)
+        } else {
+            disabledButtons.add(index)
+        }
+
+        updateButtons()
+    }
+
+    /**
+     * Updates the images for the buttons.
+     */
+    fun updateButtons() {
         for ((i, button) in buttons.withIndex()) {
             if (i == selectedIndex) {
                 button.visual = ImageVisual("${imagePaths[i]}_Selected.png")
+            } else if (disabledButtons.contains(i)) {
+                button.visual = ImageVisual("${imagePaths[i]}_Disabled.png")
             } else {
                 button.visual = ImageVisual("${imagePaths[i]}_Deselected.png")
             }
         }
-
-        onSelectionChanged?.invoke(selectedIndex)
     }
 }
