@@ -46,7 +46,7 @@ class PlayerSetupView(
         posY = 60,
         width = pawnSize,
         height = pawnSize,
-        visual = ImageVisual("GameScene/Pawn_P${playerId + 1}.png")
+        visual = ImageVisual("gameScene/Pawn_P${playerId + 1}.png")
     )
 
     private val removeButtonSize = 50
@@ -144,7 +144,7 @@ class PlayerSetupView(
         this.isIncluded = isIncluded
 
         visual = if (isIncluded) {
-            ImageVisual("LobbyScene/PlayerGradient_P${playerId + 1}.png")
+            ImageVisual("lobbyScene/PlayerGradient_P${playerId + 1}.png")
         } else {
             Visual.EMPTY
         }

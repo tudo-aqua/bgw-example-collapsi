@@ -66,7 +66,7 @@ class GameScene(
             TokenView(
                 width = 64,
                 height = 64,
-                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+                visual = ImageVisual("gameScene/Pawn_P${index + 1}.png")
             ).apply {
                 isDisabled = true // To prevent pawns from blocking clicks to the tiles below.
             }
@@ -87,7 +87,7 @@ class GameScene(
                 posY = -200,
                 width = 64,
                 height = 64,
-                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+                visual = ImageVisual("gameScene/Pawn_P${index + 1}.png")
             )
         )
     }
@@ -146,7 +146,7 @@ class GameScene(
             TokenView(
                 width = 64,
                 height = 64,
-                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+                visual = ImageVisual("gameScene/Pawn_P${index + 1}.png")
             )
         )
     }
@@ -208,7 +208,7 @@ class GameScene(
             height = 200,
             posX = 1920,
             posY = 100 + index * 170,
-            visual = ImageVisual("GameScene/PlayerRanking_${index + 1}.png")
+            visual = ImageVisual("gameScene/PlayerRanking_${index + 1}.png")
         )
     }
 
@@ -225,7 +225,7 @@ class GameScene(
             TokenView(
                 width = 64,
                 height = 64,
-                visual = ImageVisual("GameScene/Pawn_P${index + 1}.png")
+                visual = ImageVisual("gameScene/Pawn_P${index + 1}.png")
             )
         )
     }
@@ -377,7 +377,7 @@ class GameScene(
         TokenView(
             width = 25 * (index + 1),
             height = 50,
-            visual = ImageVisual("GameScene/Button_Speed_${index + 1}.png")
+            visual = ImageVisual("gameScene/Button_Speed_${index + 1}.png")
         ).apply {
             onMouseClicked = {
                 if (root.currentGame != null) {
@@ -743,9 +743,9 @@ class GameScene(
 
         for ((position: Coordinate, tile: Tile) in currentState.board) {
             val frontVisual: ImageVisual = if (tile.startTileColor == null) {
-                ImageVisual("GameScene/Tile_${tile.movesToMake}.png")
+                ImageVisual("gameScene/Tile_${tile.movesToMake}.png")
             } else {
-                ImageVisual("GameScene/Tile_P${tile.startTileColor.ordinal + 1}.png")
+                ImageVisual("gameScene/Tile_P${tile.startTileColor.ordinal + 1}.png")
             }
 
             val cardView = CardView(
