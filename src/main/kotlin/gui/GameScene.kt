@@ -520,11 +520,7 @@ class GameScene(
                         collapsedTileView.frontVisual,
                         collapsedTileView.backVisual,
                         moveAnimationDuration
-                    ).apply {
-                        onFinished = {
-                            collapsedTileView.showBack()
-                        }
-                    }
+                    )
                 )
             }
 
@@ -540,7 +536,8 @@ class GameScene(
                 getPlayerPosX(from, sidestepFrom),
                 stepToken.actualPosY,
                 getPlayerPosY(from, sidestepFrom),
-                moveAnimationDuration
+                moveAnimationDuration,
+                persist = false
             ).apply {
                 onFinished = {
                     stepToken.offset(
@@ -579,11 +576,7 @@ class GameScene(
                 activePlayerArrow.actualPosY,
                 activePlayerArrow.actualPosY,
                 (250 * delayMultiplier).roundToInt()
-            ).apply {
-                onFinished = {
-                    activePlayerArrow.posX = currentLabel.actualPosX - 10
-                }
-            }
+            )
         )
 
         app.playSound(playerChangeSfx)
@@ -644,11 +637,7 @@ class GameScene(
                 backToMenuButtonPane.posY,
                 backToMenuButtonPane.posY,
                 (500 * delayMultiplier).roundToInt()
-            ).apply {
-                onFinished = {
-                    backToMenuButtonPane.posX = 1550.0
-                }
-            }
+            )
         )
 
         showPlayerRank(winner, 1)
@@ -920,30 +909,11 @@ class GameScene(
         for ((position, tile) in currentState.board) {
             val view = tileViews.forward(position)
 
-            // Simply "view.showBack()" would be better, but a bug in BGW is preventing this.
             if (tile.collapsed && view.visual != view.backVisual)
-                playAnimation(
-                    FlipAnimation(
-                        view,
-                        view.frontVisual,
-                        view.backVisual,
-                        0
-                    ).apply {
-                        onFinished = { view.showBack() }
-                    }
-                )
+                view.showBack()
 
             if (!tile.collapsed && view.visual != view.frontVisual)
-                playAnimation(
-                    FlipAnimation(
-                        view,
-                        view.backVisual,
-                        view.frontVisual,
-                        0
-                    ).apply {
-                        onFinished = { view.showFront() }
-                    }
-                )
+                view.showFront()
         }
     }
 
@@ -1050,11 +1020,7 @@ class GameScene(
                 activePlayerArrow.posY,
                 activePlayerArrow.posY,
                 100
-            ).apply {
-                onFinished = {
-                    activeSpeedArrow.posX = toX
-                }
-            }
+            )
         )
 
         // Adjust simulation speed.
@@ -1130,7 +1096,8 @@ class GameScene(
                     duplicateToX,
                     getPlayerPosY(from, sidestepFrom),
                     duplicateToY,
-                    moveAnimationDuration
+                    moveAnimationDuration,
+                    persist = false
                 ).apply {
                     onFinished = {
                         currentPlayerDuplicatePawn.posX = -200.0
@@ -1151,12 +1118,8 @@ class GameScene(
                 mainFromY,
                 getPlayerPosY(to, sidestepTo),
                 moveAnimationDuration
-            ).apply {
-                onFinished = {
-                    currentPlayerPawn.posX = getPlayerPosX(to, sidestepTo)
-                    currentPlayerPawn.posY = getPlayerPosY(to, sidestepTo)
-                }
-            })
+            )
+        )
     }
 
     /**
@@ -1239,13 +1202,7 @@ class GameScene(
                 rankPane.posY,
                 rankPane.posY,
                 (500 * delayMultiplier).roundToInt()
-            ).apply {
-                onFinished = {
-                    rankPane.apply {
-                        posX -= 300
-                    }
-                }
-            }
+            )
         )
     }
 
