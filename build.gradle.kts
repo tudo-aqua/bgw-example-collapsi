@@ -1,13 +1,13 @@
-import edu.udo.cs.sopra.util.addFileToDistribution
-import edu.udo.cs.sopra.util.sonatypeSnapshots
-import edu.udo.cs.sopra.util.sopraPackageRegistry
 import org.gradle.kotlin.dsl.application
 
 plugins {
     kotlin("jvm") version "2.2.10"
     application
-    id("edu.udo.cs.sopra") version "1.0.3"
     kotlin("plugin.serialization") version "2.2.10"
+    id("org.jetbrains.dokka") version "2.2.0"
+    id("dev.detekt") version "2.0.0-alpha.2"
+    id("org.jetbrains.kotlinx.kover") version "0.9.8"
+
 }
 
 group = "edu.udo.cs.sopra"
@@ -26,8 +26,6 @@ application {
 
 repositories {
     mavenCentral()
-    sonatypeSnapshots()
-    sopraPackageRegistry()
 }
 
 dependencies {
@@ -48,18 +46,55 @@ dependencies {
     implementation("com.googlecode.soundlibs:jorbis:0.0.17.4")
 }
 
-/* This is how you can add the HowToPlay.pdf to the distribution zip file */
-addFileToDistribution(file("HowToPlay.pdf"))
-
-/* This is how you can ignore additional classes from test coverage */
-/* All classes in gui, entity and service.bot package are already excluded. */
-
-/* To ignore a class Foo in the package foo.bar.baz you would use the following line */
-// this.ignoreClassesInCoverageReport("foo.bar.baz.Foo")
-
-/* To ignore all classes in the foo.bar.baz package use a wildcard like this */
-// this.ignoreClassesInCoverageReport("foo.bar.baz.*")
-
 tasks.clean {
     delete.add("public")
 }
+
+tasks.distZip {
+    archiveFileName.set("distribution.zip")
+    destinationDirectory.set(layout.projectDirectory.dir("public"))
+}
+
+tasks.test {
+    useJUnitPlatform()
+    reports.html.outputLocation.set(layout.projectDirectory.dir("public/test"))
+    finalizedBy(tasks.koverHtmlReport)
+    ignoreFailures = true
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                classes("gui.*", "entity.*", "*MainKt*", "service.bot.*")
+            }
+        }
+
+        total {
+            xml {
+                xmlFile.set(file("public/coverage/report.xml"))
+            }
+            html {
+                htmlDir.set(layout.projectDirectory.dir("public/coverage"))
+            }
+        }
+    }
+}
+
+detekt {
+    toolVersion = "2.0.0-alpha.2"
+    config.from("detektConfig.yml")
+}
+
+tasks.detektMain {
+    reports.html.outputLocation.set(file("public/detekt/main.html"))
+}
+
+tasks.detektTest {
+    reports.html.outputLocation.set(file("public/detekt/test.html"))
+}
+
+tasks.dokkaHtml.configure {
+    outputDirectory.set(projectDir.resolve("public/dokka"))
+}
+

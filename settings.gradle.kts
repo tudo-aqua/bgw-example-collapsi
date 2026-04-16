@@ -1,16 +1,6 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven {
-            url = uri(providers.gradleProperty("sopra-gitlab.package-registry.url").get())
-            credentials(HttpHeaderCredentials::class.java) {
-                name = "Private-Token"
-                value = providers.gradleProperty("sopra-gitlab.package-registry.token").get()
-            }
-            authentication {
-                create("header", HttpHeaderAuthentication::class.java)
-            }
-        }
     }
 }
 
